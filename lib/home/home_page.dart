@@ -230,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
-                                        const cDivider(
+                                        const CDivider(
                                           direction: Axis.vertical,
                                           size: 120,
                                           marginH: 20,
@@ -375,7 +375,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
-                                        const cDivider(
+                                        const CDivider(
                                           direction: Axis.vertical,
                                           size: 120,
                                           marginH: 20,
@@ -727,7 +727,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
-                                        const cDivider(
+                                        const CDivider(
                                           direction: Axis.vertical,
                                           size: 120,
                                           marginH: 20,

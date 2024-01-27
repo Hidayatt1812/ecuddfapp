@@ -1,7 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
-class cDivider extends StatelessWidget {
-  const cDivider(
+class CDivider extends StatelessWidget {
+  const CDivider(
       {super.key,
       required this.direction,
       this.marginV,
