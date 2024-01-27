@@ -2,7 +2,11 @@ import 'dart:io';
 import 'package:ddfapp/home/home_page.dart';
 import 'package:ddfapp/settings/settings_page.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
+
+import 'core/services/router.dart';
+import 'src/dashboard/presentation/providers/dashboard_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,14 +26,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Build base for the application based on Fluent UI Design System
-    return FluentApp(
-      theme: FluentThemeData(
-        fontFamily: "Segoe-UI",
-        accentColor: Colors.teal,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => DashboardController()),
+      ],
+      child: FluentApp(
+        theme: FluentThemeData(
+          fontFamily: "Segoe-UI",
+          accentColor: Colors.teal,
+        ),
+        title: 'ECU DDF',
+        debugShowCheckedModeBanner: false,
+        // home: const MyHomePage(
+        //   title: 'Dual-Diesel Fuel ECU',
+        // ),
+        onGenerateRoute: (settings) => generateRoute(settings),
       ),
-      title: 'ECU DDF',
-      debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: 'Dual-Diesel Fuel ECU'),
     );
   }
 }

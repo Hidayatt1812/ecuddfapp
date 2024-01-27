@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import '../core/res/colours.dart';
 import '../widgets/text_input.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -15,6 +16,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      color: Colours.primaryColour,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

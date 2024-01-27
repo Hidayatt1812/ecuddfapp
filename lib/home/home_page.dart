@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:ddfapp/core/res/colours.dart';
 import 'package:ddfapp/home/home_controller.dart';
 import 'package:ddfapp/home/upload_controller.dart';
 import 'package:ddfapp/widgets/text_input.dart';
@@ -119,6 +120,7 @@ class _HomePageState extends State<HomePage> {
 
     return Container(
       padding: const EdgeInsets.all(20),
+      color: Colours.primaryColour,
       child: Column(
         children: [
           Expanded(
