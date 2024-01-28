@@ -1241,8 +1241,6 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       Expanded(
-                        // width: 100,
-                        // height: 200,
                         child: Row(children: [
                           RotatedBox(
                             quarterTurns: 3,

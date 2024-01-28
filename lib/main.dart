@@ -5,11 +5,13 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
 
+import 'core/services/injection_container.dart';
 import 'core/services/router.dart';
 import 'src/dashboard/presentation/providers/dashboard_controller.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await init();
 
   // check for platform / operating system used
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {

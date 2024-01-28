@@ -1,6 +1,6 @@
-import 'package:ddfapp/home/home_page.dart';
 import 'package:ddfapp/settings/settings_page.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
+import 'package:ddfapp/src/home/presentation/views/home_screen.dart';
 import 'package:ddfapp/src/settings/presentation/bloc/settings_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +30,7 @@ class DashboardController extends ChangeNotifier {
                 TabItem(
                   child: BlocProvider(
                     create: (_) => sl<HomeBloc>(),
-                    child: const HomePage(),
+                    child: const HomeScreen(),
                   ),
                 ),
               ),
