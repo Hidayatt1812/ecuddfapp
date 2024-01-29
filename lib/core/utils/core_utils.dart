@@ -80,4 +80,8 @@ class CoreUtils {
     }
     return true;
   }
+
+  static dynamic intOrDouble(double value) {
+    return (value % 1 == 0) ? value.toInt() : value.toStringAsFixed(2);
+  }
 }

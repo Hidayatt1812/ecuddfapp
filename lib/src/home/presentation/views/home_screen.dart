@@ -1,4 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:ddfapp/src/home/presentation/refactors/home_cartesius.dart';
+import 'package:ddfapp/src/home/presentation/refactors/home_menu.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+// import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/res/colours.dart';
@@ -32,12 +35,16 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 // height: 750,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: 1060,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [],
+                        children: [
+                          HomeMenu(),
+                          HomeCartesius(),
+                        ],
                       ),
                     ),
                     // const SizedBox(
