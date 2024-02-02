@@ -1,3 +1,4 @@
+import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,4 +23,6 @@ extension ContextExtensions on BuildContext {
   void push(Widget page) => tabNavigator.push(TabItem(child: page));
 
   DashboardController get dashboardController => read<DashboardController>();
+
+  CartesiusProvider get cartesiusProvider => read<CartesiusProvider>();
 }

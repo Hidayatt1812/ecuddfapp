@@ -26,13 +26,17 @@ class _HomeScreenState extends State<HomeScreen> {
         if (state is HomeError) {
           CoreUtils.showSnackBar(context, state.message);
         } else if (state is HomeUpdated) {
-          print(state.data.toString());
-          if (state.data is TPS) {
-            context.read<CartesiusProvider>().initTps(state.data);
-          } else if (state.data is RPM) {
-            context.read<CartesiusProvider>().initRpm(state.data);
+          if (state.data is List<TPS>) {
+            context.read<CartesiusProvider>().initTpss(state.data);
+          } else if (state.data is List<RPM>) {
+            context.read<CartesiusProvider>().initRpms(state.data);
           }
-          CoreUtils.showSnackBar(context, state.data.toString(),
+          final String message = state.data is List<TPS>
+              ? 'TPS updated'
+              : state.data is List<RPM>
+                  ? 'RPM updated'
+                  : 'Data updated';
+          CoreUtils.showSnackBar(context, message,
               severity: InfoBarSeverity.success);
         }
       },

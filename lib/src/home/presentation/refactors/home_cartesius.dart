@@ -28,11 +28,11 @@ class _HomeCartesiusState extends State<HomeCartesius> {
     // int yAxis = 20;
     // double yInterval = (yMaxAxis - yMinAxis) / (yAxis - 1);
 
-    // List<int> list =
-    //     List.generate(xAxis * yAxis, (index) => Random().nextInt(100) + 1);
-
     return Consumer<CartesiusProvider>(
       builder: (_, cartesiusProvider, __) {
+        List<int> list = List.generate(
+            cartesiusProvider.rpms.length * cartesiusProvider.tpss.length,
+            (index) => Random().nextInt(100) + 1);
         return Container(
           margin: const EdgeInsets.only(top: 20),
           padding: const EdgeInsets.all(10),
@@ -71,13 +71,7 @@ class _HomeCartesiusState extends State<HomeCartesius> {
                           child: CartesiusHeader(
                             title: 'RPM',
                             size: Size(size, parentHeight - size),
-                            values: (List.generate(
-                                    cartesiusProvider.rpm.steps,
-                                    (index) =>
-                                        cartesiusProvider.rpm.minValue +
-                                        index * cartesiusProvider.rpm.interval))
-                                .reversed
-                                .toList(),
+                            values: cartesiusProvider.rpms,
                             direction: Axis.vertical,
                           )),
                     ],
@@ -89,12 +83,7 @@ class _HomeCartesiusState extends State<HomeCartesius> {
                         child: CartesiusHeader(
                           title: 'THROTTLE (mV)',
                           size: Size(parentWidth - size, size),
-                          values: List.generate(
-                            cartesiusProvider.tps.steps,
-                            (index) =>
-                                cartesiusProvider.tps.minValue +
-                                index * cartesiusProvider.tps.interval,
-                          ),
+                          values: cartesiusProvider.tpss,
                           direction: Axis.horizontal,
                         ),
                       ),
@@ -102,20 +91,19 @@ class _HomeCartesiusState extends State<HomeCartesius> {
                         size: Size(parentWidth - size, parentHeight - size),
                         child: Column(
                           children: [
-                            for (double j = cartesiusProvider.rpm.maxValue;
-                                j >= cartesiusProvider.rpm.minValue;
-                                j -= cartesiusProvider.rpm.interval)
+                            for (int j = cartesiusProvider.rpms.length - 1;
+                                j >= 0;
+                                j--)
                               Row(
                                 children: [
-                                  for (double i =
-                                          cartesiusProvider.tps.minValue;
-                                      i <= cartesiusProvider.tps.maxValue;
-                                      i += cartesiusProvider.tps.interval)
+                                  for (int i = 0;
+                                      i < cartesiusProvider.tpss.length;
+                                      i++)
                                     SizedBox(
                                       width: (parentWidth - size) /
-                                          cartesiusProvider.tps.steps,
+                                          cartesiusProvider.tpss.length,
                                       height: (parentHeight - size) /
-                                          cartesiusProvider.rpm.steps,
+                                          cartesiusProvider.rpms.length,
                                       child: Card(
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -127,10 +115,20 @@ class _HomeCartesiusState extends State<HomeCartesius> {
                                         surfaceTintColor: Colours.primaryColour,
                                         child: InkWell(
                                           onTap: () {
-                                            // debugPrint(
-                                            //     'index: ${(j - 1) * xAxis + (i - 1)}');
-                                            // debugPrint(
-                                            //     'value: ${list[(j - 1) * xAxis + (i - 1)]}');
+                                            debugPrint(
+                                                'index: ${cartesiusProvider.timings[j * 10 + i].id}');
+                                            debugPrint(
+                                                'TPSValue: ${cartesiusProvider.timings[j * 10 + i].tpsValue}');
+                                            debugPrint(
+                                                'minTPSValue: ${cartesiusProvider.timings[j * 10 + i].mintpsValue}');
+                                            debugPrint(
+                                                'maxTPSValue: ${cartesiusProvider.timings[j * 10 + i].maxtpsValue}');
+                                            debugPrint(
+                                                'RPMValue: ${cartesiusProvider.timings[j * 10 + i].rpmValue}');
+                                            debugPrint(
+                                                'minRPMValue: ${cartesiusProvider.timings[j * 10 + i].minrpmValue}');
+                                            debugPrint(
+                                                'maxRPMValue: ${cartesiusProvider.timings[j * 10 + i].maxrpmValue}');
                                           },
                                           hoverColor: Colours.secondaryColour,
                                           hoverDuration:
@@ -143,11 +141,10 @@ class _HomeCartesiusState extends State<HomeCartesius> {
                                                 width: 0.5,
                                               ),
                                             ),
-                                            child: const Center(
+                                            child: Center(
                                               child: Text(
-                                                // '${list[(j - 1) * xAxis + (i - 1)]}',
-                                                '1',
-                                                style: TextStyle(
+                                                '${cartesiusProvider.timings[j * 10 + i].value}',
+                                                style: const TextStyle(
                                                   fontFamily: Fonts.segoe,
                                                   fontSize: 10,
                                                   color:

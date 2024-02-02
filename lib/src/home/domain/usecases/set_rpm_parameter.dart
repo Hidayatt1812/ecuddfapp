@@ -5,13 +5,14 @@ import '../../../../core/utils/typedef.dart';
 import '../entities/rpm.dart';
 import '../repository/home_repository.dart';
 
-class SetRPMParameter implements UsecaseWithParams<RPM, SetRPMParameterParams> {
+class SetRPMParameter
+    implements UsecaseWithParams<List<RPM>, SetRPMParameterParams> {
   const SetRPMParameter(this._repository);
 
   final HomeRepository _repository;
 
   @override
-  ResultFuture<RPM> call(SetRPMParameterParams params) =>
+  ResultFuture<List<RPM>> call(SetRPMParameterParams params) =>
       _repository.setRPMParameter(
         minValue: params.minValue,
         maxValue: params.maxValue,

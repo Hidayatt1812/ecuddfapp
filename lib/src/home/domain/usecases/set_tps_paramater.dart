@@ -5,13 +5,14 @@ import '../../../../core/utils/typedef.dart';
 import '../entities/tps.dart';
 import '../repository/home_repository.dart';
 
-class SetTPSParameter implements UsecaseWithParams<TPS, SetTPSParameterParams> {
+class SetTPSParameter
+    implements UsecaseWithParams<List<TPS>, SetTPSParameterParams> {
   const SetTPSParameter(this._repository);
 
   final HomeRepository _repository;
 
   @override
-  ResultFuture<TPS> call(SetTPSParameterParams params) =>
+  ResultFuture<List<TPS>> call(SetTPSParameterParams params) =>
       _repository.setTPSParameter(
         minValue: params.minValue,
         maxValue: params.maxValue,

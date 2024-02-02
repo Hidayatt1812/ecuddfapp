@@ -37,7 +37,7 @@ abstract class HomeRepository {
     required double value,
   });
 
-  ResultFuture<RPM> setRPMParameter({
+  ResultFuture<List<RPM>> setRPMParameter({
     required double minValue,
     required double maxValue,
     required int steps,
@@ -54,7 +54,7 @@ abstract class HomeRepository {
     required double value,
   });
 
-  ResultFuture<TPS> setTPSParameter({
+  ResultFuture<List<TPS>> setTPSParameter({
     required double minValue,
     required double maxValue,
     required int steps,

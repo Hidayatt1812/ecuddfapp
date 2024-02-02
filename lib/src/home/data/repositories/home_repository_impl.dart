@@ -101,21 +101,26 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  ResultFuture<RPM> setRPMParameter({
+  ResultFuture<List<RPM>> setRPMParameter({
     required double minValue,
     required double maxValue,
     required int steps,
   }) async {
     try {
       double interval = (maxValue - minValue) / (steps - 1);
-      return Right(RPM(
-        id: 0,
-        minValue: minValue,
-        maxValue: maxValue,
-        interval: interval,
-        steps: steps,
-        value: 0,
-      ));
+      return Right(
+        List<RPM>.generate(
+          steps,
+          (index) => RPM(
+            id: index,
+            isFirst: index == 0,
+            isLast: index == steps - 1,
+            value: index * interval,
+            prevValue: index == 0 ? null : (index - 1) * interval,
+            nextValue: index == steps - 1 ? null : (index + 1) * interval,
+          ),
+        ),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
     }
@@ -134,21 +139,26 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  ResultFuture<TPS> setTPSParameter({
+  ResultFuture<List<TPS>> setTPSParameter({
     required double minValue,
     required double maxValue,
     required int steps,
   }) async {
     try {
       double interval = (maxValue - minValue) / (steps - 1);
-      return Right(TPS(
-        id: 0,
-        minValue: minValue,
-        maxValue: maxValue,
-        interval: interval,
-        steps: steps,
-        value: 0,
-      ));
+      return Right(
+        List<TPS>.generate(
+          steps,
+          (index) => TPS(
+            id: index,
+            isFirst: index == 0,
+            isLast: index == steps - 1,
+            value: index * interval,
+            prevValue: index == 0 ? null : (index - 1) * interval,
+            nextValue: index == steps - 1 ? null : (index + 1) * interval,
+          ),
+        ),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
     }
