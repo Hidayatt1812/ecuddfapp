@@ -1,6 +1,8 @@
 import 'package:ddfapp/core/common/widgets/main_divider.dart';
+import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:ddfapp/src/home/presentation/widgets/menu_container.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/common/widgets/main_text_input.dart';
 
@@ -12,6 +14,15 @@ class HomeMenu extends StatefulWidget {
 }
 
 class _HomeMenuState extends State<HomeMenu> {
+  TextEditingController minRPMController = TextEditingController();
+  TextEditingController maxRPMController = TextEditingController();
+  TextEditingController stepRPMController = TextEditingController();
+  TextEditingController minTPSController = TextEditingController();
+  TextEditingController maxTPSController = TextEditingController();
+  TextEditingController stepTPSController = TextEditingController();
+  TextEditingController minINJController = TextEditingController();
+  TextEditingController maxINJController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -154,26 +165,36 @@ class _HomeMenuState extends State<HomeMenu> {
                           const Text(
                             "TPS > ",
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 35,
                             child: MainTextInput(
-                              boxDecoration: BoxDecoration(
+                              boxDecoration: const BoxDecoration(
                                   shape: BoxShape.rectangle,
                                   color: Color.fromARGB(255, 249, 249, 249)),
                               disabled: false,
                               placholder: "min",
+                              controller: minTPSController,
                             ),
                           ),
-                          const Text(
-                            "--",
-                          ),
-                          const SizedBox(
+                          SizedBox(
                             height: 35,
                             child: MainTextInput(
-                              boxDecoration: BoxDecoration(
+                              boxDecoration: const BoxDecoration(
+                                  shape: BoxShape.rectangle,
                                   color: Color.fromARGB(255, 249, 249, 249)),
                               disabled: false,
                               placholder: "max",
+                              controller: maxTPSController,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 35,
+                            child: MainTextInput(
+                              boxDecoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 249, 249, 249)),
+                              disabled: false,
+                              placholder: "step",
+                              controller: stepTPSController,
                             ),
                           ),
                           const SizedBox(
@@ -183,7 +204,18 @@ class _HomeMenuState extends State<HomeMenu> {
                             child: const Text(
                               "OK",
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              context.read<HomeBloc>().add(
+                                    SetTPSParameterEvent(
+                                      minValue:
+                                          double.parse(minTPSController.text),
+                                      maxValue:
+                                          double.parse(maxTPSController.text),
+                                      steps: int.parse(stepTPSController.text),
+                                    ),
+                                  );
+                            },
                           ),
                         ],
                       ),
@@ -192,25 +224,34 @@ class _HomeMenuState extends State<HomeMenu> {
                           const Text(
                             "RPM > ",
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 35,
                             child: MainTextInput(
-                              boxDecoration: BoxDecoration(
+                              boxDecoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 249, 249, 249)),
                               disabled: false,
                               placholder: "min",
+                              controller: minRPMController,
                             ),
                           ),
-                          const Text(
-                            "--",
-                          ),
-                          const SizedBox(
+                          SizedBox(
                             height: 35,
                             child: MainTextInput(
-                              boxDecoration: BoxDecoration(
+                              boxDecoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 249, 249, 249)),
                               disabled: false,
                               placholder: "max",
+                              controller: maxRPMController,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 35,
+                            child: MainTextInput(
+                              boxDecoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 249, 249, 249)),
+                              disabled: false,
+                              placholder: "step",
+                              controller: stepRPMController,
                             ),
                           ),
                           const SizedBox(
@@ -220,7 +261,18 @@ class _HomeMenuState extends State<HomeMenu> {
                             child: const Text(
                               "OK",
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              context.read<HomeBloc>().add(
+                                    SetRPMParameterEvent(
+                                      minValue:
+                                          double.parse(minRPMController.text),
+                                      maxValue:
+                                          double.parse(maxRPMController.text),
+                                      steps: int.parse(stepRPMController.text),
+                                    ),
+                                  );
+                            },
                           ),
                         ],
                       ),
@@ -229,25 +281,24 @@ class _HomeMenuState extends State<HomeMenu> {
                           const Text(
                             "INJ > ",
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 35,
                             child: MainTextInput(
-                              boxDecoration: BoxDecoration(
+                              boxDecoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 249, 249, 249)),
                               disabled: false,
                               placholder: "min",
+                              controller: minINJController,
                             ),
                           ),
-                          const Text(
-                            "--",
-                          ),
-                          const SizedBox(
+                          SizedBox(
                             height: 35,
                             child: MainTextInput(
-                              boxDecoration: BoxDecoration(
+                              boxDecoration: const BoxDecoration(
                                   color: Color.fromARGB(255, 249, 249, 249)),
                               disabled: false,
                               placholder: "max",
+                              controller: maxINJController,
                             ),
                           ),
                           const SizedBox(
@@ -257,7 +308,17 @@ class _HomeMenuState extends State<HomeMenu> {
                             child: const Text(
                               "OK",
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              // context.read<HomeBloc>().add(
+                              //       SetINJParameterEvent(
+                              //         minValue:
+                              //             double.parse(minINJController.text),
+                              //         maxValue:
+                              //             double.parse(maxINJController.text),
+                              //       ),
+                              //     );
+                            },
                           ),
                         ],
                       ),
@@ -268,58 +329,58 @@ class _HomeMenuState extends State<HomeMenu> {
                     marginH: 20,
                     marginV: 20,
                   ),
-                  MenuContainer(
-                    title: 'EDIT',
-                    icon: const Icon(
-                      FluentIcons.app_icon_default_edit,
-                      size: 14,
-                    ),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          ToggleSwitch(
-                            checked: true,
-                            onChanged: (x) {},
-                            content: const Text("TPS"),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      Row(
-                        children: [
-                          ToggleSwitch(
-                            checked: true,
-                            onChanged: (v) {},
-                            content: const Text("RPM"),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      Row(
-                        children: [
-                          ToggleSwitch(
-                            checked: true,
-                            onChanged: (y) {},
-                            content: const Text(
-                              "INJ",
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const MainDivider(
-                    direction: Axis.vertical,
-                    size: 160,
-                    marginH: 20,
-                    marginV: 20,
-                  ),
+                  // MenuContainer(
+                  //   title: 'EDIT',
+                  //   icon: const Icon(
+                  //     FluentIcons.app_icon_default_edit,
+                  //     size: 14,
+                  //   ),
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     Row(
+                  //       children: [
+                  //         ToggleSwitch(
+                  //           checked: true,
+                  //           onChanged: (x) {},
+                  //           content: const Text("TPS"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     const SizedBox(
+                  //       height: 2,
+                  //     ),
+                  //     Row(
+                  //       children: [
+                  //         ToggleSwitch(
+                  //           checked: true,
+                  //           onChanged: (v) {},
+                  //           content: const Text("RPM"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     const SizedBox(
+                  //       height: 2,
+                  //     ),
+                  //     Row(
+                  //       children: [
+                  //         ToggleSwitch(
+                  //           checked: true,
+                  //           onChanged: (y) {},
+                  //           content: const Text(
+                  //             "INJ",
+                  //             textAlign: TextAlign.center,
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ],
+                  // ),
+                  // const MainDivider(
+                  //   direction: Axis.vertical,
+                  //   size: 160,
+                  //   marginH: 20,
+                  //   marginV: 20,
+                  // ),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 30),
                     child: MenuContainer(

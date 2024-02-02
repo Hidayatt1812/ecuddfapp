@@ -6,7 +6,7 @@ class RPMModel extends RPM {
     required super.id,
     required super.minValue,
     required super.maxValue,
-    required super.spaceValue,
+    required super.interval,
     required super.steps,
     required super.value,
   });
@@ -16,7 +16,7 @@ class RPMModel extends RPM {
           id: 0,
           minValue: 0,
           maxValue: 9,
-          spaceValue: 1,
+          interval: 1,
           steps: 10,
           value: 0,
         );
@@ -25,7 +25,7 @@ class RPMModel extends RPM {
     int? id,
     double? minValue,
     double? maxValue,
-    double? spaceValue,
+    double? interval,
     int? steps,
     double? value,
   }) {
@@ -33,7 +33,7 @@ class RPMModel extends RPM {
       id: id ?? this.id,
       minValue: minValue ?? this.minValue,
       maxValue: maxValue ?? this.maxValue,
-      spaceValue: spaceValue ?? this.spaceValue,
+      interval: interval ?? this.interval,
       steps: steps ?? this.steps,
       value: value ?? this.value,
     );
@@ -44,7 +44,7 @@ class RPMModel extends RPM {
           id: map['id'] as int,
           minValue: map['minValue'] as double,
           maxValue: map['maxValue'] as double,
-          spaceValue: map['spaceValue'] as double,
+          interval: map['interval'] as double,
           steps: map['steps'] as int,
           value: map['value'] as double,
         );
@@ -54,7 +54,7 @@ class RPMModel extends RPM {
       'id': id,
       'minValue': minValue,
       'maxValue': maxValue,
-      'spaceValue': spaceValue,
+      'interval': interval,
       'steps': steps,
       'value': value,
     };

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
 import 'package:ddfapp/home/home_page.dart';
 import 'package:ddfapp/settings/settings_page.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => DashboardController()),
+        ChangeNotifierProvider(create: (context) => CartesiusProvider()),
       ],
       child: FluentApp(
         theme: FluentThemeData(

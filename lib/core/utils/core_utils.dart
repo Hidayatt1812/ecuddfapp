@@ -1,35 +1,49 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
-import '../res/colours.dart';
+import 'package:fluent_ui/fluent_ui.dart';
 
 class CoreUtils {
   const CoreUtils._();
 
+  // static void showSnackBar(BuildContext context, String message,
+  //     {Color? foregroundColor, Color? backgroundColor}) {
+  //   ScaffoldMessenger.of(context)
+  //     ..removeCurrentSnackBar()
+  //     ..showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //           message,
+  //           style: TextStyle(
+  //             fontSize: 14,
+  //             color: foregroundColor ?? Colours.secondaryColour,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //         behavior: SnackBarBehavior.floating,
+  //         backgroundColor: backgroundColor ?? Colours.primaryColour,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10),
+  //         ),
+  //         margin: const EdgeInsets.all(10),
+  //       ),
+  //     );
+  // }
+
   static void showSnackBar(BuildContext context, String message,
-      {Color? foregroundColor, Color? backgroundColor}) {
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: TextStyle(
-              fontSize: 14,
-              color: foregroundColor ?? Colours.secondaryColour,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: backgroundColor ?? Colours.primaryColour,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(10),
+      {InfoBarSeverity? severity,
+      Color? foregroundColor,
+      Color? backgroundColor}) async {
+    await displayInfoBar(context, builder: (context, close) {
+      return InfoBar(
+        title: Text(message),
+        action: IconButton(
+          icon: const Icon(FluentIcons.clear),
+          onPressed: close,
         ),
+        severity: severity ?? InfoBarSeverity.warning,
       );
+    });
   }
 
   static String? fileToUriBase64(File? file) {

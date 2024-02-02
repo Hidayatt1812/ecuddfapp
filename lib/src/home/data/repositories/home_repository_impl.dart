@@ -107,7 +107,15 @@ class HomeRepositoryImpl implements HomeRepository {
     required int steps,
   }) async {
     try {
-      return const Right(RPM.empty());
+      double interval = (maxValue - minValue) / (steps - 1);
+      return Right(RPM(
+        id: 0,
+        minValue: minValue,
+        maxValue: maxValue,
+        interval: interval,
+        steps: steps,
+        value: 0,
+      ));
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
     }
@@ -132,7 +140,15 @@ class HomeRepositoryImpl implements HomeRepository {
     required int steps,
   }) async {
     try {
-      return const Right(TPS.empty());
+      double interval = (maxValue - minValue) / (steps - 1);
+      return Right(TPS(
+        id: 0,
+        minValue: minValue,
+        maxValue: maxValue,
+        interval: interval,
+        steps: steps,
+        value: 0,
+      ));
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
     }

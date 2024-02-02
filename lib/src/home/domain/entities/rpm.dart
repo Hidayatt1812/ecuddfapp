@@ -4,7 +4,7 @@ class RPM extends Equatable {
   final int id;
   final double minValue;
   final double maxValue;
-  final double spaceValue;
+  final double interval;
   final int steps;
   final double value;
 
@@ -12,7 +12,7 @@ class RPM extends Equatable {
     required this.id,
     required this.minValue,
     required this.maxValue,
-    required this.spaceValue,
+    required this.interval,
     required this.steps,
     required this.value,
   });
@@ -21,7 +21,7 @@ class RPM extends Equatable {
       : id = 0,
         minValue = 0,
         maxValue = 9,
-        spaceValue = 1,
+        interval = 1,
         steps = 10,
         value = 0;
 
@@ -30,7 +30,7 @@ class RPM extends Equatable {
         id,
         minValue,
         maxValue,
-        spaceValue,
+        interval,
         steps,
         value,
       ];
@@ -38,6 +38,6 @@ class RPM extends Equatable {
   @override
   String toString() {
     return 'RPM{id: $id, minValue: $minValue, maxValue: $maxValue,'
-        'spaceValue: $spaceValue, steps: $steps, value: $value}';
+        'spaceValue: $interval, steps: $steps, value: $value}';
   }
 }

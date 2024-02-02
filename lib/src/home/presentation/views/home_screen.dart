@@ -1,3 +1,4 @@
+import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_cartesius.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_menu.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -6,6 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/res/colours.dart';
 import '../../../../core/utils/core_utils.dart';
+import '../../domain/entities/rpm.dart';
+import '../../domain/entities/tps.dart';
 import '../bloc/home_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,7 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
         if (state is HomeError) {
           CoreUtils.showSnackBar(context, state.message);
         } else if (state is HomeUpdated) {
-          CoreUtils.showSnackBar(context, state.data);
+          print(state.data.toString());
+          if (state.data is TPS) {
+            context.read<CartesiusProvider>().initTps(state.data);
+          } else if (state.data is RPM) {
+            context.read<CartesiusProvider>().initRpm(state.data);
+          }
+          CoreUtils.showSnackBar(context, state.data.toString(),
+              severity: InfoBarSeverity.success);
         }
       },
       builder: (context, state) {

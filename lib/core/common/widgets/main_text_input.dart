@@ -25,7 +25,6 @@ class MainTextInput extends StatelessWidget {
       width: 90,
       height: 40,
       child: TextBox(
-        // controller: TextEditingController.fromValue(value),
         decoration: boxDecoration,
         controller: controller,
         expands: false,
