@@ -21,6 +21,7 @@ class CartesiusProvider extends ChangeNotifier {
   void initRpms(List<RPM> rpms) {
     if (_rpms != rpms) {
       _rpms = rpms;
+      resetTiming();
 
       Future.delayed(Duration.zero, notifyListeners);
     }
@@ -41,16 +42,16 @@ class CartesiusProvider extends ChangeNotifier {
       );
       int j = index;
       for (int i = 0; i < _tpss.length; i++) {
-        _timings[i + j * _rpms.length] = Timing(
-          id: i + j * _rpms.length,
-          tpsValue: _timings[i + j * _rpms.length].tpsValue,
-          mintpsValue: _timings[i + j * _rpms.length].mintpsValue,
-          maxtpsValue: _timings[i + j * _rpms.length].maxtpsValue,
+        _timings[i + j * _tpss.length] = Timing(
+          id: i + j * _tpss.length,
+          tpsValue: _timings[i + j * _tpss.length].tpsValue,
+          mintpsValue: _timings[i + j * _tpss.length].mintpsValue,
+          maxtpsValue: _timings[i + j * _tpss.length].maxtpsValue,
           rpmValue: _rpms[j].value,
           minrpmValue: index == 0 ? value : (prevRpm.value + value) / 2,
           maxrpmValue:
-              index == _rpms.length - 1 ? value : (nextRpm.value + value) / 2,
-          value: 1,
+              index == _tpss.length - 1 ? value : (nextRpm.value + value) / 2,
+          value: _timings[i + j * _tpss.length].value,
         );
       }
       if (index > 0) {
@@ -63,16 +64,16 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: value,
         );
         for (int i = 0; i < _tpss.length; i++) {
-          _timings[i + (j - 1) * _rpms.length] = Timing(
-            id: i + (j - 1) * _rpms.length,
-            tpsValue: _timings[i + (j - 1) * _rpms.length].tpsValue,
-            mintpsValue: _timings[i + (j - 1) * _rpms.length].mintpsValue,
-            maxtpsValue: _timings[i + (j - 1) * _rpms.length].maxtpsValue,
-            rpmValue: _timings[i + (j - 1) * _rpms.length].rpmValue,
-            minrpmValue: _timings[i + (j - 1) * _rpms.length].minrpmValue,
+          _timings[i + (j - 1) * _tpss.length] = Timing(
+            id: i + (j - 1) * _tpss.length,
+            tpsValue: _timings[i + (j - 1) * _tpss.length].tpsValue,
+            mintpsValue: _timings[i + (j - 1) * _tpss.length].mintpsValue,
+            maxtpsValue: _timings[i + (j - 1) * _tpss.length].maxtpsValue,
+            rpmValue: _timings[i + (j - 1) * _tpss.length].rpmValue,
+            minrpmValue: _timings[i + (j - 1) * _tpss.length].minrpmValue,
             maxrpmValue:
-                (_timings[i + (j - 1) * _rpms.length].rpmValue + value) / 2,
-            value: 1,
+                (_timings[i + (j - 1) * _tpss.length].rpmValue + value) / 2,
+            value: _timings[i + (j - 1) * _tpss.length].value,
           );
         }
       }
@@ -86,16 +87,16 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: nextRpm.nextValue,
         );
         for (int i = 0; i < _tpss.length; i++) {
-          _timings[i + (j + 1) * _rpms.length] = Timing(
-            id: i + (j + 1) * _rpms.length,
-            tpsValue: _timings[i + (j + 1) * _rpms.length].tpsValue,
-            mintpsValue: _timings[i + (j + 1) * _rpms.length].mintpsValue,
-            maxtpsValue: _timings[i + (j + 1) * _rpms.length].maxtpsValue,
-            rpmValue: _timings[i + (j + 1) * _rpms.length].rpmValue,
+          _timings[i + (j + 1) * _tpss.length] = Timing(
+            id: i + (j + 1) * _tpss.length,
+            tpsValue: _timings[i + (j + 1) * _tpss.length].tpsValue,
+            mintpsValue: _timings[i + (j + 1) * _tpss.length].mintpsValue,
+            maxtpsValue: _timings[i + (j + 1) * _tpss.length].maxtpsValue,
+            rpmValue: _timings[i + (j + 1) * _tpss.length].rpmValue,
             minrpmValue:
-                (_timings[i + (j + 1) * _rpms.length].rpmValue + value) / 2,
-            maxrpmValue: _timings[i + (j + 1) * _rpms.length].maxrpmValue,
-            value: 1,
+                (_timings[i + (j + 1) * _tpss.length].rpmValue + value) / 2,
+            maxrpmValue: _timings[i + (j + 1) * _tpss.length].maxrpmValue,
+            value: _timings[i + (j + 1) * _tpss.length].value,
           );
         }
       }
@@ -119,6 +120,7 @@ class CartesiusProvider extends ChangeNotifier {
   void initTpss(List<TPS> tpss) {
     if (_tpss != tpss) {
       _tpss = tpss;
+      resetTiming();
       Future.delayed(Duration.zero, notifyListeners);
     }
   }
@@ -138,16 +140,16 @@ class CartesiusProvider extends ChangeNotifier {
       );
       int i = index;
       for (int j = 0; j < _rpms.length; j++) {
-        _timings[i + j * _rpms.length] = Timing(
-          id: i + j * _rpms.length,
+        _timings[i + j * _tpss.length] = Timing(
+          id: i + j * _tpss.length,
           tpsValue: _tpss[i].value,
           mintpsValue: index == 0 ? value : (prevTps.value + value) / 2,
           maxtpsValue:
               index == _tpss.length - 1 ? value : (nextTps.value + value) / 2,
-          rpmValue: _timings[i + j * _rpms.length].rpmValue,
-          minrpmValue: _timings[i + j * _rpms.length].minrpmValue,
-          maxrpmValue: _timings[i + j * _rpms.length].maxrpmValue,
-          value: 1,
+          rpmValue: _timings[i + j * _tpss.length].rpmValue,
+          minrpmValue: _timings[i + j * _tpss.length].minrpmValue,
+          maxrpmValue: _timings[i + j * _tpss.length].maxrpmValue,
+          value: _timings[i + j * _tpss.length].value,
         );
       }
       if (index > 0) {
@@ -160,16 +162,16 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: value,
         );
         for (int j = 0; j < _rpms.length; j++) {
-          _timings[(i + j * _rpms.length) - 1] = Timing(
-            id: (i + j * _rpms.length) - 1,
-            tpsValue: _timings[(i + j * _rpms.length) - 1].tpsValue,
-            mintpsValue: _timings[(i + j * _rpms.length) - 1].mintpsValue,
+          _timings[(i + j * _tpss.length) - 1] = Timing(
+            id: (i + j * _tpss.length) - 1,
+            tpsValue: _timings[(i + j * _tpss.length) - 1].tpsValue,
+            mintpsValue: _timings[(i + j * _tpss.length) - 1].mintpsValue,
             maxtpsValue:
-                (_timings[(i + j * _rpms.length) - 1].tpsValue + value) / 2,
-            rpmValue: _timings[(i + j * _rpms.length) - 1].rpmValue,
-            minrpmValue: _timings[(i + j * _rpms.length) - 1].minrpmValue,
-            maxrpmValue: _timings[(i + j * _rpms.length) - 1].maxrpmValue,
-            value: 1,
+                (_timings[(i + j * _tpss.length) - 1].tpsValue + value) / 2,
+            rpmValue: _timings[(i + j * _tpss.length) - 1].rpmValue,
+            minrpmValue: _timings[(i + j * _tpss.length) - 1].minrpmValue,
+            maxrpmValue: _timings[(i + j * _tpss.length) - 1].maxrpmValue,
+            value: _timings[(i + j * _tpss.length) - 1].value,
           );
         }
       }
@@ -183,16 +185,16 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: nextTps.nextValue,
         );
         for (int j = 0; j < _rpms.length; j++) {
-          _timings[(i + j * _rpms.length) + 1] = Timing(
-            id: (i + j * _rpms.length) + 1,
-            tpsValue: _timings[(i + j * _rpms.length) + 1].tpsValue,
+          _timings[(i + j * _tpss.length) + 1] = Timing(
+            id: (i + j * _tpss.length) + 1,
+            tpsValue: _timings[(i + j * _tpss.length) + 1].tpsValue,
             mintpsValue:
-                (_timings[(i + j * _rpms.length) + 1].tpsValue + value) / 2,
-            maxtpsValue: _timings[(i + j * _rpms.length) + 1].maxtpsValue,
-            rpmValue: _timings[(i + j * _rpms.length) + 1].rpmValue,
-            minrpmValue: _timings[(i + j * _rpms.length) + 1].minrpmValue,
-            maxrpmValue: _timings[(i + j * _rpms.length) + 1].maxrpmValue,
-            value: 1,
+                (_timings[(i + j * _tpss.length) + 1].tpsValue + value) / 2,
+            maxtpsValue: _timings[(i + j * _tpss.length) + 1].maxtpsValue,
+            rpmValue: _timings[(i + j * _tpss.length) + 1].rpmValue,
+            minrpmValue: _timings[(i + j * _tpss.length) + 1].minrpmValue,
+            maxrpmValue: _timings[(i + j * _tpss.length) + 1].maxrpmValue,
+            value: _timings[(i + j * _tpss.length) + 1].value,
           );
         }
       }
@@ -213,7 +215,7 @@ class CartesiusProvider extends ChangeNotifier {
         rpmValue: j.toDouble(),
         minrpmValue: (j > 0) ? ((j - 1) + j) / 2 : 0,
         maxrpmValue: (j < 9) ? (j + (j + 1)) / 2 : 9,
-        value: 1,
+        value: 0,
       );
     },
   );
@@ -225,5 +227,37 @@ class CartesiusProvider extends ChangeNotifier {
       _timings = timings;
       Future.delayed(Duration.zero, notifyListeners);
     }
+  }
+
+  void resetTiming() {
+    print("_tpss.length: ${_tpss.length}");
+    print("_rpms.length: ${_rpms.length}");
+    print("_tpss*rpms: ${_tpss.length * _rpms.length}");
+    _timings = List.generate(
+      _tpss.length * _rpms.length,
+      (index) {
+        int i = index % _tpss.length;
+        int j = index ~/ _tpss.length;
+        return Timing(
+          id: index,
+          tpsValue: _tpss[i].value,
+          mintpsValue: (i > 0)
+              ? (_tpss[i - 1].value + _tpss[i].value) / 2
+              : _tpss[0].value,
+          maxtpsValue: (i < _tpss.length - 1)
+              ? (_tpss[i].value + _tpss[i + 1].value) / 2
+              : _tpss[_tpss.length - 1].value,
+          rpmValue: _rpms[j].value,
+          minrpmValue: (j > 0)
+              ? (_rpms[j - 1].value + _rpms[j].value) / 2
+              : _rpms[0].value,
+          maxrpmValue: (j < _rpms.length - 1)
+              ? (_rpms[j].value + _rpms[j + 1].value) / 2
+              : _rpms[_rpms.length - 1].value,
+          value: 0,
+        );
+      },
+    );
+    notifyListeners();
   }
 }

@@ -111,19 +111,19 @@ class _HomeCartesiusState extends State<HomeCartesius> {
                                         child: InkWell(
                                           onTap: () {
                                             debugPrint(
-                                                'index: ${cartesiusProvider.timings[j * 10 + i].id}');
+                                                'index: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].id}');
                                             debugPrint(
-                                                'TPSValue: ${cartesiusProvider.timings[j * 10 + i].tpsValue}');
+                                                'TPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].tpsValue}');
                                             debugPrint(
-                                                'minTPSValue: ${cartesiusProvider.timings[j * 10 + i].mintpsValue}');
+                                                'minTPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].mintpsValue}');
                                             debugPrint(
-                                                'maxTPSValue: ${cartesiusProvider.timings[j * 10 + i].maxtpsValue}');
+                                                'maxTPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].maxtpsValue}');
                                             debugPrint(
-                                                'RPMValue: ${cartesiusProvider.timings[j * 10 + i].rpmValue}');
+                                                'RPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].rpmValue}');
                                             debugPrint(
-                                                'minRPMValue: ${cartesiusProvider.timings[j * 10 + i].minrpmValue}');
+                                                'minRPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].minrpmValue}');
                                             debugPrint(
-                                                'maxRPMValue: ${cartesiusProvider.timings[j * 10 + i].maxrpmValue}');
+                                                'maxRPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].maxrpmValue}');
                                           },
                                           hoverColor: Colours.secondaryColour,
                                           hoverDuration:
