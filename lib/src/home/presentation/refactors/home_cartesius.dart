@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
 import 'package:ddfapp/core/res/fonts.dart';
 import 'package:ddfapp/src/home/presentation/widgets/cartesius_header.dart';
@@ -30,9 +28,6 @@ class _HomeCartesiusState extends State<HomeCartesius> {
 
     return Consumer<CartesiusProvider>(
       builder: (_, cartesiusProvider, __) {
-        List<int> list = List.generate(
-            cartesiusProvider.rpms.length * cartesiusProvider.tpss.length,
-            (index) => Random().nextInt(100) + 1);
         return Container(
           margin: const EdgeInsets.only(top: 20),
           padding: const EdgeInsets.all(10),

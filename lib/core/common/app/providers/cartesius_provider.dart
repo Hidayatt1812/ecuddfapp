@@ -41,7 +41,6 @@ class CartesiusProvider extends ChangeNotifier {
       );
       int j = index;
       for (int i = 0; i < _tpss.length; i++) {
-        print('rpm[index]: ${i + j * _rpms.length}');
         _timings[i + j * _rpms.length] = Timing(
           id: i + j * _rpms.length,
           tpsValue: _timings[i + j * _rpms.length].tpsValue,

@@ -62,31 +62,32 @@ class CartesiusHeader extends StatelessWidget {
                         showDialog(
                           context: context,
                           builder: (context) {
-                            final TextEditingController _controller =
+                            final TextEditingController controller =
                                 TextEditingController();
                             return MainPopUp(
                               title: title,
                               data: values,
-                              controller: _controller,
+                              controller: controller,
                               value: value.toString(),
                               onPressed: () {
                                 if (values is List<TPS>) {
-                                  if (_controller.text.isNotEmpty) {
+                                  if (controller.text.isNotEmpty) {
                                     context
                                         .read<CartesiusProvider>()
                                         .setTpsById(index,
-                                            double.parse(_controller.text));
+                                            double.parse(controller.text));
                                     Navigator.of(context).pop();
                                   }
                                 } else if (values is List<RPM>) {
-                                  if (_controller.text.isNotEmpty) {
+                                  if (controller.text.isNotEmpty) {
                                     context
                                         .read<CartesiusProvider>()
                                         .setRpmById(index,
-                                            double.parse(_controller.text));
+                                            double.parse(controller.text));
                                     Navigator.of(context).pop();
                                   }
                                 }
+                                controller.dispose();
                               },
                             );
                           },
