@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/res/colours.dart';
 import '../../../../core/utils/core_utils.dart';
 import '../../domain/entities/rpm.dart';
+import '../../domain/entities/timing.dart';
 import '../../domain/entities/tps.dart';
 import '../bloc/home_bloc.dart';
 
@@ -30,12 +31,16 @@ class _HomeScreenState extends State<HomeScreen> {
             context.read<CartesiusProvider>().initTpss(state.data);
           } else if (state.data is List<RPM>) {
             context.read<CartesiusProvider>().initRpms(state.data);
+          } else if (state.data is List<Timing>) {
+            context.read<CartesiusProvider>().initTimings(state.data);
           }
           final String message = state.data is List<TPS>
               ? 'TPS updated'
               : state.data is List<RPM>
                   ? 'RPM updated'
-                  : 'Data updated';
+                  : state.data is List<Timing>
+                      ? 'Timings updated'
+                      : 'Data updated';
           CoreUtils.showSnackBar(context, message,
               severity: InfoBarSeverity.success);
         }

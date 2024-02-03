@@ -171,7 +171,22 @@ class HomeRepositoryImpl implements HomeRepository {
     required double value,
   }) async {
     try {
-      return const Right(<Timing>[]);
+      for (int i = 0; i < timings.length; i++) {
+        if (ids.contains(timings[i].id)) {
+          timings[i] = Timing(
+            id: timings[i].id,
+            tpsValue: timings[i].tpsValue,
+            mintpsValue: timings[i].mintpsValue,
+            maxtpsValue: timings[i].maxtpsValue,
+            rpmValue: timings[i].rpmValue,
+            minrpmValue: timings[i].minrpmValue,
+            maxrpmValue: timings[i].maxrpmValue,
+            value: value,
+          );
+        }
+      }
+
+      return Right(timings);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
     }

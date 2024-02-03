@@ -222,7 +222,7 @@ class CartesiusProvider extends ChangeNotifier {
 
   List<Timing> get timings => _timings;
 
-  void initTiming(List<Timing> timings) {
+  void initTimings(List<Timing> timings) {
     if (_timings != timings) {
       _timings = timings;
       Future.delayed(Duration.zero, notifyListeners);
@@ -230,9 +230,6 @@ class CartesiusProvider extends ChangeNotifier {
   }
 
   void resetTiming() {
-    print("_tpss.length: ${_tpss.length}");
-    print("_rpms.length: ${_rpms.length}");
-    print("_tpss*rpms: ${_tpss.length * _rpms.length}");
     _timings = List.generate(
       _tpss.length * _rpms.length,
       (index) {
@@ -259,5 +256,85 @@ class CartesiusProvider extends ChangeNotifier {
       },
     );
     notifyListeners();
+  }
+
+  List<int> _idsTiming = [];
+
+  List<int> get idsTimings => _idsTiming;
+
+  void setIdsTiming() {
+    if (_idStartTiming != null && _idEndTiming != null) {
+      int i = _idStartTiming! % _tpss.length; //b
+      int j = _idStartTiming! ~/ _tpss.length; //a
+
+      int x = _idEndTiming! % _tpss.length; //Y
+      int y = _idEndTiming! ~/ _tpss.length; //X
+
+      if (x >= i && y >= j) {
+        for (int k = j; k <= y; k++) {
+          for (int l = i; l <= x; l++) {
+            _idsTiming.add(l + k * _tpss.length);
+          }
+        }
+      } else if (x >= i && y < j) {
+        for (int k = y; k <= j; k++) {
+          for (int l = i; l <= x; l++) {
+            _idsTiming.add(l + k * _tpss.length);
+          }
+        }
+      } else if (x < i && y >= j) {
+        for (int k = j; k <= y; k++) {
+          for (int l = x; l <= i; l++) {
+            _idsTiming.add(l + k * _tpss.length);
+          }
+        }
+      } else if (x < i && y < j) {
+        for (int k = y; k <= j; k++) {
+          for (int l = x; l <= i; l++) {
+            _idsTiming.add(l + k * _tpss.length);
+          }
+        }
+      }
+    }
+  }
+
+  void resetIdsTiming() {
+    _idsTiming = [];
+    notifyListeners();
+  }
+
+  int? _idStartTiming;
+
+  int? get idStartTiming => _idStartTiming;
+
+  void setIdStartTiming(int? id) {
+    if (_idStartTiming != id) {
+      _idStartTiming = id;
+      Future.delayed(Duration.zero, notifyListeners);
+    }
+  }
+
+  int? _idEndTiming;
+
+  int? get idEndTiming => _idEndTiming;
+
+  void setIdEndTiming(int? id) {
+    if (_idEndTiming != id) {
+      _idEndTiming = id;
+      resetIdsTiming();
+      setIdsTiming();
+      Future.delayed(Duration.zero, notifyListeners);
+    }
+  }
+
+  bool _isSelectingTiming = false;
+
+  bool get isSelectingTiming => _isSelectingTiming;
+
+  void setIsSelectingTiming(bool value) {
+    if (_isSelectingTiming != value) {
+      _isSelectingTiming = value;
+      Future.delayed(Duration.zero, notifyListeners);
+    }
   }
 }

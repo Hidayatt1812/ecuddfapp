@@ -11,13 +11,13 @@ class MainPopUp extends StatelessWidget {
     required this.data,
     required this.controller,
     this.placholder,
-    required this.value,
+    this.value,
     required this.onPressed,
   });
 
   final String title;
   final dynamic data;
-  final String value;
+  final String? value;
   final TextEditingController controller;
   final String? placholder;
   final Function() onPressed;
@@ -37,15 +37,17 @@ class MainPopUp extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "Current value: $value",
-            style: const TextStyle(
-              fontFamily: Fonts.segoe,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
+          if (value != null) ...[
+            Text(
+              "Current value: $value",
+              style: const TextStyle(
+                fontFamily: Fonts.segoe,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
+            const SizedBox(height: 10),
+          ],
           Container(
             padding: const EdgeInsets.only(left: 20),
             child: MainTextInput(

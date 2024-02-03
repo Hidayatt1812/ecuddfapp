@@ -14,6 +14,8 @@ extension ContextExtensions on BuildContext {
   double get width => size.width;
   double get height => size.height;
 
+  CartesiusProvider get cartesiusProvider => read<CartesiusProvider>();
+
   TabNavigator get tabNavigator => read<TabNavigator>();
 
   void pop() => tabNavigator.pop();
@@ -23,6 +25,4 @@ extension ContextExtensions on BuildContext {
   void push(Widget page) => tabNavigator.push(TabItem(child: page));
 
   DashboardController get dashboardController => read<DashboardController>();
-
-  CartesiusProvider get cartesiusProvider => read<CartesiusProvider>();
 }
