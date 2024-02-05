@@ -133,27 +133,30 @@ class _SideViewState extends State<SideView> {
                                   ),
                                 ),
                               ))),
-                      Row(children: [
-                        Expanded(
+                      Row(
+                        children: [
+                          Expanded(
                             child: ComboBox<String>(
-                          placeholder: const Text("PORT"),
-                          value: portSelected,
-                          items: listPort.map((e) {
-                            return ComboBoxItem(
-                              value: e.toString(),
-                              child: Text(e.toString()),
-                              // onTap: () => setState(
-                              //   () {
-                              //     portSelected = listPort[e];
-                              //   },
-                              // ),
-                            );
-                          }).toList(),
-                          onChanged: ((value) => setState(() {
-                                portSelected = value.toString();
-                              })),
-                        ))
-                      ]),
+                              placeholder: const Text("PORT"),
+                              value: portSelected,
+                              items: listPort.map((e) {
+                                return ComboBoxItem(
+                                  value: e.toString(),
+                                  child: Text(e.toString()),
+                                  // onTap: () => setState(
+                                  //   () {
+                                  //     portSelected = listPort[e];
+                                  //   },
+                                  // ),
+                                );
+                              }).toList(),
+                              onChanged: ((value) => setState(() {
+                                    portSelected = value.toString();
+                                  })),
+                            ),
+                          )
+                        ],
+                      ),
                       const SizedBox(
                         height: 10,
                       ),

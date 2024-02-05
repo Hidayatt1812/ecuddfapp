@@ -1,6 +1,8 @@
 import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_cartesius.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_menu.dart';
+import 'package:ddfapp/src/home/presentation/refactors/home_sidebar.dart';
+import 'package:ddfapp/src/home/presentation/refactors/home_voltage_graph.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -77,16 +79,19 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Expanded(
                 // height: 750,
-                child: Row(
+                child: Flex(
+                  direction: Axis.horizontal,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: 1060,
-                      child: Column(
+                      height: double.infinity,
+                      child: Flex(
+                        direction: Axis.vertical,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          HomeMenu(),
-                          HomeCartesius(),
+                          const HomeMenu(),
+                          const HomeCartesius(),
                           Center(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -102,16 +107,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                          )
+                          ),
+                          const HomeVoltageGraph(),
                         ],
                       ),
                     ),
-                    // const SizedBox(
-                    //   width: 20,
-                    // ),
-                    // const Expanded(
-                    //   child: SideView(),
-                    // )
+                    const Expanded(
+                      child: HomeSidebar(),
+                    )
                   ],
                 ),
               ),
