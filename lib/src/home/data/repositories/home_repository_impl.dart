@@ -7,13 +7,22 @@ import '../../domain/entities/rpm.dart';
 import '../../domain/entities/timing.dart';
 import '../../domain/entities/tps.dart';
 import '../../domain/repository/home_repository.dart';
+import '../datasources/home_local_data_source.dart';
 import '../datasources/home_remote_data_source.dart';
+import '../models/rpm_model.dart';
+import '../models/timing_model.dart';
+import '../models/tps_model.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
-  const HomeRepositoryImpl(this._remoteDataSource);
+  const HomeRepositoryImpl(
+    this._remoteDataSource,
+    this._localDataSource,
+  );
 
   // ignore: unused_field
   final HomeRemoteDataSource _remoteDataSource;
+
+  final HomeLocalDataSource _localDataSource;
 
   @override
   ResultFuture<RPM> getDynamicRPM() async {
@@ -77,14 +86,54 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   ResultFuture<void> saveValue({
-    required TPS tps,
-    required RPM rpm,
+    required List<TPS> tpss,
+    required List<RPM> rpms,
     required List<Timing> timings,
   }) async {
     try {
-      return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure.fromException(e));
+      final result = await _localDataSource.saveValue(
+        tpss: tpss
+            .map(
+              (e) => TPSModel(
+                id: e.id,
+                isFirst: e.isFirst,
+                isLast: e.isLast,
+                value: e.value,
+                prevValue: e.prevValue,
+                nextValue: e.nextValue,
+              ),
+            )
+            .toList(),
+        rpms: rpms
+            .map(
+              (e) => RPMModel(
+                id: e.id,
+                isFirst: e.isFirst,
+                isLast: e.isLast,
+                value: e.value,
+                prevValue: e.prevValue,
+                nextValue: e.nextValue,
+              ),
+            )
+            .toList(),
+        timings: timings
+            .map(
+              (e) => TimingModel(
+                id: e.id,
+                tpsValue: e.tpsValue,
+                mintpsValue: e.mintpsValue,
+                maxtpsValue: e.maxtpsValue,
+                rpmValue: e.rpmValue,
+                minrpmValue: e.minrpmValue,
+                maxrpmValue: e.maxrpmValue,
+                value: e.value,
+              ),
+            )
+            .toList(),
+      );
+      return Right(result);
+    } on CacheException catch (e) {
+      return Left(CacheFailure.fromException(e));
     }
   }
 
@@ -173,7 +222,7 @@ class HomeRepositoryImpl implements HomeRepository {
     try {
       for (int i = 0; i < timings.length; i++) {
         if (ids.contains(timings[i].id)) {
-          timings[i] = Timing(
+          timings[i] = TimingModel(
             id: timings[i].id,
             tpsValue: timings[i].tpsValue,
             mintpsValue: timings[i].mintpsValue,
@@ -200,6 +249,36 @@ class HomeRepositoryImpl implements HomeRepository {
       return const Right(false);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultFuture<List<RPM>> loadRPMValue() async {
+    try {
+      dynamic result = await _localDataSource.loadRPMValue();
+      return Right(result);
+    } on CacheException catch (e) {
+      return Left(CacheFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultFuture<List<TPS>> loadTPSValue() async {
+    try {
+      dynamic result = await _localDataSource.loadTPSValue();
+      return Right(result);
+    } on CacheException catch (e) {
+      return Left(CacheFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultFuture<List<Timing>> loadTimingValue() async {
+    try {
+      dynamic result = await _localDataSource.loadTimingValue();
+      return Right(result);
+    } on CacheException catch (e) {
+      return Left(CacheFailure.fromException(e));
     }
   }
 }

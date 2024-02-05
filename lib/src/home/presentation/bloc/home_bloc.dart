@@ -1,10 +1,19 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
+import 'dart:async';
 
+import 'package:bloc/bloc.dart';
+import 'package:ddfapp/core/utils/core_utils.dart';
+import 'package:equatable/equatable.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+import 'package:stream_transform/stream_transform.dart';
+
+import '../../domain/entities/timing.dart';
 import '../../domain/usecases/get_dynamic_rpm.dart';
 import '../../domain/usecases/get_dynamic_tps.dart';
 import '../../domain/usecases/get_timing_cell.dart';
 import '../../domain/usecases/get_timing_from_control_unit.dart';
+import '../../domain/usecases/load_rpm_value.dart';
+import '../../domain/usecases/load_timing_value.dart';
+import '../../domain/usecases/load_tps_value.dart';
 import '../../domain/usecases/post_all_timing.dart';
 import '../../domain/usecases/post_dynamic_timing.dart';
 import '../../domain/usecases/save_value.dart';
@@ -24,6 +33,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required GetDynamicTPS getDynamicTPS,
     required GetTimingCell getTimingCell,
     required GetTimingFromControlUnit getTimingFromControlUnit,
+    required LoadTPSValue loadTPSValue,
+    required LoadRPMValue loadRPMValue,
+    required LoadTimingValue loadTimingValue,
     required PostAllTiming postAllTiming,
     required PostDynamicTiming postDynamicTiming,
     required SaveValue saveValue,
@@ -37,6 +49,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _getDynamicTPS = getDynamicTPS,
         _getTimingCell = getTimingCell,
         _getTimingFromControlUnit = getTimingFromControlUnit,
+        _loadTPSValue = loadTPSValue,
+        _loadRPMValue = loadRPMValue,
+        _loadTimingValue = loadTimingValue,
         _postAllTiming = postAllTiming,
         _postDynamicTiming = postDynamicTiming,
         _saveValue = saveValue,
@@ -54,6 +69,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<GetDynamicTPSEvent>(_getDynamicTPSHandler);
     on<GetTimingCellEvent>(_getTimingCellHandler);
     on<GetTimingFromControlUnitEvent>(_getTimingFromControlUnitHandler);
+    on<LoadTPSValueEvent>(_loadTPSValueHandler);
+    on<LoadRPMValueEvent>(_loadRPMValueHandler);
+    on<LoadTimingValueEvent>(_loadTimingValueHandler);
     on<PostAllTimingEvent>(_postAllTimingHandler);
     on<PostDynamicTimingEvent>(_postDynamicTimingHandler);
     on<SaveValueEvent>(_saveValueHandler);
@@ -63,12 +81,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<SetTPSManuallyEvent>(_setTPSManuallyHandler);
     on<SetTPSParameterEvent>(_setTPSParameterHandler);
     on<SwitchPowerEvent>(_switchPowerHandler);
+    on<StreamGetTPSRPMLinesValueEvent>(_streamGetTPSRPMLinesValueHandler,
+        transformer: (events, mapper) => events.switchMap(mapper));
   }
 
   final GetDynamicRPM _getDynamicRPM;
   final GetDynamicTPS _getDynamicTPS;
   final GetTimingCell _getTimingCell;
   final GetTimingFromControlUnit _getTimingFromControlUnit;
+  final LoadTPSValue _loadTPSValue;
+  final LoadRPMValue _loadRPMValue;
+  final LoadTimingValue _loadTimingValue;
   final PostAllTiming _postAllTiming;
   final PostDynamicTiming _postDynamicTiming;
   final SaveValue _saveValue;
@@ -127,6 +150,39 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
+  Future<void> _loadTPSValueHandler(
+    LoadTPSValueEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _loadTPSValue();
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(TpsLoaded(data)),
+    );
+  }
+
+  Future<void> _loadRPMValueHandler(
+    LoadRPMValueEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _loadRPMValue();
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(RpmLoaded(data)),
+    );
+  }
+
+  Future<void> _loadTimingValueHandler(
+    LoadTimingValueEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _loadTimingValue();
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(TimingLoaded(data)),
+    );
+  }
+
   Future<void> _postAllTimingHandler(
     PostAllTimingEvent event,
     Emitter<HomeState> emit,
@@ -156,14 +212,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     final result = await _saveValue(SaveValueParams(
-      tps: event.tps,
-      rpm: event.rpm,
+      tpss: event.tpss,
+      rpms: event.rpms,
       timings: event.timings,
     ));
 
     result.fold(
       (failure) => emit(HomeError(failure.message)),
-      (_) => emit(const HomeUpdated(null)),
+      (_) => emit(const DataSaved()),
     );
   }
 
@@ -202,6 +258,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     SetTimingManuallyEvent event,
     Emitter<HomeState> emit,
   ) async {
+    print('timings.type: ${event.timings.runtimeType}');
+    print('value.type: ${event.value.runtimeType}');
     final result = await _setTimingManually(SetTimingManuallyParams(
       ids: event.ids,
       timings: event.timings,
@@ -254,6 +312,34 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     result.fold(
       (failure) => emit(HomeError(failure.message)),
       (_) => emit(const HomeUpdated(null)),
+    );
+  }
+
+  Stream<Size> get getTPSRPMLinesValue async* {
+    int lengthNumber = 600;
+    List<double> randomTPSLinesValue =
+        CoreUtils.generateRandomNumbers(lengthNumber);
+    List<double> randomRPMLinesValue =
+        CoreUtils.generateRandomNumbers(lengthNumber);
+
+    for (var i = 0; i < lengthNumber; i++) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      yield Size(
+        randomTPSLinesValue[i].toDouble(),
+        randomRPMLinesValue[i].toDouble(),
+      );
+    }
+  }
+
+  Future<void> _streamGetTPSRPMLinesValueHandler(
+    StreamGetTPSRPMLinesValueEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    await emit.forEach<Size>(
+      getTPSRPMLinesValue,
+      onData: (value) {
+        return AxisUpdated(value);
+      },
     );
   }
 }

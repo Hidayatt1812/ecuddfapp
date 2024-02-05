@@ -20,9 +20,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
+  void initState() {
+    context.read<HomeBloc>().add(const LoadRPMValueEvent());
+    context.read<HomeBloc>().add(const LoadTimingValueEvent());
+    context.read<HomeBloc>().add(const LoadTPSValueEvent());
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeBloc, HomeState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is HomeError) {
           CoreUtils.showSnackBar(context, state.message);
         } else if (state is HomeUpdated) {
@@ -42,13 +50,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       : 'Data updated';
           CoreUtils.showSnackBar(context, message,
               severity: InfoBarSeverity.success);
+        } else if (state is AxisUpdated) {
+          print('Axis updated: ${state.data}');
+          context
+              .read<CartesiusProvider>()
+              .setTpsRPMLinesValue(state.data.width, state.data.height);
+
+          // CoreUtils.showSnackBar(context, state.data.toString(),
+          //     severity: InfoBarSeverity.success);
+        } else if (state is TpsLoaded) {
+          context.read<CartesiusProvider>().initTpss(state.data);
+        } else if (state is RpmLoaded) {
+          context.read<CartesiusProvider>().initRpms(state.data);
+        } else if (state is TimingLoaded) {
+          context.read<CartesiusProvider>().initTimings(state.data);
+        } else if (state is DataSaved) {
+          CoreUtils.showSnackBar(context, 'Data saved',
+              severity: InfoBarSeverity.success);
         }
       },
       builder: (context, state) {
         return Container(
           padding: const EdgeInsets.all(20),
           color: Colours.primaryColour,
-          child: const Column(
+          child: Column(
             children: [
               Expanded(
                 // height: 750,
@@ -62,6 +87,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           HomeMenu(),
                           HomeCartesius(),
+                          Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  'TPS Timing: ${context.read<CartesiusProvider>().tpsLinesValue}',
+                                ),
+                                Text(
+                                  'RPM Timing: ${context.read<CartesiusProvider>().rpmLinesValue}',
+                                ),
+                                Text(
+                                  'Value Timing: ${context.read<CartesiusProvider>().valueTiming}',
+                                ),
+                              ],
+                            ),
+                          )
                         ],
                       ),
                     ),

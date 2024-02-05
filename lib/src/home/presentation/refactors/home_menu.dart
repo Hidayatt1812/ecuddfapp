@@ -4,6 +4,8 @@ import 'package:ddfapp/src/home/presentation/widgets/menu_container.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/common/app/providers/cartesius_provider.dart';
+import '../../../../core/common/widgets/main_pop_up.dart';
 import '../../../../core/common/widgets/main_text_input.dart';
 
 class HomeMenu extends StatefulWidget {
@@ -111,7 +113,24 @@ class _HomeMenuState extends State<HomeMenu> {
                           Button(
                             child: const SizedBox(
                                 width: 110, child: Text("DEFAULT")),
-                            onPressed: () {},
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return MainPopUp(
+                                    title:
+                                        'Yakin ingin reset ke default? semua data akan hilang',
+                                    onPressed: () {
+                                      context
+                                          .read<CartesiusProvider>()
+                                          .defaultAll();
+                                      Navigator.of(context).pop();
+                                    },
+                                    positiveText: 'Hapus',
+                                  );
+                                },
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -123,7 +142,30 @@ class _HomeMenuState extends State<HomeMenu> {
                           Button(
                             child: const SizedBox(
                                 width: 110, child: Text("LOAD DATA")),
-                            onPressed: () {},
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return MainPopUp(
+                                    title:
+                                        'Yakin ingin load data? semua data saat ini akan hilang',
+                                    onPressed: () {
+                                      context
+                                          .read<HomeBloc>()
+                                          .add(const LoadRPMValueEvent());
+                                      context
+                                          .read<HomeBloc>()
+                                          .add(const LoadTimingValueEvent());
+                                      context
+                                          .read<HomeBloc>()
+                                          .add(const LoadTPSValueEvent());
+                                      Navigator.of(context).pop();
+                                    },
+                                    positiveText: 'Load',
+                                  );
+                                },
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -406,7 +448,22 @@ class _HomeMenuState extends State<HomeMenu> {
                                 child: FilledButton(
                                   child: const SizedBox(
                                       width: 100, child: Text("Save Value")),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    context.read<HomeBloc>().add(
+                                          SaveValueEvent(
+                                            tpss: context
+                                                .read<CartesiusProvider>()
+                                                .tpss,
+                                            rpms: context
+                                                .read<CartesiusProvider>()
+                                                .rpms,
+                                            timings: context
+                                                .read<CartesiusProvider>()
+                                                .timings,
+                                          ),
+                                        );
+                                    print("Save Value");
+                                  },
                                 ),
                               ),
                             ],

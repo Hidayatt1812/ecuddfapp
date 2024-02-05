@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
 import 'package:ddfapp/core/res/fonts.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
@@ -18,48 +20,28 @@ class HomeCartesius extends StatefulWidget {
 
 class _HomeCartesiusState extends State<HomeCartesius>
     with TickerProviderStateMixin {
-  late AnimationController _controllerX;
-  late AnimationController _controllerY;
-  // late Animation<double> _animation;
+  late Size positionLines;
+  final StreamController<double> _tpsLinesController =
+      StreamController<double>();
+  final StreamController<double> _rpmLinesController =
+      StreamController<double>();
 
   @override
   void initState() {
     super.initState();
 
-    _controllerX = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 5),
-    )..repeat(reverse: true);
-    _controllerY = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 4),
-    )..repeat(reverse: true);
+    context.read<CartesiusProvider>().setTpsRPMLinesValue(6, 3);
 
-    // _animation = Tween<double>(
-    //   begin: 0.0,
-    //   end: 32.0,
-    // ).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controllerX.dispose();
-    _controllerY.dispose();
-    super.dispose();
+    context.read<HomeBloc>().add(
+          StreamGetTPSRPMLinesValueEvent(
+            rpmLinesController: _rpmLinesController,
+            tpsLinesController: _tpsLinesController,
+          ),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    // double xMinAxis = 0;
-    // double xMaxAxis = 9;
-    // int xAxis = 20;
-    // double xInterval = (xMaxAxis - xMinAxis) / (xAxis - 1);
-
-    // double yMinAxis = 0;
-    // double yMaxAxis = 14;
-    // int yAxis = 20;
-    // double yInterval = (yMaxAxis - yMinAxis) / (yAxis - 1);
-
     return Consumer<CartesiusProvider>(
       builder: (_, cartesiusProvider, __) {
         return Container(
@@ -188,9 +170,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                           controller =
                                                           TextEditingController();
                                                       return MainPopUp(
-                                                        title: 'Timing',
-                                                        data: cartesiusProvider
-                                                            .idsTimings,
+                                                        title: 'Edit Timing',
                                                         controller: controller,
                                                         onPressed: () {
                                                           if (controller.text
@@ -285,24 +265,26 @@ class _HomeCartesiusState extends State<HomeCartesius>
                           ),
                           CartesiusLines(
                             size: Size(
-                                (parentWidth - size) *
-                                    (cartesiusProvider.tpss.length - 1) /
-                                    (cartesiusProvider.tpss.length),
+                                (parentWidth - size),
+                                // *
+                                //     (cartesiusProvider.tpss.length - 1) /
+                                //     (cartesiusProvider.tpss.length),
                                 (parentHeight - size)),
-                            controller: _controllerX,
                             color: Colours.accentColour,
                             direction: Axis.horizontal,
+                            value: cartesiusProvider.tpsLinesValue!,
                           ),
                           CartesiusLines(
                             size: Size(
                               (parentWidth - size),
-                              (parentHeight - size) *
-                                  (cartesiusProvider.rpms.length - 1) /
-                                  (cartesiusProvider.rpms.length),
+                              (parentHeight - size),
+                              //  *
+                              //     (cartesiusProvider.rpms.length - 1) /
+                              //     (cartesiusProvider.rpms.length),
                             ),
-                            controller: _controllerY,
                             color: Colours.accentColour,
                             direction: Axis.vertical,
+                            value: cartesiusProvider.rpmLinesValue!,
                           ),
                         ],
                       ),

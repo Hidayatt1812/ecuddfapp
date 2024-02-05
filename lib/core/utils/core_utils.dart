@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:fluent_ui/fluent_ui.dart';
 
@@ -97,5 +98,23 @@ class CoreUtils {
 
   static dynamic intOrDouble(double value) {
     return (value % 1 == 0) ? value.toInt() : value.toStringAsFixed(2);
+  }
+
+  static List<double> generateRandomNumbers(int count) {
+    double last = 0;
+    return List.generate(count, (index) {
+      if (index % 2 == 0) {
+        last += Random().nextDouble();
+      } else {
+        last -= Random().nextDouble();
+      }
+      if (last > 9) {
+        last -= Random().nextDouble();
+      }
+      if (last < 0) {
+        last += Random().nextDouble();
+      }
+      return last;
+    });
   }
 }

@@ -57,16 +57,13 @@ class CartesiusHeader extends StatelessWidget {
                     dynamic value = CoreUtils.intOrDouble(values[index].value);
                     return GestureDetector(
                       onDoubleTap: () {
-                        // pop up
-
                         showDialog(
                           context: context,
                           builder: (context) {
                             final TextEditingController controller =
                                 TextEditingController();
                             return MainPopUp(
-                              title: title,
-                              data: values,
+                              title: 'Edit $title',
                               controller: controller,
                               value: value.toString(),
                               onPressed: () {

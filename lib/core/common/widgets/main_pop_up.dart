@@ -8,18 +8,18 @@ class MainPopUp extends StatelessWidget {
   const MainPopUp({
     super.key,
     required this.title,
-    required this.data,
-    required this.controller,
+    this.controller,
     this.placholder,
     this.value,
     required this.onPressed,
+    this.positiveText,
   });
 
   final String title;
-  final dynamic data;
   final String? value;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String? placholder;
+  final String? positiveText;
   final Function() onPressed;
 
   @override
@@ -27,7 +27,7 @@ class MainPopUp extends StatelessWidget {
     return AlertDialog(
       backgroundColor: Colours.primaryColour,
       title: Text(
-        "Edit $title",
+        title,
         style: const TextStyle(
           fontFamily: Fonts.segoe,
           fontSize: 16,
@@ -48,17 +48,18 @@ class MainPopUp extends StatelessWidget {
             ),
             const SizedBox(height: 10),
           ],
-          Container(
-            padding: const EdgeInsets.only(left: 20),
-            child: MainTextInput(
-              boxDecoration: const BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Color.fromARGB(255, 249, 249, 249)),
-              disabled: false,
-              placholder: placholder,
-              controller: controller,
-            ),
-          )
+          if (controller != null)
+            Container(
+              padding: const EdgeInsets.only(left: 20),
+              child: MainTextInput(
+                boxDecoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Color.fromARGB(255, 249, 249, 249)),
+                disabled: false,
+                placholder: placholder,
+                controller: controller,
+              ),
+            )
         ],
       ),
       actions: [
@@ -78,9 +79,9 @@ class MainPopUp extends StatelessWidget {
         ),
         TextButton(
           onPressed: onPressed,
-          child: const Text(
-            "Save",
-            style: TextStyle(
+          child: Text(
+            positiveText ?? "Save",
+            style: const TextStyle(
               fontFamily: Fonts.segoe,
               fontSize: 14,
               fontWeight: FontWeight.w400,

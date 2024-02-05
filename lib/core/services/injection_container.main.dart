@@ -19,6 +19,7 @@ Future<void> _initCore({
 }
 
 Future<void> _initHome() async {
+  final localstore = Localstore.instance;
   sl
     ..registerFactory(
       () => HomeBloc(
@@ -26,6 +27,9 @@ Future<void> _initHome() async {
         getDynamicTPS: sl(),
         getTimingCell: sl(),
         getTimingFromControlUnit: sl(),
+        loadRPMValue: sl(),
+        loadTimingValue: sl(),
+        loadTPSValue: sl(),
         postAllTiming: sl(),
         postDynamicTiming: sl(),
         saveValue: sl(),
@@ -41,6 +45,9 @@ Future<void> _initHome() async {
     ..registerLazySingleton(() => GetDynamicTPS(sl()))
     ..registerLazySingleton(() => GetTimingCell(sl()))
     ..registerLazySingleton(() => GetTimingFromControlUnit(sl()))
+    ..registerLazySingleton(() => LoadRPMValue(sl()))
+    ..registerLazySingleton(() => LoadTimingValue(sl()))
+    ..registerLazySingleton(() => LoadTPSValue(sl()))
     ..registerLazySingleton(() => PostAllTiming(sl()))
     ..registerLazySingleton(() => PostDynamicTiming(sl()))
     ..registerLazySingleton(() => SaveValue(sl()))
@@ -50,10 +57,17 @@ Future<void> _initHome() async {
     ..registerLazySingleton(() => SetTPSManually(sl()))
     ..registerLazySingleton(() => SetTPSParameter(sl()))
     ..registerLazySingleton(() => SwitchPower(sl()))
-    ..registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(sl()))
+    ..registerLazySingleton<HomeRepository>(
+        () => HomeRepositoryImpl(sl(), sl()))
     ..registerLazySingleton<HomeRemoteDataSource>(
       () => const HomeRemoteDataSourceImpl(),
-    );
+    )
+    ..registerLazySingleton<HomeLocalDataSource>(
+      () => HomeLocalDataSourceImpl(
+        localstore: sl(),
+      ),
+    )
+    ..registerLazySingleton(() => localstore);
 }
 
 Future<void> _initSettings() async {

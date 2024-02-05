@@ -34,6 +34,18 @@ class GetTimingFromControlUnitEvent extends HomeEvent {
   const GetTimingFromControlUnitEvent();
 }
 
+class LoadTPSValueEvent extends HomeEvent {
+  const LoadTPSValueEvent();
+}
+
+class LoadRPMValueEvent extends HomeEvent {
+  const LoadRPMValueEvent();
+}
+
+class LoadTimingValueEvent extends HomeEvent {
+  const LoadTimingValueEvent();
+}
+
 class PostAllTimingEvent extends HomeEvent {
   const PostAllTimingEvent({
     required this.timings,
@@ -58,17 +70,17 @@ class PostDynamicTimingEvent extends HomeEvent {
 
 class SaveValueEvent extends HomeEvent {
   const SaveValueEvent({
-    required this.tps,
-    required this.rpm,
+    required this.tpss,
+    required this.rpms,
     required this.timings,
   });
 
-  final dynamic tps;
-  final dynamic rpm;
+  final dynamic tpss;
+  final dynamic rpms;
   final dynamic timings;
 
   @override
-  List<Object> get props => [tps, rpm, timings];
+  List<Object> get props => [tpss, rpms, timings];
 }
 
 class SetRPMManuallyEvent extends HomeEvent {
@@ -151,4 +163,14 @@ class SwitchPowerEvent extends HomeEvent {
 
   @override
   List<Object> get props => [status];
+}
+
+class StreamGetTPSRPMLinesValueEvent extends HomeEvent {
+  final StreamController<double> tpsLinesController;
+  final StreamController<double> rpmLinesController;
+
+  const StreamGetTPSRPMLinesValueEvent({
+    required this.tpsLinesController,
+    required this.rpmLinesController,
+  });
 }

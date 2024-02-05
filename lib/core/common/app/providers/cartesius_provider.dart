@@ -1,3 +1,6 @@
+import 'package:ddfapp/src/home/data/models/rpm_model.dart';
+import 'package:ddfapp/src/home/data/models/timing_model.dart';
+import 'package:ddfapp/src/home/data/models/tps_model.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../../../src/home/domain/entities/rpm.dart';
@@ -21,7 +24,7 @@ class CartesiusProvider extends ChangeNotifier {
   void initRpms(List<RPM> rpms) {
     if (_rpms != rpms) {
       _rpms = rpms;
-      resetTiming();
+      // resetTiming();
 
       Future.delayed(Duration.zero, notifyListeners);
     }
@@ -32,7 +35,7 @@ class CartesiusProvider extends ChangeNotifier {
       final RPM prevRpm = index > 0 ? _rpms[index - 1] : _rpms[index];
       final RPM nextRpm =
           index < _rpms.length - 1 ? _rpms[index + 1] : _rpms[index];
-      _rpms[index] = RPM(
+      _rpms[index] = RPMModel(
         id: _rpms[index].id,
         isFirst: _rpms[index].isFirst,
         isLast: _rpms[index].isLast,
@@ -42,7 +45,7 @@ class CartesiusProvider extends ChangeNotifier {
       );
       int j = index;
       for (int i = 0; i < _tpss.length; i++) {
-        _timings[i + j * _tpss.length] = Timing(
+        _timings[i + j * _tpss.length] = TimingModel(
           id: i + j * _tpss.length,
           tpsValue: _timings[i + j * _tpss.length].tpsValue,
           mintpsValue: _timings[i + j * _tpss.length].mintpsValue,
@@ -55,7 +58,7 @@ class CartesiusProvider extends ChangeNotifier {
         );
       }
       if (index > 0) {
-        _rpms[index - 1] = RPM(
+        _rpms[index - 1] = RPMModel(
           id: prevRpm.id,
           isFirst: prevRpm.isFirst,
           isLast: prevRpm.isLast,
@@ -64,7 +67,7 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: value,
         );
         for (int i = 0; i < _tpss.length; i++) {
-          _timings[i + (j - 1) * _tpss.length] = Timing(
+          _timings[i + (j - 1) * _tpss.length] = TimingModel(
             id: i + (j - 1) * _tpss.length,
             tpsValue: _timings[i + (j - 1) * _tpss.length].tpsValue,
             mintpsValue: _timings[i + (j - 1) * _tpss.length].mintpsValue,
@@ -78,7 +81,7 @@ class CartesiusProvider extends ChangeNotifier {
         }
       }
       if (index < _rpms.length - 1) {
-        _rpms[index + 1] = RPM(
+        _rpms[index + 1] = RPMModel(
           id: nextRpm.id,
           isFirst: nextRpm.isFirst,
           isLast: nextRpm.isLast,
@@ -87,7 +90,7 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: nextRpm.nextValue,
         );
         for (int i = 0; i < _tpss.length; i++) {
-          _timings[i + (j + 1) * _tpss.length] = Timing(
+          _timings[i + (j + 1) * _tpss.length] = TimingModel(
             id: i + (j + 1) * _tpss.length,
             tpsValue: _timings[i + (j + 1) * _tpss.length].tpsValue,
             mintpsValue: _timings[i + (j + 1) * _tpss.length].mintpsValue,
@@ -120,7 +123,7 @@ class CartesiusProvider extends ChangeNotifier {
   void initTpss(List<TPS> tpss) {
     if (_tpss != tpss) {
       _tpss = tpss;
-      resetTiming();
+      // resetTiming();
       Future.delayed(Duration.zero, notifyListeners);
     }
   }
@@ -130,7 +133,7 @@ class CartesiusProvider extends ChangeNotifier {
       final TPS prevTps = index > 0 ? _tpss[index - 1] : _tpss[index];
       final TPS nextTps =
           index < _tpss.length - 1 ? _tpss[index + 1] : _tpss[index];
-      _tpss[index] = TPS(
+      _tpss[index] = TPSModel(
         id: _tpss[index].id,
         isFirst: _tpss[index].isFirst,
         isLast: _tpss[index].isLast,
@@ -140,7 +143,7 @@ class CartesiusProvider extends ChangeNotifier {
       );
       int i = index;
       for (int j = 0; j < _rpms.length; j++) {
-        _timings[i + j * _tpss.length] = Timing(
+        _timings[i + j * _tpss.length] = TimingModel(
           id: i + j * _tpss.length,
           tpsValue: _tpss[i].value,
           mintpsValue: index == 0 ? value : (prevTps.value + value) / 2,
@@ -153,7 +156,7 @@ class CartesiusProvider extends ChangeNotifier {
         );
       }
       if (index > 0) {
-        _tpss[index - 1] = TPS(
+        _tpss[index - 1] = TPSModel(
           id: prevTps.id,
           isFirst: prevTps.isFirst,
           isLast: prevTps.isLast,
@@ -162,7 +165,7 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: value,
         );
         for (int j = 0; j < _rpms.length; j++) {
-          _timings[(i + j * _tpss.length) - 1] = Timing(
+          _timings[(i + j * _tpss.length) - 1] = TimingModel(
             id: (i + j * _tpss.length) - 1,
             tpsValue: _timings[(i + j * _tpss.length) - 1].tpsValue,
             mintpsValue: _timings[(i + j * _tpss.length) - 1].mintpsValue,
@@ -176,7 +179,7 @@ class CartesiusProvider extends ChangeNotifier {
         }
       }
       if (index < _tpss.length - 1) {
-        _tpss[index + 1] = TPS(
+        _tpss[index + 1] = TPSModel(
           id: nextTps.id,
           isFirst: nextTps.isFirst,
           isLast: nextTps.isLast,
@@ -185,7 +188,7 @@ class CartesiusProvider extends ChangeNotifier {
           nextValue: nextTps.nextValue,
         );
         for (int j = 0; j < _rpms.length; j++) {
-          _timings[(i + j * _tpss.length) + 1] = Timing(
+          _timings[(i + j * _tpss.length) + 1] = TimingModel(
             id: (i + j * _tpss.length) + 1,
             tpsValue: _timings[(i + j * _tpss.length) + 1].tpsValue,
             mintpsValue:
@@ -207,7 +210,7 @@ class CartesiusProvider extends ChangeNotifier {
     (index) {
       int i = index % 10;
       int j = index ~/ 10;
-      return Timing(
+      return TimingModel(
         id: index,
         tpsValue: i.toDouble(),
         mintpsValue: (i > 0) ? ((i - 1) + i) / 2 : 0,
@@ -295,6 +298,7 @@ class CartesiusProvider extends ChangeNotifier {
           }
         }
       }
+      Future.delayed(Duration.zero, notifyListeners);
     }
   }
 
@@ -336,5 +340,103 @@ class CartesiusProvider extends ChangeNotifier {
       _isSelectingTiming = value;
       Future.delayed(Duration.zero, notifyListeners);
     }
+  }
+
+  double? _valueTiming;
+
+  double? get valueTiming => _valueTiming;
+
+  void setValueTiming(double? value) {
+    if (_valueTiming != value) {
+      _valueTiming = value;
+      Future.delayed(Duration.zero, notifyListeners);
+    }
+  }
+
+  double? _tpsLinesValue;
+
+  double? get tpsLinesValue => _tpsLinesValue;
+
+  double? _rpmLinesValue;
+
+  double? get rpmLinesValue => _rpmLinesValue;
+
+  void setTpsRPMLinesValue(double valueLinesTps, double valueLinesRpm) {
+    int tpsIndex = -1;
+    int rpmIndex = -1;
+    for (int i = 0; i < _timings.length; i++) {
+      if (valueLinesTps >= _timings[i].mintpsValue &&
+          valueLinesTps <= _timings[i].maxtpsValue) {
+        _tpsLinesValue = (((valueLinesTps - _timings[i].mintpsValue) /
+                    (_timings[i].maxtpsValue - _timings[i].mintpsValue)) +
+                i % _tpss.length) /
+            (_tpss.length);
+        tpsIndex = i % _tpss.length;
+        break;
+      }
+    }
+
+    for (int i = 0; i < _timings.length; i += _tpss.length) {
+      if (valueLinesRpm >= _timings[i].minrpmValue &&
+          valueLinesRpm <= _timings[i].maxrpmValue) {
+        _rpmLinesValue = (((valueLinesRpm - _timings[i].minrpmValue) /
+                    (_timings[i].maxrpmValue - _timings[i].minrpmValue)) +
+                i ~/ _tpss.length) /
+            (_tpss.length);
+        rpmIndex = i ~/ _tpss.length;
+        break;
+      }
+    }
+    // print('t: $tpsIndex');
+    // print('r: $rpmIndex');
+    // print('a: ${tpsIndex + (rpmIndex * _tpss.length)}');
+    if (tpsIndex != -1 && rpmIndex != -1) {
+      setValueTiming(_timings[tpsIndex + (rpmIndex * _tpss.length)].value);
+    }
+
+    Future.delayed(Duration.zero, notifyListeners);
+  }
+
+  void defaultAll() {
+    _rpms = List.generate(
+        10,
+        (index) => RPMModel(
+              id: index,
+              isFirst: index == 0,
+              isLast: index == 9,
+              value: index.toDouble(),
+              prevValue: index == 0 ? null : (index - 1).toDouble(),
+              nextValue: index == 9 ? null : (index + 1).toDouble(),
+            ));
+
+    _tpss = List.generate(
+        10,
+        (index) => TPSModel(
+              id: index,
+              isFirst: index == 0,
+              isLast: index == 9,
+              value: index.toDouble(),
+              prevValue: index == 0 ? null : (index - 1).toDouble(),
+              nextValue: index == 9 ? null : (index + 1).toDouble(),
+            ));
+
+    _timings = List.generate(
+      100,
+      (index) {
+        int i = index % 10;
+        int j = index ~/ 10;
+        return TimingModel(
+          id: index,
+          tpsValue: i.toDouble(),
+          mintpsValue: (i > 0) ? ((i - 1) + i) / 2 : 0,
+          maxtpsValue: (i < 9) ? (i + (i + 1)) / 2 : 9,
+          rpmValue: j.toDouble(),
+          minrpmValue: (j > 0) ? ((j - 1) + j) / 2 : 0,
+          maxrpmValue: (j < 9) ? (j + (j + 1)) / 2 : 9,
+          value: 0,
+        );
+      },
+    );
+    notifyListeners();
   }
 }

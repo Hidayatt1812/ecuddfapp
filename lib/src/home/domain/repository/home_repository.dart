@@ -18,6 +18,12 @@ abstract class HomeRepository {
 
   ResultFuture<List<Timing>> getTimingFromControlUnit();
 
+  ResultFuture<List<TPS>> loadTPSValue();
+
+  ResultFuture<List<RPM>> loadRPMValue();
+
+  ResultFuture<List<Timing>> loadTimingValue();
+
   ResultFuture<void> postAllTiming({
     required List<Timing> timings,
   });
@@ -27,8 +33,8 @@ abstract class HomeRepository {
   });
 
   ResultFuture<void> saveValue({
-    required TPS tps,
-    required RPM rpm,
+    required List<TPS> tpss,
+    required List<RPM> rpms,
     required List<Timing> timings,
   });
 

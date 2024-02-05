@@ -14,28 +14,28 @@ class SaveValue implements UsecaseWithParams<void, SaveValueParams> {
 
   @override
   ResultFuture<void> call(SaveValueParams params) => _repository.saveValue(
-        tps: params.tps,
-        rpm: params.rpm,
+        tpss: params.tpss,
+        rpms: params.rpms,
         timings: params.timings,
       );
 }
 
 class SaveValueParams extends Equatable {
   const SaveValueParams({
-    required this.tps,
-    required this.rpm,
+    required this.tpss,
+    required this.rpms,
     required this.timings,
   });
 
   const SaveValueParams.empty()
-      : tps = const TPS.empty(),
-        rpm = const RPM.empty(),
+      : tpss = const <TPS>[],
+        rpms = const <RPM>[],
         timings = const <Timing>[];
 
-  final TPS tps;
-  final RPM rpm;
+  final List<TPS> tpss;
+  final List<RPM> rpms;
   final List<Timing> timings;
 
   @override
-  List<Object?> get props => [tps, rpm, timings];
+  List<Object?> get props => [tpss, rpms, timings];
 }

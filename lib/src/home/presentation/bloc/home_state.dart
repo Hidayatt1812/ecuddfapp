@@ -39,6 +39,46 @@ class HomeUpdated extends HomeState {
   List<Object> get props => [data];
 }
 
+class AxisUpdated extends HomeState {
+  const AxisUpdated(this.data);
+
+  final dynamic data;
+
+  @override
+  List<Object> get props => [data];
+}
+
+class DataSaved extends HomeState {
+  const DataSaved();
+}
+
+class TpsLoaded extends HomeState {
+  const TpsLoaded(this.data);
+
+  final dynamic data;
+
+  @override
+  List<Object> get props => [data];
+}
+
+class RpmLoaded extends HomeState {
+  const RpmLoaded(this.data);
+
+  final dynamic data;
+
+  @override
+  List<Object> get props => [data];
+}
+
+class TimingLoaded extends HomeState {
+  const TimingLoaded(this.data);
+
+  final List<Timing> data;
+
+  @override
+  List<Object> get props => [data];
+}
+
 class HomePowerOff extends HomeState {
   const HomePowerOff();
 }
