@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
+import 'package:ddfapp/core/common/app/providers/port_provider.dart';
 import 'package:ddfapp/core/res/fonts.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:ddfapp/src/home/presentation/widgets/cartesius_header.dart';
@@ -21,10 +20,10 @@ class HomeCartesius extends StatefulWidget {
 class _HomeCartesiusState extends State<HomeCartesius>
     with TickerProviderStateMixin {
   late Size positionLines;
-  final StreamController<double> _tpsLinesController =
-      StreamController<double>();
-  final StreamController<double> _rpmLinesController =
-      StreamController<double>();
+  // final StreamController<double> _tpsLinesController =
+  //     StreamController<double>();
+  // final StreamController<double> _rpmLinesController =
+  //     StreamController<double>();
 
   @override
   void initState() {
@@ -34,8 +33,9 @@ class _HomeCartesiusState extends State<HomeCartesius>
 
     context.read<HomeBloc>().add(
           StreamGetTPSRPMLinesValueEvent(
-            rpmLinesController: _rpmLinesController,
-            tpsLinesController: _tpsLinesController,
+            port: context.read<PortProvider>().selectedPort,
+            // rpmLinesController: _rpmLinesController,
+            // tpsLinesController: _tpsLinesController,
           ),
         );
   }

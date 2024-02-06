@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:fluent_ui/fluent_ui.dart';
 
@@ -116,5 +117,35 @@ class CoreUtils {
       }
       return last;
     });
+  }
+
+  static List<double> bytesToDouble(Uint8List value) {
+    String hexString =
+        value.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join(',');
+
+    List<String> listString = hexString.split(",");
+    List<String> transformedList = [];
+
+    for (int i = 0; i < listString.length; i += 2) {
+      if (i + 1 < listString.length) {
+        String combinedValue = listString[i + 1] + listString[i];
+        transformedList.add(combinedValue);
+      }
+    }
+
+    List<int> intList = [];
+
+    for (String hexValue in transformedList) {
+      int intValue = int.parse(hexValue, radix: 16);
+      intList.add(intValue);
+    }
+
+    List<double> doubleList = [];
+
+    for (int intValue in intList) {
+      doubleList.add(intValue.toDouble());
+    }
+
+    return doubleList;
   }
 }

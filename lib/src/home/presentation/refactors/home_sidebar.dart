@@ -1,3 +1,7 @@
+import 'package:ddfapp/core/common/app/providers/port_provider.dart';
+import 'package:ddfapp/core/common/app/providers/power_provider.dart';
+import 'package:ddfapp/core/res/colours.dart';
+import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/common/app/providers/cartesius_provider.dart';
@@ -44,37 +48,57 @@ class _HomeSidebarState extends State<HomeSidebar>
               Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 height: 150,
-                child: FilledButton(
-                  child: const Center(
-                    child: SizedBox(
-                      width: 100,
-                      child: Icon(
-                        FluentIcons.power_button,
-                        size: 60,
+                child: Consumer<PowerProvider>(
+                  builder: (_, powerProvider, __) {
+                    return FilledButton(
+                      style: ButtonStyle(
+                        backgroundColor: ButtonState.all(
+                            powerProvider.powerStatus
+                                ? Colours.errorColour
+                                : Colours.secondaryColour),
                       ),
-                    ),
-                  ),
-                  onPressed: () {},
+                      child: Center(
+                        child: SizedBox(
+                          width: 100,
+                          child: Icon(
+                            powerProvider.powerStatus
+                                ? FluentIcons.circle_stop
+                                : FluentIcons.power_button,
+                            size: 60,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        context.read<HomeBloc>().add(const SwitchPowerEvent());
+                      },
+                    );
+                  },
                 ),
               ),
               Row(
                 children: [
                   Expanded(
-                    child: ComboBox<String>(
-                      placeholder: const Text(
-                        "PORT",
-                        style: TextStyle(
-                          fontFamily: Fonts.segoe,
-                        ),
-                      ),
-                      // value: ,
-                      items: List.generate(10, (index) => index).map((e) {
-                        return ComboBoxItem(
-                          value: e.toString(),
-                          child: Text(e.toString()),
+                    child: Consumer<PortProvider>(
+                      builder: (_, portProvider, __) {
+                        return ComboBox<String>(
+                          placeholder: const Text(
+                            "PORT",
+                            style: TextStyle(
+                              fontFamily: Fonts.segoe,
+                            ),
+                          ),
+                          value: portProvider.selectedPort,
+                          items: portProvider.ports.map((e) {
+                            return ComboBoxItem(
+                              value: e.toString(),
+                              child: Text(e.toString()),
+                            );
+                          }).toList(),
+                          onChanged: ((value) {
+                            portProvider.setSelectedPort(value!);
+                          }),
                         );
-                      }).toList(),
-                      onChanged: ((value) {}),
+                      },
                     ),
                   )
                 ],

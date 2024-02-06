@@ -79,10 +79,6 @@ class TimingLoaded extends HomeState {
   List<Object> get props => [data];
 }
 
-class HomePowerOff extends HomeState {
-  const HomePowerOff();
-}
-
-class HomePowerOn extends HomeState {
-  const HomePowerOn();
+class HomePowerSwitched extends HomeState {
+  const HomePowerSwitched();
 }

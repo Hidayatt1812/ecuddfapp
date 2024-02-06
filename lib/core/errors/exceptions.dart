@@ -25,3 +25,11 @@ class CacheException extends Equatable implements Exception {
   @override
   List<Object?> get props => [message];
 }
+
+class PortException extends Equatable implements Exception {
+  const PortException({required this.message});
+  final String message;
+
+  @override
+  List<Object?> get props => [message];
+}

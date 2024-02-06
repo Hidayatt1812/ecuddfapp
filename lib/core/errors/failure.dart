@@ -35,3 +35,10 @@ class ServerFailure extends Failure {
   ServerFailure.fromException(ServerException exception)
       : this(message: exception.message, statusCode: exception.statusCode);
 }
+
+class PortFailure extends Failure {
+  const PortFailure({required super.message, required super.statusCode});
+
+  PortFailure.fromException(PortException exception)
+      : this(message: exception.message, statusCode: 500);
+}

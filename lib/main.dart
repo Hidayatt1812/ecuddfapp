@@ -6,6 +6,8 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
 
+import 'core/common/app/providers/port_provider.dart';
+import 'core/common/app/providers/power_provider.dart';
 import 'core/services/injection_container.dart';
 import 'core/services/router.dart';
 import 'src/dashboard/presentation/providers/dashboard_controller.dart';
@@ -33,6 +35,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => DashboardController()),
         ChangeNotifierProvider(create: (context) => CartesiusProvider()),
+        ChangeNotifierProvider(create: (context) => PortProvider()),
+        ChangeNotifierProvider(create: (context) => PowerProvider()),
       ],
       child: FluentApp(
         theme: FluentThemeData(

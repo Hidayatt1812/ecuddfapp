@@ -6,6 +6,7 @@ import 'package:ddfapp/src/home/presentation/refactors/home_voltage_graph.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/common/app/providers/power_provider.dart';
 import '../../../../core/res/colours.dart';
 import '../../../../core/utils/core_utils.dart';
 import '../../domain/entities/rpm.dart';
@@ -57,9 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
           context
               .read<CartesiusProvider>()
               .setTpsRPMLinesValue(state.data.width, state.data.height);
-
-          // CoreUtils.showSnackBar(context, state.data.toString(),
-          //     severity: InfoBarSeverity.success);
         } else if (state is TpsLoaded) {
           context.read<CartesiusProvider>().initTpss(state.data);
         } else if (state is RpmLoaded) {
@@ -68,6 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
           context.read<CartesiusProvider>().initTimings(state.data);
         } else if (state is DataSaved) {
           CoreUtils.showSnackBar(context, 'Data saved',
+              severity: InfoBarSeverity.success);
+        } else if (state is HomePowerSwitched) {
+          final status = context.read<PowerProvider>().switchPowerStatus();
+          CoreUtils.showSnackBar(
+              context, 'Power switched to ${status ? 'on' : 'off'}',
               severity: InfoBarSeverity.success);
         }
       },

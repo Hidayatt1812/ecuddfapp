@@ -1,14 +1,13 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:ddfapp/core/utils/core_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import '../../domain/entities/timing.dart';
-import '../../domain/usecases/get_dynamic_rpm.dart';
-import '../../domain/usecases/get_dynamic_tps.dart';
+import '../../domain/usecases/get_ports_value.dart';
+import '../../domain/usecases/get_ports.dart';
 import '../../domain/usecases/get_timing_cell.dart';
 import '../../domain/usecases/get_timing_from_control_unit.dart';
 import '../../domain/usecases/load_rpm_value.dart';
@@ -22,15 +21,14 @@ import '../../domain/usecases/set_rpm_parameter.dart';
 import '../../domain/usecases/set_timing_manually.dart';
 import '../../domain/usecases/set_tps_manually.dart';
 import '../../domain/usecases/set_tps_paramater.dart';
-import '../../domain/usecases/switch_power.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({
-    required GetDynamicRPM getDynamicRPM,
-    required GetDynamicTPS getDynamicTPS,
+    required GetPortsValue getPortsValue,
+    required GetPorts getPorts,
     required GetTimingCell getTimingCell,
     required GetTimingFromControlUnit getTimingFromControlUnit,
     required LoadTPSValue loadTPSValue,
@@ -44,9 +42,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required SetTimingManually setTimingManually,
     required SetTPSManually setTPSManually,
     required SetTPSParameter setTPSParameter,
-    required SwitchPower switchPower,
-  })  : _getDynamicRPM = getDynamicRPM,
-        _getDynamicTPS = getDynamicTPS,
+  })  : _getPortsValue = getPortsValue,
+        _getPorts = getPorts,
         _getTimingCell = getTimingCell,
         _getTimingFromControlUnit = getTimingFromControlUnit,
         _loadTPSValue = loadTPSValue,
@@ -60,13 +57,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _setTimingManually = setTimingManually,
         _setTPSManually = setTPSManually,
         _setTPSParameter = setTPSParameter,
-        _switchPower = switchPower,
         super(const HomeInitial()) {
     on<HomeEvent>((event, emit) {
       emit(const HomeLoading());
     });
-    on<GetDynamicRPMEvent>(_getDynamicRPMHandler);
-    on<GetDynamicTPSEvent>(_getDynamicTPSHandler);
+    // on<GetPortsValueEvent>(_getPortsValueHandler);
+    on<GetPortsEvent>(_getPortsHandler);
     on<GetTimingCellEvent>(_getTimingCellHandler);
     on<GetTimingFromControlUnitEvent>(_getTimingFromControlUnitHandler);
     on<LoadTPSValueEvent>(_loadTPSValueHandler);
@@ -85,8 +81,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         transformer: (events, mapper) => events.switchMap(mapper));
   }
 
-  final GetDynamicRPM _getDynamicRPM;
-  final GetDynamicTPS _getDynamicTPS;
+  final GetPortsValue _getPortsValue;
+  final GetPorts _getPorts;
   final GetTimingCell _getTimingCell;
   final GetTimingFromControlUnit _getTimingFromControlUnit;
   final LoadTPSValue _loadTPSValue;
@@ -100,24 +96,23 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final SetTimingManually _setTimingManually;
   final SetTPSManually _setTPSManually;
   final SetTPSParameter _setTPSParameter;
-  final SwitchPower _switchPower;
 
-  Future<void> _getDynamicRPMHandler(
-    GetDynamicRPMEvent event,
+  // Future<void> _getPortsValueHandler(
+  //   GetDynamicRPMEvent event,
+  //   Emitter<HomeState> emit,
+  // ) async {
+  //   final result = await _getPortsValue(event.port);
+  //   result.fold(
+  //     (failure) => emit(HomeError(failure.message)),
+  //     (data) => emit(HomeUpdated(data)),
+  //   );
+  // }
+
+  Future<void> _getPortsHandler(
+    GetPortsEvent event,
     Emitter<HomeState> emit,
   ) async {
-    final result = await _getDynamicRPM();
-    result.fold(
-      (failure) => emit(HomeError(failure.message)),
-      (data) => emit(HomeUpdated(data)),
-    );
-  }
-
-  Future<void> _getDynamicTPSHandler(
-    GetDynamicTPSEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    final result = await _getDynamicTPS();
+    final result = await _getPorts();
     result.fold(
       (failure) => emit(HomeError(failure.message)),
       (data) => emit(HomeUpdated(data)),
@@ -307,28 +302,36 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     SwitchPowerEvent event,
     Emitter<HomeState> emit,
   ) async {
-    final result = await _switchPower(event.status);
-
-    result.fold(
-      (failure) => emit(HomeError(failure.message)),
-      (_) => emit(const HomeUpdated(null)),
-    );
+    emit(const HomePowerSwitched());
   }
 
-  Stream<Size> get getTPSRPMLinesValue async* {
-    int lengthNumber = 600;
-    List<double> randomTPSLinesValue =
-        CoreUtils.generateRandomNumbers(lengthNumber);
-    List<double> randomRPMLinesValue =
-        CoreUtils.generateRandomNumbers(lengthNumber);
+  Stream<Size> getTPSRPMLinesValue(String port) async* {
+    // int lengthNumber = 600;
+    // List<double> randomTPSLinesValue =
+    //     CoreUtils.generateRandomNumbers(lengthNumber);
+    // List<double> randomRPMLinesValue =
+    //     CoreUtils.generateRandomNumbers(lengthNumber);
 
-    for (var i = 0; i < lengthNumber; i++) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      yield Size(
-        randomTPSLinesValue[i].toDouble(),
-        randomRPMLinesValue[i].toDouble(),
+    // final result = _getPortsValue(port);
+
+    // for (var i = 0; i < lengthNumber; i++) {
+    //   await Future.delayed(const Duration(milliseconds: 500));
+    //   yield Size(
+    //     randomTPSLinesValue[i].toDouble(),
+    //     randomRPMLinesValue[i].toDouble(),
+    //   );
+    // }
+
+    final result = _getPortsValue(port);
+
+    result.listen((data) {
+      data.fold(
+        (failure) => throw failure,
+        (value) async* {
+          yield Size(value[0], value[1]);
+        },
       );
-    }
+    });
   }
 
   Future<void> _streamGetTPSRPMLinesValueHandler(
@@ -336,7 +339,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     await emit.forEach<Size>(
-      getTPSRPMLinesValue,
+      getTPSRPMLinesValue(event.port),
       onData: (value) {
         return AxisUpdated(value);
       },

@@ -8,6 +8,7 @@ import '../../domain/entities/timing.dart';
 import '../../domain/entities/tps.dart';
 import '../../domain/repository/home_repository.dart';
 import '../datasources/home_local_data_source.dart';
+import '../datasources/home_port_data_source.dart';
 import '../datasources/home_remote_data_source.dart';
 import '../models/rpm_model.dart';
 import '../models/timing_model.dart';
@@ -17,6 +18,7 @@ class HomeRepositoryImpl implements HomeRepository {
   const HomeRepositoryImpl(
     this._remoteDataSource,
     this._localDataSource,
+    this._portDataSource,
   );
 
   // ignore: unused_field
@@ -24,19 +26,28 @@ class HomeRepositoryImpl implements HomeRepository {
 
   final HomeLocalDataSource _localDataSource;
 
+  final HomePortDataSource _portDataSource;
+
   @override
-  ResultFuture<RPM> getDynamicRPM() async {
+  ResultStream<List<double>> getPortsValue({
+    required String port,
+  }) async* {
     try {
-      return const Right(RPM.empty());
+      List<double> result = [];
+      _portDataSource.getPortsValue(port: port).listen((event) async {
+        result = event;
+      });
+      yield Right(result);
     } on ServerException catch (e) {
-      return Left(ServerFailure.fromException(e));
+      yield Left(ServerFailure.fromException(e));
     }
   }
 
   @override
-  ResultFuture<TPS> getDynamicTPS() async {
+  ResultFuture<List<String>> getPorts() async {
     try {
-      return const Right(TPS.empty());
+      final result = await _portDataSource.getPorts();
+      return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
     }
@@ -236,17 +247,6 @@ class HomeRepositoryImpl implements HomeRepository {
       }
 
       return Right(timings);
-    } on ServerException catch (e) {
-      return Left(ServerFailure.fromException(e));
-    }
-  }
-
-  @override
-  ResultFuture<bool> switchPower({
-    required bool status,
-  }) async {
-    try {
-      return const Right(false);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
     }

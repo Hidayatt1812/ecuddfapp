@@ -6,9 +6,11 @@ import '../entities/tps.dart';
 abstract class HomeRepository {
   const HomeRepository();
 
-  ResultFuture<RPM> getDynamicRPM();
+  ResultStream<List<double>> getPortsValue({
+    required String port,
+  });
 
-  ResultFuture<TPS> getDynamicTPS();
+  ResultFuture<List<String>> getPorts();
 
   ResultFuture<Timing> getTimingCell({
     required TPS tps,
@@ -64,9 +66,5 @@ abstract class HomeRepository {
     required double minValue,
     required double maxValue,
     required int steps,
-  });
-
-  ResultFuture<bool> switchPower({
-    required bool status,
   });
 }

@@ -7,12 +7,19 @@ sealed class HomeEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class GetDynamicRPMEvent extends HomeEvent {
-  const GetDynamicRPMEvent();
-}
+// class GetPortsValueEvent extends HomeEvent {
+//   const GetPortsValueEvent({
+//     required this.port,
+//   });
 
-class GetDynamicTPSEvent extends HomeEvent {
-  const GetDynamicTPSEvent();
+//   final String port;
+
+//   @override
+//   List<Object> get props => [port];
+// }
+
+class GetPortsEvent extends HomeEvent {
+  const GetPortsEvent();
 }
 
 class GetTimingCellEvent extends HomeEvent {
@@ -155,22 +162,16 @@ class SetTPSParameterEvent extends HomeEvent {
 }
 
 class SwitchPowerEvent extends HomeEvent {
-  const SwitchPowerEvent({
-    required this.status,
-  });
-
-  final bool status;
-
-  @override
-  List<Object> get props => [status];
+  const SwitchPowerEvent();
 }
 
 class StreamGetTPSRPMLinesValueEvent extends HomeEvent {
-  final StreamController<double> tpsLinesController;
-  final StreamController<double> rpmLinesController;
-
+  // final StreamController<double> tpsLinesController;
+  // final StreamController<double> rpmLinesController;
+  final String port;
   const StreamGetTPSRPMLinesValueEvent({
-    required this.tpsLinesController,
-    required this.rpmLinesController,
+    // required this.tpsLinesController,
+    // required this.rpmLinesController,
+    required this.port,
   });
 }

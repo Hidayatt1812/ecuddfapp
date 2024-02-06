@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/common/app/providers/cartesius_provider.dart';
 import '../../../../core/common/widgets/main_pop_up.dart';
 import '../../../../core/common/widgets/main_text_input.dart';
+import '../../../../core/res/colours.dart';
 
 class HomeMenu extends StatefulWidget {
   const HomeMenu({super.key});
@@ -182,6 +183,10 @@ class _HomeMenuState extends State<HomeMenu> {
                             ),
                           ),
                           FilledButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  ButtonState.all(Colours.secondaryColour),
+                            ),
                             child: const Text("OK"),
                             onPressed: () {},
                           ),
@@ -243,6 +248,10 @@ class _HomeMenuState extends State<HomeMenu> {
                             width: 5,
                           ),
                           FilledButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  ButtonState.all(Colours.secondaryColour),
+                            ),
                             child: const Text(
                               "OK",
                             ),
@@ -300,6 +309,10 @@ class _HomeMenuState extends State<HomeMenu> {
                             width: 5,
                           ),
                           FilledButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  ButtonState.all(Colours.secondaryColour),
+                            ),
                             child: const Text(
                               "OK",
                             ),
@@ -347,6 +360,10 @@ class _HomeMenuState extends State<HomeMenu> {
                             width: 5,
                           ),
                           FilledButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  ButtonState.all(Colours.secondaryColour),
+                            ),
                             child: const Text(
                               "OK",
                             ),
@@ -446,6 +463,10 @@ class _HomeMenuState extends State<HomeMenu> {
                               FlyoutTarget(
                                 controller: FlyoutController(),
                                 child: FilledButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: ButtonState.all(
+                                        Colours.secondaryColour),
+                                  ),
                                   child: const SizedBox(
                                       width: 100, child: Text("Save Value")),
                                   onPressed: () {
@@ -486,6 +507,10 @@ class _HomeMenuState extends State<HomeMenu> {
                                 width: 15,
                               ),
                               FilledButton(
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      ButtonState.all(Colours.secondaryColour),
+                                ),
                                 child: const SizedBox(
                                   width: 100,
                                   child: Text("Send to ECU"),
