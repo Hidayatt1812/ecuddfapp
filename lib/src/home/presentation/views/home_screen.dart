@@ -6,6 +6,7 @@ import 'package:ddfapp/src/home/presentation/refactors/home_voltage_graph.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/common/app/providers/port_provider.dart';
 import '../../../../core/common/app/providers/power_provider.dart';
 import '../../../../core/res/colours.dart';
 import '../../../../core/utils/core_utils.dart';
@@ -72,6 +73,23 @@ class _HomeScreenState extends State<HomeScreen> {
           CoreUtils.showSnackBar(
               context, 'Power switched to ${status ? 'on' : 'off'}',
               severity: InfoBarSeverity.success);
+        } else if (state is PortLoaded) {
+          for (String port in state.data) {
+            if (context.read<PortProvider>().checkPort(port)) {
+              context.read<PortProvider>().setSelectedPort(port);
+              context.read<HomeBloc>().add(
+                    StreamGetTPSRPMLinesValueEvent(
+                      port: port,
+                    ),
+                  );
+              break;
+            }
+          }
+          context.read<HomeBloc>().add(
+                StreamGetTPSRPMLinesValueEvent(
+                  port: context.read<PortProvider>().selectedPort,
+                ),
+              );
         }
       },
       builder: (context, state) {
@@ -99,12 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Text(
-                                  'TPS Timing: ${context.read<CartesiusProvider>().tpsLinesValue}',
-                                ),
-                                Text(
-                                  'RPM Timing: ${context.read<CartesiusProvider>().rpmLinesValue}',
-                                ),
                                 Text(
                                   'Value Timing: ${context.read<CartesiusProvider>().valueTiming}',
                                 ),

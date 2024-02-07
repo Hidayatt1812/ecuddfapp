@@ -121,7 +121,7 @@ class _HomeMenuState extends State<HomeMenu> {
                                   return MainPopUp(
                                     title:
                                         'Yakin ingin reset ke default? semua data akan hilang',
-                                    onPressed: () {
+                                    onPressedPositive: () {
                                       context
                                           .read<CartesiusProvider>()
                                           .defaultAll();
@@ -150,7 +150,7 @@ class _HomeMenuState extends State<HomeMenu> {
                                   return MainPopUp(
                                     title:
                                         'Yakin ingin load data? semua data saat ini akan hilang',
-                                    onPressed: () {
+                                    onPressedPositive: () {
                                       context
                                           .read<HomeBloc>()
                                           .add(const LoadRPMValueEvent());

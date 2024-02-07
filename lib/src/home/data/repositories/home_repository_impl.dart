@@ -36,10 +36,12 @@ class HomeRepositoryImpl implements HomeRepository {
       List<double> result = [];
       _portDataSource.getPortsValue(port: port).listen((event) async {
         result = event;
+      }, onError: (e) {
+        throw PortException(message: e.toString());
       });
       yield Right(result);
-    } on ServerException catch (e) {
-      yield Left(ServerFailure.fromException(e));
+    } on PortException catch (e) {
+      yield Left(PortFailure.fromException(e));
     }
   }
 

@@ -66,7 +66,7 @@ class CartesiusHeader extends StatelessWidget {
                               title: 'Edit $title',
                               controller: controller,
                               value: value.toString(),
-                              onPressed: () {
+                              onPressedPositive: () {
                                 if (values is List<TPS>) {
                                   if (controller.text.isNotEmpty) {
                                     context

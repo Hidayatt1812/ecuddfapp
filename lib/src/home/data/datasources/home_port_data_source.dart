@@ -1,6 +1,7 @@
 import 'package:ddfapp/core/utils/core_utils.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:serial_port_win32/serial_port_win32.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
+// import 'package:serial_port_win32/serial_port_win32.dart';
 
 import '../../../../core/errors/exceptions.dart';
 
@@ -23,13 +24,23 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   }) async* {
     try {
       SerialPort serialPort = SerialPort(port);
-      serialPort.open();
+      serialPort.open(mode: SerialPortMode.read);
 
-      serialPort.readBytesOnListen(4, (value) async* {
-        List<double> portsValues = CoreUtils.bytesToDouble(value);
+      if (!serialPort.isOpen) {
+        throw const PortException(message: 'Port is not open');
+      }
 
-        yield portsValues;
-      });
+      // serialPort.readBytesOnListen(4, (value) async* {
+      //   List<double> portsValues = CoreUtils.bytesToDouble(value);
+
+      //   yield portsValues;
+      // });
+
+      final result = serialPort.read(4);
+
+      List<double> portsValues = CoreUtils.bytesToDouble(result);
+
+      yield portsValues;
     } on PortException {
       rethrow;
     } catch (e, s) {
@@ -41,7 +52,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   @override
   Future<List<String>> getPorts() async {
     try {
-      final ports = SerialPort.getAvailablePorts();
+      final ports = SerialPort.availablePorts;
       if (ports.isEmpty) {
         throw const PortException(message: 'No Available Ports were found');
       }

@@ -79,6 +79,15 @@ class TimingLoaded extends HomeState {
   List<Object> get props => [data];
 }
 
+class PortLoaded extends HomeState {
+  const PortLoaded(this.data);
+
+  final List<String> data;
+
+  @override
+  List<Object> get props => [data];
+}
+
 class HomePowerSwitched extends HomeState {
   const HomePowerSwitched();
 }

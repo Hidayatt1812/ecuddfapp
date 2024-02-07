@@ -24,8 +24,8 @@ class CartesiusProvider extends ChangeNotifier {
   void initRpms(List<RPM> rpms) {
     if (_rpms != rpms) {
       _rpms = rpms;
-      // resetTiming();
-
+      resetTiming();
+      setTpsRPMLinesValue(_tpsValue, _rpmValue);
       Future.delayed(Duration.zero, notifyListeners);
     }
   }
@@ -123,7 +123,8 @@ class CartesiusProvider extends ChangeNotifier {
   void initTpss(List<TPS> tpss) {
     if (_tpss != tpss) {
       _tpss = tpss;
-      // resetTiming();
+      resetTiming();
+      setTpsRPMLinesValue(_tpsValue, _rpmValue);
       Future.delayed(Duration.zero, notifyListeners);
     }
   }
@@ -361,7 +362,17 @@ class CartesiusProvider extends ChangeNotifier {
 
   double? get rpmLinesValue => _rpmLinesValue;
 
+  double _tpsValue = 0;
+
+  double get tpsValue => _tpsValue;
+
+  double _rpmValue = 0;
+
+  double get rpmValue => _rpmValue;
+
   void setTpsRPMLinesValue(double valueLinesTps, double valueLinesRpm) {
+    _tpsValue = valueLinesTps;
+    _rpmValue = valueLinesRpm;
     int tpsIndex = -1;
     int rpmIndex = -1;
     for (int i = 0; i < _timings.length; i++) {
@@ -382,14 +393,11 @@ class CartesiusProvider extends ChangeNotifier {
         _rpmLinesValue = (((valueLinesRpm - _timings[i].minrpmValue) /
                     (_timings[i].maxrpmValue - _timings[i].minrpmValue)) +
                 i ~/ _tpss.length) /
-            (_tpss.length);
+            (_rpms.length);
         rpmIndex = i ~/ _tpss.length;
         break;
       }
     }
-    // print('t: $tpsIndex');
-    // print('r: $rpmIndex');
-    // print('a: ${tpsIndex + (rpmIndex * _tpss.length)}');
     if (tpsIndex != -1 && rpmIndex != -1) {
       setValueTiming(_timings[tpsIndex + (rpmIndex * _tpss.length)].value);
     }

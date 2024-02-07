@@ -112,44 +112,45 @@ class _HomeSidebarState extends State<HomeSidebar>
                       height: parentHeight,
                       width: parentWidth,
                       child: ListView(
-                        // crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           SidebarItem(
                             title: "TPS",
-                            dataValue: "0 V",
+                            dataValue:
+                                "${cartesiusProvider.tpsValue.toStringAsFixed(2)} V",
                             titleIcon: FluentIcons.chart_y_angle,
                           ),
                           SidebarItem(
                             title: "RPM",
-                            dataValue: '0',
+                            dataValue:
+                                cartesiusProvider.rpmValue.toStringAsFixed(2),
                             titleIcon: FluentIcons.speed_high,
                           ),
-                          SidebarItem(
+                          const SidebarItem(
                             title: "MAP",
                             dataValue: "0 V",
                             titleIcon: FluentIcons.duststorm,
                           ),
-                          SidebarItem(
+                          const SidebarItem(
                             title: "TEMP",
                             dataValue: "18 °C",
                             titleIcon: FluentIcons.frigid,
                           ),
-                          SidebarItem(
+                          const SidebarItem(
                             title: "INJ 1",
                             dataValue: "18 °C",
                             titleIcon: FluentIcons.frigid,
                           ),
-                          SidebarItem(
+                          const SidebarItem(
                             title: "INJ 2",
                             dataValue: "18 °C",
                             titleIcon: FluentIcons.frigid,
                           ),
-                          SidebarItem(
+                          const SidebarItem(
                             title: "INJ 3",
                             dataValue: "18 °C",
                             titleIcon: FluentIcons.frigid,
                           ),
-                          SidebarItem(
+                          const SidebarItem(
                             title: "INJ 4",
                             dataValue: "18 °C",
                             titleIcon: FluentIcons.frigid,

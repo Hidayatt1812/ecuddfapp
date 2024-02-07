@@ -11,7 +11,8 @@ class MainPopUp extends StatelessWidget {
     this.controller,
     this.placholder,
     this.value,
-    required this.onPressed,
+    required this.onPressedPositive,
+    this.onPressedNegative,
     this.positiveText,
   });
 
@@ -20,7 +21,8 @@ class MainPopUp extends StatelessWidget {
   final TextEditingController? controller;
   final String? placholder;
   final String? positiveText;
-  final Function() onPressed;
+  final Function() onPressedPositive;
+  final Function()? onPressedNegative;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +67,7 @@ class MainPopUp extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () {
+            onPressedNegative?.call();
             Navigator.of(context).pop();
           },
           child: const Text(
@@ -78,7 +81,7 @@ class MainPopUp extends StatelessWidget {
           ),
         ),
         TextButton(
-          onPressed: onPressed,
+          onPressed: onPressedPositive,
           child: Text(
             positiveText ?? "Save",
             style: const TextStyle(

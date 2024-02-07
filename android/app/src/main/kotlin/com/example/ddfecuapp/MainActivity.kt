@@ -1,4 +1,4 @@
-package com.example.ddfapp
+package com.example.ddfecuapp
 
 import io.flutter.embedding.android.FlutterActivity
 

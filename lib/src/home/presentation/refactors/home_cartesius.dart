@@ -1,5 +1,4 @@
 import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
-import 'package:ddfapp/core/common/app/providers/port_provider.dart';
 import 'package:ddfapp/core/res/fonts.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:ddfapp/src/home/presentation/widgets/cartesius_header.dart';
@@ -30,14 +29,16 @@ class _HomeCartesiusState extends State<HomeCartesius>
     super.initState();
 
     context.read<CartesiusProvider>().setTpsRPMLinesValue(6, 3);
-
     context.read<HomeBloc>().add(
-          StreamGetTPSRPMLinesValueEvent(
-            port: context.read<PortProvider>().selectedPort,
-            // rpmLinesController: _rpmLinesController,
-            // tpsLinesController: _tpsLinesController,
-          ),
+          const GetPortsEvent(),
         );
+    // context.read<HomeBloc>().add(
+    //       StreamGetTPSRPMLinesValueEvent(
+    //         port: context.read<PortProvider>().selectedPort,
+    //         // rpmLinesController: _rpmLinesController,
+    //         // tpsLinesController: _tpsLinesController,
+    //       ),
+    //     );
   }
 
   @override
@@ -157,6 +158,14 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                                       .length +
                                                               i]
                                                           .id);
+                                                  cartesiusProvider.setIdEndTiming(
+                                                      cartesiusProvider
+                                                          .timings[j *
+                                                                  cartesiusProvider
+                                                                      .tpss
+                                                                      .length +
+                                                              i]
+                                                          .id);
                                                 } else {
                                                   cartesiusProvider
                                                       .setIsSelectingTiming(
@@ -172,7 +181,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                       return MainPopUp(
                                                         title: 'Edit Timing',
                                                         controller: controller,
-                                                        onPressed: () {
+                                                        onPressedPositive: () {
                                                           if (controller.text
                                                               .isNotEmpty) {
                                                             context
@@ -189,6 +198,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                                       controller
                                                                           .text),
                                                                 ));
+
                                                             cartesiusProvider
                                                                 .resetIdsTiming();
                                                             Navigator.of(
@@ -196,6 +206,11 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                                 .pop();
                                                           }
 
+                                                          controller.dispose();
+                                                        },
+                                                        onPressedNegative: () {
+                                                          cartesiusProvider
+                                                              .resetIdsTiming();
                                                           controller.dispose();
                                                         },
                                                       );

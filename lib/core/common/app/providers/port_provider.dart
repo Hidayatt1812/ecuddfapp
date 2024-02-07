@@ -26,10 +26,14 @@ class PortProvider extends ChangeNotifier {
   String get selectedPort => _selectedPort;
 
   void setSelectedPort(String value) {
-    if (_selectedPort != value) {
+    if (_selectedPort != value && _ports.contains(value)) {
       _selectedPort = value;
 
       Future.delayed(Duration.zero, notifyListeners);
     }
+  }
+
+  bool checkPort(String port) {
+    return _ports.contains(port);
   }
 }

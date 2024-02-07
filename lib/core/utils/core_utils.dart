@@ -109,10 +109,10 @@ class CoreUtils {
       } else {
         last -= Random().nextDouble();
       }
-      if (last > 9) {
+      while (last > 9) {
         last -= Random().nextDouble();
       }
-      if (last < 0) {
+      while (last < 0) {
         last += Random().nextDouble();
       }
       return last;
