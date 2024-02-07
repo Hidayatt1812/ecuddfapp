@@ -100,6 +100,9 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
   }) async {
     try {
       final id = _localstore.collection('cartesius').doc().id;
+      print(id);
+
+      _localstore.collection('cartesius').doc(id).delete();
 
 // save the item
       _localstore.collection('cartesius').doc(id).set({

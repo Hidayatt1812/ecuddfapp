@@ -156,10 +156,10 @@ class _HomeMenuState extends State<HomeMenu> {
                                           .add(const LoadRPMValueEvent());
                                       context
                                           .read<HomeBloc>()
-                                          .add(const LoadTimingValueEvent());
+                                          .add(const LoadTPSValueEvent());
                                       context
                                           .read<HomeBloc>()
-                                          .add(const LoadTPSValueEvent());
+                                          .add(const LoadTimingValueEvent());
                                       Navigator.of(context).pop();
                                     },
                                     positiveText: 'Load',

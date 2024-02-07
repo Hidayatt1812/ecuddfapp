@@ -3,6 +3,7 @@ import 'package:ddfapp/core/res/fonts.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:ddfapp/src/home/presentation/widgets/cartesius_header.dart';
 import 'package:ddfapp/src/home/presentation/widgets/cartesius_lines.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -260,7 +261,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                 ),
                                                 child: Center(
                                                   child: Text(
-                                                    '${cartesiusProvider.timings[j * 10 + i].value}',
+                                                    '${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value}',
                                                     style: const TextStyle(
                                                       fontFamily: Fonts.segoe,
                                                       fontSize: 10,

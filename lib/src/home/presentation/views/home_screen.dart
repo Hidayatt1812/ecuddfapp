@@ -85,11 +85,11 @@ class _HomeScreenState extends State<HomeScreen> {
               break;
             }
           }
-          context.read<HomeBloc>().add(
-                StreamGetTPSRPMLinesValueEvent(
-                  port: context.read<PortProvider>().selectedPort,
-                ),
-              );
+          // context.read<HomeBloc>().add(
+          //       StreamGetTPSRPMLinesValueEvent(
+          //         port: context.read<PortProvider>().selectedPort,
+          //       ),
+          //     );
         }
       },
       builder: (context, state) {

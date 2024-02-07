@@ -22,12 +22,10 @@ class CartesiusProvider extends ChangeNotifier {
   List<RPM> get rpms => _rpms;
 
   void initRpms(List<RPM> rpms) {
-    if (_rpms != rpms) {
-      _rpms = rpms;
-      resetTiming();
-      setTpsRPMLinesValue(_tpsValue, _rpmValue);
-      Future.delayed(Duration.zero, notifyListeners);
-    }
+    _rpms = rpms;
+    resetTiming();
+    setTpsRPMLinesValue(_tpsValue, _rpmValue);
+    Future.delayed(Duration.zero, notifyListeners);
   }
 
   void setRpmById(int index, double value) {
@@ -121,12 +119,10 @@ class CartesiusProvider extends ChangeNotifier {
   List<TPS> get tpss => _tpss;
 
   void initTpss(List<TPS> tpss) {
-    if (_tpss != tpss) {
-      _tpss = tpss;
-      resetTiming();
-      setTpsRPMLinesValue(_tpsValue, _rpmValue);
-      Future.delayed(Duration.zero, notifyListeners);
-    }
+    _tpss = tpss;
+    resetTiming();
+    setTpsRPMLinesValue(_tpsValue, _rpmValue);
+    Future.delayed(Duration.zero, notifyListeners);
   }
 
   void setTpsById(int index, double value) {
