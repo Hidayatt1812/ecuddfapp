@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:ddfapp/core/res/colours.dart';
 import 'package:ddfapp/home/home_controller.dart';
 import 'package:ddfapp/home/upload_controller.dart';
 import 'package:ddfapp/widgets/text_input.dart';
@@ -119,6 +120,7 @@ class _HomePageState extends State<HomePage> {
 
     return Container(
       padding: const EdgeInsets.all(20),
+      color: Colours.primaryColour,
       child: Column(
         children: [
           Expanded(
@@ -230,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
-                                        const cDivider(
+                                        const CDivider(
                                           direction: Axis.vertical,
                                           size: 120,
                                           marginH: 20,
@@ -375,7 +377,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
-                                        const cDivider(
+                                        const CDivider(
                                           direction: Axis.vertical,
                                           size: 120,
                                           marginH: 20,
@@ -727,7 +729,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
-                                        const cDivider(
+                                        const CDivider(
                                           direction: Axis.vertical,
                                           size: 120,
                                           marginH: 20,
@@ -1239,8 +1241,6 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                       Expanded(
-                        // width: 100,
-                        // height: 200,
                         child: Row(children: [
                           RotatedBox(
                             quarterTurns: 3,

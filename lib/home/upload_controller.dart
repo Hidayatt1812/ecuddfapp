@@ -6,9 +6,6 @@ import 'package:ddfapp/widgets/notification.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-// import 'package:serial_port_win32/serial_port_win32.dart';
-import 'dart:io' show Directory;
-// import 'package:ffi/ffi.dart';
 import 'package:path/path.dart' as path;
 import 'package:ddfapp/api.dart';
 

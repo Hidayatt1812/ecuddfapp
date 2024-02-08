@@ -1,7 +1,5 @@
-import 'dart:ffi';
-import 'dart:typed_data';
+import 'dart:developer';
 import 'dart:io' show Directory;
-import 'package:ffi/ffi.dart';
 import 'package:path/path.dart' as path;
 import 'api.dart';
 
@@ -31,8 +29,8 @@ void main() {
       customSerialCommunication.sendData(port, baudRate, command, index, data);
 
   if (result == 0) {
-    print('Data sent successfully.');
+    log('Data sent successfully.');
   } else {
-    print('Failed to sending data.');
+    log('Failed to sending data.');
   }
 }

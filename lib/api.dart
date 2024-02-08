@@ -1,8 +1,5 @@
 import 'dart:ffi';
-import 'dart:convert';
-import 'dart:io' show Directory;
 import 'package:ffi/ffi.dart';
-import 'package:path/path.dart' as path;
 
 typedef SendDataFunc = Int32 Function(
     Int32, Uint32, Uint8, Uint8, Pointer<Uint16>, Uint8);

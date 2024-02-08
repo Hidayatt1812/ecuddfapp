@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import '../core/res/colours.dart';
 import '../widgets/text_input.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -15,6 +16,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      color: Colours.primaryColour,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -279,70 +281,68 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text("Max Temp (exhaust) :"),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    TextInput(
-                                        disabled: false,
-                                        controller: TextEditingController()),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Row(
-                                  children: [
-                                    const Text("Min Temp (Reducer) :"),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    TextInput(
-                                        disabled: false,
-                                        controller: TextEditingController()),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Row(
-                                  children: [
-                                    const Text("Default Injector Value :"),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    TextInput(
-                                        disabled: false,
-                                        controller: TextEditingController()),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              width: 60,
-                            ),
-                          ],
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text("Max Temp (exhaust) :"),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  TextInput(
+                                      disabled: false,
+                                      controller: TextEditingController()),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                children: [
+                                  const Text("Min Temp (Reducer) :"),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  TextInput(
+                                      disabled: false,
+                                      controller: TextEditingController()),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                children: [
+                                  const Text("Default Injector Value :"),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  TextInput(
+                                      disabled: false,
+                                      controller: TextEditingController()),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            width: 60,
+                          ),
+                        ],
                       ),
                     )
                   ],

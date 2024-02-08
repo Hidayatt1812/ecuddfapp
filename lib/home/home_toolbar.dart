@@ -124,7 +124,7 @@ class _ConfigBarState extends State<ConfigBar> {
                 ),
               ],
             ),
-            const cDivider(
+            const CDivider(
               direction: Axis.vertical,
               size: 120,
               marginH: 20,
@@ -256,7 +256,7 @@ class _ConfigBarState extends State<ConfigBar> {
                 ),
               ],
             ),
-            const cDivider(
+            const CDivider(
               direction: Axis.vertical,
               size: 120,
               marginH: 20,
@@ -388,7 +388,7 @@ class _ConfigBarState extends State<ConfigBar> {
                 ),
               ],
             ),
-            const cDivider(
+            const CDivider(
               direction: Axis.vertical,
               size: 120,
               marginH: 20,

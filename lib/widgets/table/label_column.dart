@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:ddfapp/widgets/text_input.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 

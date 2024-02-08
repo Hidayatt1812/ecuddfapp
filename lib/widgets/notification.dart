@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
+// ignore: must_be_immutable
 class NotificationBar extends StatelessWidget {
   NotificationBar({
     super.key,
