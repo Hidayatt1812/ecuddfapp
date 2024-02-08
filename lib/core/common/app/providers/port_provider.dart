@@ -28,6 +28,7 @@ class PortProvider extends ChangeNotifier {
   void setSelectedPort(String value) {
     if (_selectedPort != value && _ports.contains(value)) {
       _selectedPort = value;
+      // ports.add(value);
 
       Future.delayed(Duration.zero, notifyListeners);
     }

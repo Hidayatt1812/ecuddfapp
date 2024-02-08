@@ -43,7 +43,6 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         throw const CacheException(message: 'No RPM value was found');
       }
       final data = await _localstore.collection('cartesius').doc(id).get();
-      print(data);
       if (data == null || data.isEmpty) {
         throw const CacheException(message: 'No RPM value was found');
       }

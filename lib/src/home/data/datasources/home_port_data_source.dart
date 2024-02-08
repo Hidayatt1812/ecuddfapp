@@ -1,6 +1,6 @@
 import 'package:ddfapp/core/utils/core_utils.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'package:serial_port_win32/serial_port_win32.dart';
 // import 'package:serial_port_win32/serial_port_win32.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -24,11 +24,13 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   }) async* {
     try {
       SerialPort serialPort = SerialPort(port);
-      serialPort.open(mode: SerialPortMode.read);
+      print('Serial Port: $serialPort');
+      // SerialPort serialPort = SerialPort('/dev/cu.usbserial-AR0JRHZS');
+      serialPort.open();
 
-      if (!serialPort.isOpen) {
-        throw const PortException(message: 'Port is not open');
-      }
+      // if (!serialPort.isOpen) {
+      //   throw const PortException(message: 'Port is not open');
+      // }
 
       // serialPort.readBytesOnListen(4, (value) async* {
       //   List<double> portsValues = CoreUtils.bytesToDouble(value);
@@ -36,9 +38,24 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       //   yield portsValues;
       // });
 
-      final result = serialPort.read(4);
+      // final result = serialPort.read(4);
+      List<double> portsValues = [];
+      serialPort.readBytesOnListen(4, (value) {
+        portsValues = CoreUtils.bytesToDouble(value);
 
-      List<double> portsValues = CoreUtils.bytesToDouble(result);
+        // try {
+        //   sC.readRPM.value = intList[0];
+        //   sC.readTPS.value = intList[1];
+        //   sC.readMAP.value = intList[2];
+        // } catch (e) {
+        //   if (kDebugMode) {
+        //     print("waiting data...");
+        //   }
+        // }
+      });
+
+      // List<double> portsValues = CoreUtils.bytesToDouble(result);
+      // List<double> portsValues = [0, 0, 0, 0];
 
       yield portsValues;
     } on PortException {
@@ -52,7 +69,9 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   @override
   Future<List<String>> getPorts() async {
     try {
-      final ports = SerialPort.availablePorts;
+      final ports = SerialPort.getAvailablePorts();
+      print('Ports: $ports');
+      //  /dev/cu.usbserial-AR0JRHZS]
       if (ports.isEmpty) {
         throw const PortException(message: 'No Available Ports were found');
       }

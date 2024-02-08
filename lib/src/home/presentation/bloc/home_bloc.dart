@@ -5,7 +5,6 @@ import 'package:equatable/equatable.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:stream_transform/stream_transform.dart';
 
-import '../../../../core/utils/core_utils.dart';
 import '../../domain/entities/timing.dart';
 import '../../domain/usecases/get_ports_value.dart';
 import '../../domain/usecases/get_ports.dart';
@@ -308,30 +307,30 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Stream<Size> getTPSRPMLinesValue(String port) async* {
-    int lengthNumber = 600;
-    List<double> randomTPSLinesValue =
-        CoreUtils.generateRandomNumbers(lengthNumber);
-    List<double> randomRPMLinesValue =
-        CoreUtils.generateRandomNumbers(lengthNumber);
+    // int lengthNumber = 600;
+    // List<double> randomTPSLinesValue =
+    //     CoreUtils.generateRandomNumbers(lengthNumber);
+    // List<double> randomRPMLinesValue =
+    //     CoreUtils.generateRandomNumbers(lengthNumber);
 
-    for (var i = 0; i < lengthNumber; i++) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      yield Size(
-        randomTPSLinesValue[i].toDouble(),
-        randomRPMLinesValue[i].toDouble(),
-      );
-    }
-
-    // final result = _getPortsValue(port);
-
-    // result.listen((data) {
-    //   data.fold(
-    //     (failure) => throw failure,
-    //     (value) async* {
-    //       yield Size(value[0], value[1]);
-    //     },
+    // for (var i = 0; i < lengthNumber; i++) {
+    //   await Future.delayed(const Duration(milliseconds: 500));
+    //   yield Size(
+    //     randomTPSLinesValue[i].toDouble(),
+    //     randomRPMLinesValue[i].toDouble(),
     //   );
-    // });
+    // }
+
+    final result = _getPortsValue(port);
+
+    result.listen((data) {
+      data.fold(
+        (failure) => throw failure,
+        (value) async* {
+          yield Size(value[0], value[1]);
+        },
+      );
+    });
   }
 
   Future<void> _streamGetTPSRPMLinesValueHandler(
