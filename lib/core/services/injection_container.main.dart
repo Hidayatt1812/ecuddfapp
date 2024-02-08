@@ -20,6 +20,7 @@ Future<void> _initCore({
 
 Future<void> _initHome() async {
   final localstore = Localstore.instance;
+  final sharedPreferences = await SharedPreferences.getInstance();
   sl
     ..registerFactory(
       () => HomeBloc(
@@ -63,12 +64,14 @@ Future<void> _initHome() async {
     ..registerLazySingleton<HomeLocalDataSource>(
       () => HomeLocalDataSourceImpl(
         localstore: sl(),
+        sharedPreferences: sl(),
       ),
     )
     ..registerLazySingleton<HomePortDataSource>(
       () => const HomePortDataSourceImpl(),
     )
-    ..registerLazySingleton(() => localstore);
+    ..registerLazySingleton(() => localstore)
+    ..registerLazySingleton(() => sharedPreferences);
 }
 
 Future<void> _initSettings() async {

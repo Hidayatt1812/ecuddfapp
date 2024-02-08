@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:localstore/localstore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/errors/exceptions.dart';
 import '../models/rpm_model.dart';
@@ -25,21 +26,31 @@ abstract class HomeLocalDataSource {
 class HomeLocalDataSourceImpl implements HomeLocalDataSource {
   const HomeLocalDataSourceImpl({
     required Localstore localstore,
-  }) : _localstore = localstore;
+    required SharedPreferences sharedPreferences,
+  })  : _localstore = localstore,
+        _sharedPreferences = sharedPreferences;
 
   final Localstore _localstore;
+  final SharedPreferences _sharedPreferences;
+
+  final String db = 'cartesius';
 
   @override
   Future<List<RPMModel>> loadRPMValue() async {
     try {
-      final data = await _localstore.collection('cartesius').get();
+      final id = _sharedPreferences.getString(db);
+      if (id == null) {
+        throw const CacheException(message: 'No RPM value was found');
+      }
+      final data = await _localstore.collection('cartesius').doc(id).get();
+      print(data);
       if (data == null || data.isEmpty) {
         throw const CacheException(message: 'No RPM value was found');
       }
-      List<dynamic> result = [];
-      data.forEach((key, value) {
-        result = value['rpms'];
-      });
+      List<dynamic> result = data['rpms'];
+      // data.forEach((key, value) {
+      //   result = value['rpms'];
+      // });
       final rpms = result.map((e) => RPMModel.fromMap(e)).toList();
       return rpms;
     } on CacheException {
@@ -53,14 +64,18 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
   @override
   Future<List<TPSModel>> loadTPSValue() async {
     try {
-      final data = await _localstore.collection('cartesius').get();
+      final id = _sharedPreferences.getString(db);
+      if (id == null) {
+        throw const CacheException(message: 'No TPS value was found');
+      }
+      final data = await _localstore.collection('cartesius').doc(id).get();
       if (data == null || data.isEmpty) {
         throw const CacheException(message: 'No TPS value was found');
       }
-      List<dynamic> result = [];
-      data.forEach((key, value) {
-        result = value['tpss'];
-      });
+      List<dynamic> result = data['tpss'];
+      // data.forEach((key, value) {
+      //   result = value['tpss'];
+      // });
       List<TPSModel> tpss = result.map((e) => TPSModel.fromMap(e)).toList();
       return tpss;
     } on CacheException {
@@ -74,14 +89,18 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
   @override
   Future<List<TimingModel>> loadTimingValue() async {
     try {
-      final data = await _localstore.collection('cartesius').get();
+      final id = _sharedPreferences.getString(db);
+      if (id == null) {
+        throw const CacheException(message: 'No Timing value was found');
+      }
+      final data = await _localstore.collection('cartesius').doc(id).get();
       if (data == null || data.isEmpty) {
         throw const CacheException(message: 'No Timing value was found');
       }
-      List<dynamic> result = [];
-      data.forEach((key, value) {
-        result = value['timings'];
-      });
+      List<dynamic> result = data['timings'];
+      // data.forEach((key, value) {
+      //   result = value['timings'];
+      // });
       final timings = result.map((e) => TimingModel.fromMap(e)).toList();
       return timings;
     } on CacheException {
@@ -99,12 +118,9 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
     required List<TimingModel> timings,
   }) async {
     try {
-      final id = _localstore.collection('cartesius').doc().id;
-      print(id);
+      final id = _localstore.collection(db).doc().id;
+      await _sharedPreferences.setString(db, id);
 
-      _localstore.collection('cartesius').doc(id).delete();
-
-// save the item
       _localstore.collection('cartesius').doc(id).set({
         'tpss': tpss.map((e) => e.toMap()).toList(),
         'rpms': rpms.map((e) => e.toMap()).toList(),

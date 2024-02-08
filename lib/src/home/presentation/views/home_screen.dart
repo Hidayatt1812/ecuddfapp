@@ -26,8 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     context.read<HomeBloc>().add(const LoadRPMValueEvent());
-    context.read<HomeBloc>().add(const LoadTimingValueEvent());
     context.read<HomeBloc>().add(const LoadTPSValueEvent());
+    context.read<HomeBloc>().add(const LoadTimingValueEvent());
     super.initState();
   }
 
