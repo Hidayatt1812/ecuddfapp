@@ -1,3 +1,8 @@
+import 'dart:async';
+
+import 'package:dartz/dartz.dart';
+
+import '../../../../core/errors/failure.dart';
 import '../../../../core/utils/typedef.dart';
 import '../entities/rpm.dart';
 import '../entities/timing.dart';
@@ -6,8 +11,10 @@ import '../entities/tps.dart';
 abstract class HomeRepository {
   const HomeRepository();
 
-  ResultStream<List<double>> getPortsValue({
+  ResultStream<dynamic> getPortsValue({
     required String port,
+    required StreamController<Either<Failure, List<double>>> controllerRepo,
+    required StreamController<dynamic> controllerDataSource,
   });
 
   ResultFuture<List<String>> getPorts();

@@ -1,5 +1,6 @@
 import 'package:ddfapp/core/common/app/providers/port_provider.dart';
 import 'package:ddfapp/core/common/app/providers/power_provider.dart';
+import 'package:ddfapp/core/extensions/context_extensions.dart';
 import 'package:ddfapp/core/res/colours.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -94,14 +95,58 @@ class _HomeSidebarState extends State<HomeSidebar>
                               child: Text(e.toString()),
                             );
                           }).toList(),
+                          onTap: () {
+                            context.read<HomeBloc>().add(const GetPortsEvent());
+                          },
                           onChanged: ((value) {
+                            context.portProvider.setIsStreaming(true);
                             portProvider.setSelectedPort(value!);
+                            context.read<HomeBloc>().add(
+                                  StreamGetTPSRPMLinesValueEvent(
+                                    port: value,
+                                  ),
+                                );
                           }),
                         );
                       },
                     ),
                   )
                 ],
+              ),
+              Container(
+                margin: const EdgeInsets.only(bottom: 10, top: 10),
+                height: 40,
+                child: Consumer<PortProvider>(
+                  builder: (_, portProvider, __) {
+                    return FilledButton(
+                      style: ButtonStyle(
+                        backgroundColor: ButtonState.all(
+                            portProvider.isStreaming
+                                ? Colours.errorColour
+                                : Colours.secondaryColour),
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          width: 100,
+                          child: Icon(
+                            portProvider.isStreaming
+                                ? FluentIcons.stop
+                                : FluentIcons.play,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (portProvider.isStreaming) {
+                          context.portProvider.setIsStreaming(false);
+                          context.read<HomeBloc>().add(
+                                const StopStreamDataEvent(),
+                              );
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
               Expanded(
                 child: LayoutBuilder(

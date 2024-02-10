@@ -7,17 +7,6 @@ sealed class HomeEvent extends Equatable {
   List<Object> get props => [];
 }
 
-// class GetPortsValueEvent extends HomeEvent {
-//   const GetPortsValueEvent({
-//     required this.port,
-//   });
-
-//   final String port;
-
-//   @override
-//   List<Object> get props => [port];
-// }
-
 class GetPortsEvent extends HomeEvent {
   const GetPortsEvent();
 }
@@ -163,6 +152,10 @@ class SetTPSParameterEvent extends HomeEvent {
 
 class SwitchPowerEvent extends HomeEvent {
   const SwitchPowerEvent();
+}
+
+class StopStreamDataEvent extends HomeEvent {
+  const StopStreamDataEvent();
 }
 
 class StreamGetTPSRPMLinesValueEvent extends HomeEvent {

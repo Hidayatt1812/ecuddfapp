@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../src/dashboard/presentation/providers/dashboard_controller.dart';
+import '../common/app/providers/port_provider.dart';
+import '../common/app/providers/power_provider.dart';
 import '../common/app/providers/tab_navigator.dart';
 
 extension ContextExtensions on BuildContext {
@@ -15,6 +17,10 @@ extension ContextExtensions on BuildContext {
   double get height => size.height;
 
   CartesiusProvider get cartesiusProvider => read<CartesiusProvider>();
+
+  PortProvider get portProvider => read<PortProvider>();
+
+  PowerProvider get powerProvider => read<PowerProvider>();
 
   TabNavigator get tabNavigator => read<TabNavigator>();
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -31,15 +33,22 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   ResultStream<List<double>> getPortsValue({
     required String port,
+    required StreamController<Either<Failure, List<double>>> controllerRepo,
+    required StreamController<dynamic> controllerDataSource,
   }) async* {
     try {
-      List<double> result = [];
-      _portDataSource.getPortsValue(port: port).listen((event) async {
-        result = event;
+      final Stream<dynamic> result = _portDataSource.getPortsValue(
+        port: port,
+        controllerDataSource: controllerDataSource,
+      );
+
+      result.listen((data) {
+        controllerRepo.add(Right(data));
       }, onError: (e) {
-        throw PortException(message: e.toString());
+        controllerRepo.add(Left(PortFailure.fromException(e)));
       });
-      yield Right(result);
+
+      yield* controllerRepo.stream;
     } on PortException catch (e) {
       yield Left(PortFailure.fromException(e));
     }

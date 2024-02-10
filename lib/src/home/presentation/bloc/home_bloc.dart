@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
+import 'package:ddfapp/core/errors/failure.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import '../../domain/entities/timing.dart';
@@ -77,8 +81,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<SetTPSManuallyEvent>(_setTPSManuallyHandler);
     on<SetTPSParameterEvent>(_setTPSParameterHandler);
     on<SwitchPowerEvent>(_switchPowerHandler);
-    on<StreamGetTPSRPMLinesValueEvent>(_streamGetTPSRPMLinesValueHandler,
+    on<StreamGetTPSRPMLinesValueEvent>(_getTPSRPMLinesValueHandler,
         transformer: (events, mapper) => events.switchMap(mapper));
+    on<StopStreamDataEvent>(_stopStreamDataHandler);
   }
 
   // ignore: unused_field
@@ -97,6 +102,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final SetTimingManually _setTimingManually;
   final SetTPSManually _setTPSManually;
   final SetTPSParameter _setTPSParameter;
+  final StreamController<Either<Failure, List<double>>> _controllerRepo =
+      StreamController();
+  final StreamController<dynamic> _controllerDataSource = StreamController();
 
   // Future<void> _getPortsValueHandler(
   //   GetDynamicRPMEvent event,
@@ -306,42 +314,41 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(const HomePowerSwitched());
   }
 
-  Stream<Size> getTPSRPMLinesValue(String port) async* {
-    // int lengthNumber = 600;
-    // List<double> randomTPSLinesValue =
-    //     CoreUtils.generateRandomNumbers(lengthNumber);
-    // List<double> randomRPMLinesValue =
-    //     CoreUtils.generateRandomNumbers(lengthNumber);
-
-    // for (var i = 0; i < lengthNumber; i++) {
-    //   await Future.delayed(const Duration(milliseconds: 500));
-    //   yield Size(
-    //     randomTPSLinesValue[i].toDouble(),
-    //     randomRPMLinesValue[i].toDouble(),
-    //   );
-    // }
-
-    final result = _getPortsValue(port);
-
-    result.listen((data) {
-      data.fold(
-        (failure) => throw failure,
-        (value) async* {
-          yield Size(value[0], value[1]);
-        },
-      );
-    });
-  }
-
-  Future<void> _streamGetTPSRPMLinesValueHandler(
+  Future<void> _getTPSRPMLinesValueHandler(
     StreamGetTPSRPMLinesValueEvent event,
     Emitter<HomeState> emit,
   ) async {
-    await emit.forEach<Size>(
-      getTPSRPMLinesValue(event.port),
+    await emit.forEach(
+      _getPortsValue(GetPortsValueParams(
+        port: event.port,
+        controllerRepo: _controllerRepo,
+        controllerDataSource: _controllerDataSource,
+      )),
       onData: (value) {
-        return AxisUpdated(value);
+        value.fold(
+          (failure) => emit(HomeError(failure.message)),
+          (data) => emit(AxisUpdated(
+            Size(
+              data[0] * Random().nextInt(10),
+              data[1] * Random().nextInt(10),
+            ),
+          )),
+        );
+        return const HomeIdle();
+      },
+      onError: (e, s) {
+        debugPrintStack(stackTrace: s);
+        return HomeError(e.toString());
       },
     );
+  }
+
+  Future<void> _stopStreamDataHandler(
+    StopStreamDataEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    _controllerDataSource.close();
+    _controllerRepo.close();
+    emit(const StreamingDataStopped());
   }
 }

@@ -11,6 +11,10 @@ final class HomeInitial extends HomeState {
   const HomeInitial();
 }
 
+final class HomeIdle extends HomeState {
+  const HomeIdle();
+}
+
 class HomeLoading extends HomeState {
   const HomeLoading();
 }
@@ -90,4 +94,8 @@ class PortLoaded extends HomeState {
 
 class HomePowerSwitched extends HomeState {
   const HomePowerSwitched();
+}
+
+class StreamingDataStopped extends HomeState {
+  const StreamingDataStopped();
 }

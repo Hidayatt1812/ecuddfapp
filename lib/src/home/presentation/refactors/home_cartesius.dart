@@ -29,9 +29,9 @@ class _HomeCartesiusState extends State<HomeCartesius>
     super.initState();
 
     context.read<CartesiusProvider>().setTpsRPMLinesValue(6, 3);
-    context.read<HomeBloc>().add(
-          const GetPortsEvent(),
-        );
+    // context.read<HomeBloc>().add(
+    //       const GetPortsEvent(),
+    //     );
     // context.read<HomeBloc>().add(
     //       StreamGetTPSRPMLinesValueEvent(
     //         port: context.read<PortProvider>().selectedPort,

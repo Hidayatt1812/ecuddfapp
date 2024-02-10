@@ -132,6 +132,12 @@ class CoreUtils {
         transformedList.add(combinedValue);
       }
     }
+//     flutter: result: [42, 33, 242, 16]
+// flutter: portsValue: [8490.0, 4338.0]
+// flutter: event: [8490.0, 4338.0]
+// flutter: result: [126, 132, 176, 40]
+// flutter: portsValue: [33918.0, 10416.0]
+// flutter: event: [33918.0, 10416.0]
 
     List<int> intList = [];
 

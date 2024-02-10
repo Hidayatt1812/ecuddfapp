@@ -1,4 +1,5 @@
 import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
+import 'package:ddfapp/core/extensions/context_extensions.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_cartesius.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_menu.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_sidebar.dart';
@@ -36,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) async {
         if (state is HomeError) {
+          print('Error: ${state.message}');
           CoreUtils.showSnackBar(context, state.message);
         } else if (state is HomeUpdated) {
           if (state.data is List<TPS>) {
@@ -74,22 +76,25 @@ class _HomeScreenState extends State<HomeScreen> {
               context, 'Power switched to ${status ? 'on' : 'off'}',
               severity: InfoBarSeverity.success);
         } else if (state is PortLoaded) {
-          for (String port in state.data) {
-            if (context.read<PortProvider>().checkPort(port)) {
-              context.read<PortProvider>().setSelectedPort(port);
-              context.read<HomeBloc>().add(
-                    StreamGetTPSRPMLinesValueEvent(
-                      port: port,
-                    ),
-                  );
-              break;
-            }
-          }
-          // context.read<HomeBloc>().add(
-          //       StreamGetTPSRPMLinesValueEvent(
-          //         port: context.read<PortProvider>().selectedPort,
-          //       ),
-          //     );
+          context.portProvider.initPorts(state.data);
+          // for (String port in state.data) {
+          //   if (context.read<PortProvider>().checkPort(port)) {
+          //     context.read<PortProvider>().setSelectedPort(port);
+          //     context.read<HomeBloc>().add(
+          //           StreamGetTPSRPMLinesValueEvent(
+          //             port: port,
+          //           ),
+          //         );
+          //     break;
+          //   }
+          // }
+          print('Selected Port: ${context.read<PortProvider>().selectedPort}');
+          context.portProvider.setIsStreaming(true);
+          context.read<HomeBloc>().add(
+                StreamGetTPSRPMLinesValueEvent(
+                  port: context.read<PortProvider>().selectedPort,
+                ),
+              );
         }
       },
       builder: (context, state) {

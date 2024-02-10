@@ -1,6 +1,6 @@
-import 'package:ddfapp/core/utils/core_utils.dart';
+import 'dart:async';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:serial_port_win32/serial_port_win32.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 // import 'package:serial_port_win32/serial_port_win32.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -8,8 +8,9 @@ import '../../../../core/errors/exceptions.dart';
 abstract class HomePortDataSource {
   const HomePortDataSource();
 
-  Stream<List<double>> getPortsValue({
+  Stream<dynamic> getPortsValue({
     required String port,
+    required StreamController<dynamic> controllerDataSource,
   });
 
   Future<List<String>> getPorts();
@@ -19,45 +20,57 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   const HomePortDataSourceImpl();
 
   @override
-  Stream<List<double>> getPortsValue({
+  Stream<dynamic> getPortsValue({
     required String port,
+    required StreamController<dynamic> controllerDataSource,
   }) async* {
     try {
-      SerialPort serialPort = SerialPort(port);
-      print('Serial Port: $serialPort');
-      // SerialPort serialPort = SerialPort('/dev/cu.usbserial-AR0JRHZS');
-      serialPort.open();
+      final SerialPortConfig cfg = SerialPortConfig();
+      cfg.baudRate = 9600;
+      cfg.bits = 16;
+      SerialPort serialPort = SerialPort('/dev/cu.usbserial-0001');
+      serialPort.config = cfg;
+      serialPort.openRead();
 
-      // if (!serialPort.isOpen) {
-      //   throw const PortException(message: 'Port is not open');
-      // }
+      SerialPortReader reader = SerialPortReader(serialPort, timeout: 10000);
 
-      // serialPort.readBytesOnListen(4, (value) async* {
-      //   List<double> portsValues = CoreUtils.bytesToDouble(value);
+      Stream upcomingData = reader.stream.map(
+        (data) => data,
+      );
 
-      //   yield portsValues;
-      // });
-
-      // final result = serialPort.read(4);
+      String res = '';
+      String type = '';
       List<double> portsValues = [];
-      serialPort.readBytesOnListen(4, (value) {
-        portsValues = CoreUtils.bytesToDouble(value);
-
-        // try {
-        //   sC.readRPM.value = intList[0];
-        //   sC.readTPS.value = intList[1];
-        //   sC.readMAP.value = intList[2];
-        // } catch (e) {
-        //   if (kDebugMode) {
-        //     print("waiting data...");
-        //   }
-        // }
-      });
-
-      // List<double> portsValues = CoreUtils.bytesToDouble(result);
-      // List<double> portsValues = [0, 0, 0, 0];
-
-      yield portsValues;
+      upcomingData.listen((data) {
+        String char = String.fromCharCodes(data);
+        if (char == 'R') {
+          type = 'R';
+        } else if (char == 'T' && portsValues.isNotEmpty) {
+          type = 'T';
+        } else if (char != '\n' && type != '' && char != 'R' && char != 'T') {
+          res += char;
+        } else if (char == '\n') {
+          res = res.trim();
+          if (type == 'R' && portsValues.isEmpty) {
+            portsValues
+                .add(double.tryParse(res) ?? 0); // Handling parsing error
+          } else if (type == 'T' && portsValues.length == 1) {
+            portsValues
+                .add(double.tryParse(res) ?? 0); // Handling parsing error
+            controllerDataSource.add(List<double>.from(portsValues));
+            portsValues.clear();
+          }
+          print('type: $type, res: $res');
+          type = '';
+          res = '';
+        }
+      }, onError: (e, s) {
+        debugPrintStack(stackTrace: s);
+        controllerDataSource.add(PortException(message: e.toString()));
+      }, onDone: () {
+        controllerDataSource.close();
+      }, cancelOnError: true);
+      yield* controllerDataSource.stream;
     } on PortException {
       rethrow;
     } catch (e, s) {
@@ -69,7 +82,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   @override
   Future<List<String>> getPorts() async {
     try {
-      final ports = SerialPort.getAvailablePorts();
+      final ports = SerialPort.availablePorts;
       print('Ports: $ports');
       //  /dev/cu.usbserial-AR0JRHZS]
       if (ports.isEmpty) {
