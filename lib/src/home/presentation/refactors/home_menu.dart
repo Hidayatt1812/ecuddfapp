@@ -392,26 +392,29 @@ class _HomeMenuState extends State<HomeMenu> {
                                 builder: (_, portProvider, __) {
                                   return IgnorePointer(
                                     ignoring:
-                                        portProvider.selectedPort == "None",
+                                        portProvider.selectedPort == "None" ||
+                                            portProvider.isStreaming,
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        // state is DataSent
-                                        //     ? Icon(FluentIcons.skype_circle_check,
-                                        //         color: Colors.green)
-                                        // :
-                                        const Icon(
-                                          FluentIcons.sync_status_solid,
-                                          color: Color.fromARGB(90, 49, 49, 49),
-                                        ),
+                                        state is DataSent
+                                            ? Icon(
+                                                FluentIcons.skype_circle_check,
+                                                color: Colors.green)
+                                            : const Icon(
+                                                FluentIcons.sync_status_solid,
+                                                color: Color.fromARGB(
+                                                    90, 49, 49, 49),
+                                              ),
                                         const SizedBox(
                                           width: 15,
                                         ),
                                         FilledButton(
                                           style: ButtonStyle(
                                             backgroundColor: portProvider
-                                                        .selectedPort ==
-                                                    "None"
+                                                            .selectedPort ==
+                                                        "None" ||
+                                                    portProvider.isStreaming
                                                 ? ButtonState.all(Colours
                                                     .secondaryColour
                                                     .withOpacity(0.5))
