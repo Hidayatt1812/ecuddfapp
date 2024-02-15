@@ -7,7 +7,6 @@ import 'package:ddfapp/src/home/presentation/refactors/home_voltage_graph.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/common/app/providers/port_provider.dart';
 import '../../../../core/common/app/providers/power_provider.dart';
 import '../../../../core/res/colours.dart';
 import '../../../../core/utils/core_utils.dart';
@@ -29,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<HomeBloc>().add(const LoadRPMValueEvent());
     context.read<HomeBloc>().add(const LoadTPSValueEvent());
     context.read<HomeBloc>().add(const LoadTimingValueEvent());
+    context.read<HomeBloc>().add(const GetPortsEvent());
     super.initState();
   }
 
@@ -37,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) async {
         if (state is HomeError) {
-          print('Error: ${state.message}');
           CoreUtils.showSnackBar(context, state.message);
         } else if (state is HomeUpdated) {
           if (state.data is List<TPS>) {
@@ -57,7 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
           CoreUtils.showSnackBar(context, message,
               severity: InfoBarSeverity.success);
         } else if (state is AxisUpdated) {
-          print('Axis updated: ${state.data}');
           context
               .read<CartesiusProvider>()
               .setTpsRPMLinesValue(state.data.width, state.data.height);
@@ -67,34 +65,15 @@ class _HomeScreenState extends State<HomeScreen> {
           context.read<CartesiusProvider>().initRpms(state.data);
         } else if (state is TimingLoaded) {
           context.read<CartesiusProvider>().initTimings(state.data);
-        } else if (state is DataSaved) {
-          CoreUtils.showSnackBar(context, 'Data saved',
-              severity: InfoBarSeverity.success);
         } else if (state is HomePowerSwitched) {
-          final status = context.read<PowerProvider>().switchPowerStatus();
+          final status =
+              context.read<PowerProvider>().switchPowerStatus(state.status);
           CoreUtils.showSnackBar(
               context, 'Power switched to ${status ? 'on' : 'off'}',
               severity: InfoBarSeverity.success);
+          context.portProvider.closeSerialPort();
         } else if (state is PortLoaded) {
           context.portProvider.initPorts(state.data);
-          // for (String port in state.data) {
-          //   if (context.read<PortProvider>().checkPort(port)) {
-          //     context.read<PortProvider>().setSelectedPort(port);
-          //     context.read<HomeBloc>().add(
-          //           StreamGetTPSRPMLinesValueEvent(
-          //             port: port,
-          //           ),
-          //         );
-          //     break;
-          //   }
-          // }
-          print('Selected Port: ${context.read<PortProvider>().selectedPort}');
-          context.portProvider.setIsStreaming(true);
-          context.read<HomeBloc>().add(
-                StreamGetTPSRPMLinesValueEvent(
-                  port: context.read<PortProvider>().selectedPort,
-                ),
-              );
         }
       },
       builder: (context, state) {

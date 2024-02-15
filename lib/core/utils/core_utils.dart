@@ -88,6 +88,11 @@ class CoreUtils {
     return int.parse(value, radix: 16).toString();
   }
 
+  static String hexToDouble(String hex) {
+    var value = hex;
+    return int.parse(value, radix: 16).toStringAsFixed(0);
+  }
+
   static bool checkSizeFile(double maxSize, File file) {
     int sizeInBytes = file.lengthSync();
     double sizeInMb = sizeInBytes / (1024 * 1024);
@@ -132,6 +137,7 @@ class CoreUtils {
         transformedList.add(combinedValue);
       }
     }
+
 //     flutter: result: [42, 33, 242, 16]
 // flutter: portsValue: [8490.0, 4338.0]
 // flutter: event: [8490.0, 4338.0]
@@ -153,5 +159,31 @@ class CoreUtils {
     }
 
     return doubleList;
+  }
+
+  static Uint8List hexaToBytes(String value) {
+    List<int> codeUnits = value.codeUnits;
+    Uint8List uint8List = Uint8List.fromList(codeUnits);
+    return uint8List;
+  }
+
+  static String listDoubleToHexadecimal(List<double> value) {
+    List<int> intList = [];
+
+    for (double doubleValue in value) {
+      int intValue = doubleValue.toInt();
+      intList.add(intValue);
+    }
+
+    List<String> hexList = [];
+
+    for (int intValue in intList) {
+      String hexValue = intValue.toRadixString(16).toUpperCase();
+      hexList.add(hexValue.padLeft(4, "0"));
+    }
+
+    String hexString = hexList.join("");
+
+    return hexString;
   }
 }

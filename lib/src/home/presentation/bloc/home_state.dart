@@ -93,9 +93,18 @@ class PortLoaded extends HomeState {
 }
 
 class HomePowerSwitched extends HomeState {
-  const HomePowerSwitched();
+  const HomePowerSwitched(this.status);
+
+  final bool status;
+
+  @override
+  List<Object> get props => [status];
 }
 
 class StreamingDataStopped extends HomeState {
   const StreamingDataStopped();
+}
+
+class DataSent extends HomeState {
+  const DataSent();
 }

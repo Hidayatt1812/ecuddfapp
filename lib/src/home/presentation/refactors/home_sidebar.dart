@@ -46,67 +46,83 @@ class _HomeSidebarState extends State<HomeSidebar>
           child: Flex(
             direction: Axis.vertical,
             children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                height: 150,
-                child: Consumer<PowerProvider>(
-                  builder: (_, powerProvider, __) {
-                    return FilledButton(
-                      style: ButtonStyle(
-                        backgroundColor: ButtonState.all(
-                            powerProvider.powerStatus
-                                ? Colours.errorColour
-                                : Colours.secondaryColour),
+              Consumer<PortProvider>(
+                builder: (_, portProvider, __) {
+                  return IgnorePointer(
+                    ignoring: portProvider.selectedPort == "None" ||
+                        portProvider.isStreaming,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      height: 150,
+                      child: Consumer<PowerProvider>(
+                        builder: (_, powerProvider, __) {
+                          return FilledButton(
+                            style: ButtonStyle(
+                              backgroundColor: portProvider.selectedPort ==
+                                          "None" ||
+                                      portProvider.isStreaming
+                                  ? ButtonState.all(
+                                      Colours.secondaryColour.withOpacity(0.5))
+                                  : ButtonState.all(powerProvider.powerStatus
+                                      ? Colours.errorColour
+                                      : Colours.secondaryColour),
+                            ),
+                            child: Center(
+                              child: SizedBox(
+                                width: 100,
+                                child: Icon(
+                                  powerProvider.powerStatus
+                                      ? FluentIcons.circle_stop
+                                      : FluentIcons.power_button,
+                                  size: 60,
+                                ),
+                              ),
+                            ),
+                            onPressed: () {
+                              context.portProvider.setSerialPort();
+                              context.read<HomeBloc>().add(SwitchPowerEvent(
+                                    serialPort:
+                                        context.portProvider.serialPort!,
+                                    status: !powerProvider.powerStatus,
+                                  ));
+                            },
+                          );
+                        },
                       ),
-                      child: Center(
-                        child: SizedBox(
-                          width: 100,
-                          child: Icon(
-                            powerProvider.powerStatus
-                                ? FluentIcons.circle_stop
-                                : FluentIcons.power_button,
-                            size: 60,
-                          ),
-                        ),
-                      ),
-                      onPressed: () {
-                        context.read<HomeBloc>().add(const SwitchPowerEvent());
-                      },
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
               Row(
                 children: [
                   Expanded(
                     child: Consumer<PortProvider>(
                       builder: (_, portProvider, __) {
-                        return ComboBox<String>(
-                          placeholder: const Text(
-                            "PORT",
-                            style: TextStyle(
-                              fontFamily: Fonts.segoe,
+                        return IgnorePointer(
+                          ignoring: portProvider.isStreaming,
+                          child: ComboBox<String>(
+                            placeholder: const Text(
+                              "PORT",
+                              style: TextStyle(
+                                fontFamily: Fonts.segoe,
+                              ),
                             ),
+                            value: portProvider.selectedPort,
+                            items: portProvider.ports.map((e) {
+                              return ComboBoxItem(
+                                value: e.toString(),
+                                child: Text(e.toString()),
+                              );
+                            }).toList(),
+                            onTap: () {
+                              context
+                                  .read<HomeBloc>()
+                                  .add(const GetPortsEvent());
+                            },
+                            onChanged: ((value) {
+                              context.portProvider.setSelectedPort(value!);
+                            }),
                           ),
-                          value: portProvider.selectedPort,
-                          items: portProvider.ports.map((e) {
-                            return ComboBoxItem(
-                              value: e.toString(),
-                              child: Text(e.toString()),
-                            );
-                          }).toList(),
-                          onTap: () {
-                            context.read<HomeBloc>().add(const GetPortsEvent());
-                          },
-                          onChanged: ((value) {
-                            context.portProvider.setIsStreaming(true);
-                            portProvider.setSelectedPort(value!);
-                            context.read<HomeBloc>().add(
-                                  StreamGetTPSRPMLinesValueEvent(
-                                    port: value,
-                                  ),
-                                );
-                          }),
                         );
                       },
                     ),
@@ -118,32 +134,40 @@ class _HomeSidebarState extends State<HomeSidebar>
                 height: 40,
                 child: Consumer<PortProvider>(
                   builder: (_, portProvider, __) {
-                    return FilledButton(
-                      style: ButtonStyle(
-                        backgroundColor: ButtonState.all(
-                            portProvider.isStreaming
-                                ? Colours.errorColour
-                                : Colours.secondaryColour),
-                      ),
-                      child: Center(
-                        child: SizedBox(
-                          width: 100,
-                          child: Icon(
-                            portProvider.isStreaming
-                                ? FluentIcons.stop
-                                : FluentIcons.play,
-                            size: 20,
+                    return IgnorePointer(
+                      ignoring: portProvider.selectedPort == "None",
+                      child: FilledButton(
+                        style: ButtonStyle(
+                          backgroundColor: ButtonState.all(
+                              portProvider.isStreaming
+                                  ? Colours.errorColour
+                                  : Colours.secondaryColour),
+                        ),
+                        child: Center(
+                          child: SizedBox(
+                            width: 100,
+                            child: Icon(
+                              portProvider.isStreaming
+                                  ? FluentIcons.stop
+                                  : FluentIcons.play,
+                              size: 20,
+                            ),
                           ),
                         ),
+                        onPressed: () {
+                          if (portProvider.isStreaming) {
+                            context.portProvider.closeSerialPortReader();
+                          } else {
+                            context.portProvider.setSerialPortReader();
+                            context.read<HomeBloc>().add(
+                                  GetTPSRPMLinesValueEvent(
+                                    serialPortReader:
+                                        context.portProvider.serialPortReader!,
+                                  ),
+                                );
+                          }
+                        },
                       ),
-                      onPressed: () {
-                        if (portProvider.isStreaming) {
-                          context.portProvider.setIsStreaming(false);
-                          context.read<HomeBloc>().add(
-                                const StopStreamDataEvent(),
-                              );
-                        }
-                      },
                     );
                   },
                 ),
@@ -161,13 +185,13 @@ class _HomeSidebarState extends State<HomeSidebar>
                           SidebarItem(
                             title: "TPS",
                             dataValue:
-                                "${cartesiusProvider.tpsValue.toStringAsFixed(2)} V",
+                                "${cartesiusProvider.tpsValue.toStringAsFixed(0)} V",
                             titleIcon: FluentIcons.chart_y_angle,
                           ),
                           SidebarItem(
                             title: "RPM",
                             dataValue:
-                                cartesiusProvider.rpmValue.toStringAsFixed(2),
+                                cartesiusProvider.rpmValue.toStringAsFixed(0),
                             titleIcon: FluentIcons.speed_high,
                           ),
                           const SidebarItem(

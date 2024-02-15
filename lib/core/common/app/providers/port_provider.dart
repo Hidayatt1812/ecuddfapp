@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 class PortProvider extends ChangeNotifier {
   List<String> _ports = ['None'];
@@ -21,9 +22,7 @@ class PortProvider extends ChangeNotifier {
   void setSelectedPort(String value) {
     if (_selectedPort != value && _ports.contains(value)) {
       _selectedPort = value;
-      // ports.add(value);
-
-      Future.delayed(Duration.zero, notifyListeners);
+      notifyListeners();
     }
   }
 
@@ -38,6 +37,57 @@ class PortProvider extends ChangeNotifier {
   void setIsStreaming(bool value) {
     _isStreaming = value;
 
+    notifyListeners();
+  }
+
+  SerialPortReader? _serialPortReader;
+
+  SerialPortReader? get serialPortReader => _serialPortReader;
+
+  void setSerialPortReader() {
+    setIsStreaming(true);
+    setSerialPort();
+    try {
+      _serialPortReader = SerialPortReader(_serialPort!, timeout: 10000);
+    } catch (e) {
+      debugPrintStack(label: e.toString());
+    }
+    notifyListeners();
+  }
+
+  SerialPort? _serialPort;
+
+  SerialPort? get serialPort => _serialPort;
+
+  void setSerialPort() {
+    final SerialPortConfig cfg = SerialPortConfig();
+    cfg.baudRate = 9600;
+    cfg.bits = 64;
+    try {
+      _serialPort = SerialPort(selectedPort);
+      _serialPort!.config = cfg;
+      _serialPort!.openReadWrite();
+    } catch (e) {
+      debugPrintStack(label: e.toString());
+    }
+    notifyListeners();
+  }
+
+  void closeSerialPortReader() {
+    if (_serialPortReader != null) {
+      _serialPortReader!.close();
+      _serialPortReader = null;
+    }
+    closeSerialPort();
+    setIsStreaming(false);
+    notifyListeners();
+  }
+
+  void closeSerialPort() {
+    if (_serialPort != null) {
+      _serialPort!.close();
+      _serialPort = null;
+    }
     notifyListeners();
   }
 }

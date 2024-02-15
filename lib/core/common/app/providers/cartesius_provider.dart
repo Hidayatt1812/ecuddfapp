@@ -251,7 +251,7 @@ class CartesiusProvider extends ChangeNotifier {
           maxrpmValue: (j < _rpms.length - 1)
               ? (_rpms[j].value + _rpms[j + 1].value) / 2
               : _rpms[_rpms.length - 1].value,
-          value: 0,
+          value: _timings[index].value,
         );
       },
     );

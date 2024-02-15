@@ -1,75 +1,108 @@
 import 'dart:async';
+import 'package:ddfapp/core/utils/core_utils.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 // import 'package:serial_port_win32/serial_port_win32.dart';
 
 import '../../../../core/errors/exceptions.dart';
+import '../models/rpm_model.dart';
+import '../models/timing_model.dart';
+import '../models/tps_model.dart';
 
 abstract class HomePortDataSource {
   const HomePortDataSource();
 
-  Stream<dynamic> getPortsValue({
-    required String port,
-    required StreamController<dynamic> controllerDataSource,
+  Stream<List<double>> getTPSRPMLinesValue({
+    required SerialPortReader serialPortReader,
   });
 
   Future<List<String>> getPorts();
+
+  Future<void> sendDataToECU({
+    required SerialPort serialPort,
+    required List<TPSModel> tpss,
+    required List<RPMModel> rpms,
+    required List<TimingModel> timings,
+  });
+
+  Future<void> switchPower({
+    required SerialPort serialPort,
+    required bool status,
+  });
 }
 
 class HomePortDataSourceImpl implements HomePortDataSource {
   const HomePortDataSourceImpl();
 
   @override
-  Stream<dynamic> getPortsValue({
-    required String port,
-    required StreamController<dynamic> controllerDataSource,
+  Stream<List<double>> getTPSRPMLinesValue({
+    required SerialPortReader serialPortReader,
   }) async* {
     try {
-      final SerialPortConfig cfg = SerialPortConfig();
-      cfg.baudRate = 9600;
-      cfg.bits = 16;
-      SerialPort serialPort = SerialPort('/dev/cu.usbserial-0001');
-      serialPort.config = cfg;
-      serialPort.openRead();
+      final StreamController<List<double>> controllerDataSource =
+          StreamController<List<double>>();
 
-      SerialPortReader reader = SerialPortReader(serialPort, timeout: 10000);
-
-      Stream upcomingData = reader.stream.map(
+      Stream upcomingData = serialPortReader.stream.map(
         (data) => data,
       );
 
-      String res = '';
       String type = '';
+      String mod = '';
+      String char = '';
+      String value = '';
       List<double> portsValues = [];
-      upcomingData.listen((data) {
-        String char = String.fromCharCodes(data);
-        if (char == 'R') {
-          type = 'R';
-        } else if (char == 'T' && portsValues.isNotEmpty) {
-          type = 'T';
-        } else if (char != '\n' && type != '' && char != 'R' && char != 'T') {
-          res += char;
-        } else if (char == '\n') {
-          res = res.trim();
-          if (type == 'R' && portsValues.isEmpty) {
-            portsValues
-                .add(double.tryParse(res) ?? 0); // Handling parsing error
-          } else if (type == 'T' && portsValues.length == 1) {
-            portsValues
-                .add(double.tryParse(res) ?? 0); // Handling parsing error
-            controllerDataSource.add(List<double>.from(portsValues));
-            portsValues.clear();
+      StreamSubscription subscription = upcomingData.listen(
+        (data) {
+          try {
+            String input = String.fromCharCodes(data);
+            if (input.length <= 4) {
+              input = mod + input;
+              mod = '';
+              for (int i = 0; i < input.length; i++) {
+                char = input[i];
+                if (value.length < 4) {
+                  value += char;
+                } else {
+                  mod += char;
+                }
+              }
+              if (type == 'FFFA' && value.length == 4) {
+                portsValues
+                    .add(double.tryParse(CoreUtils.hexToDouble(value)) ?? 0);
+                type = '';
+              } else if (type == 'FFFB' &&
+                  portsValues.isNotEmpty &&
+                  value.length == 4) {
+                portsValues
+                    .add(double.tryParse(CoreUtils.hexToDouble(value)) ?? 0);
+                controllerDataSource.add(List<double>.from(portsValues));
+                portsValues.clear();
+                type = '';
+              } else if (value.length == 4) {
+                if (value == 'FFFA' || value == 'FFFB') {
+                  type = value;
+                }
+                value = '';
+              }
+            }
+          } catch (e) {
+            throw PortException(message: e.toString());
           }
-          print('type: $type, res: $res');
-          type = '';
-          res = '';
-        }
-      }, onError: (e, s) {
-        debugPrintStack(stackTrace: s);
-        controllerDataSource.add(PortException(message: e.toString()));
-      }, onDone: () {
-        controllerDataSource.close();
-      }, cancelOnError: true);
+        },
+        onError: (e, s) {
+          debugPrintStack(stackTrace: s);
+          controllerDataSource.close();
+        },
+        onDone: () {
+          controllerDataSource.close();
+        },
+        cancelOnError: true,
+      );
+
+      if (controllerDataSource.isClosed) {
+        subscription.cancel();
+        throw const PortException(message: 'Stream is closed');
+      }
       yield* controllerDataSource.stream;
     } on PortException {
       rethrow;
@@ -83,12 +116,58 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   Future<List<String>> getPorts() async {
     try {
       final ports = SerialPort.availablePorts;
-      print('Ports: $ports');
-      //  /dev/cu.usbserial-AR0JRHZS]
       if (ports.isEmpty) {
         throw const PortException(message: 'No Available Ports were found');
       }
       return ports;
+    } on PortException {
+      rethrow;
+    } catch (e, s) {
+      debugPrintStack(stackTrace: s);
+      throw PortException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> sendDataToECU({
+    required SerialPort serialPort,
+    required List<TPSModel> tpss,
+    required List<RPMModel> rpms,
+    required List<TimingModel> timings,
+  }) async {
+    try {
+      final listDouble = [
+        ...tpss.map((e) => e.value).toList(),
+        ...rpms.map((e) => e.value).toList(),
+        ...timings.map((e) => e.value).toList(),
+      ];
+
+      final value = CoreUtils.listDoubleToHexadecimal(listDouble);
+      final bytesData = CoreUtils.hexaToBytes(value);
+      final result = serialPort.write(bytesData);
+      print('Result: $result');
+    } on PortException {
+      rethrow;
+    } catch (e, s) {
+      debugPrintStack(stackTrace: s);
+      throw PortException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> switchPower({
+    required SerialPort serialPort,
+    required bool status,
+  }) async {
+    try {
+      dynamic bytesData;
+      if (status) {
+        bytesData = CoreUtils.hexaToBytes('FFFE');
+      } else {
+        bytesData = CoreUtils.hexaToBytes('FFFF');
+      }
+      final result = serialPort.write(bytesData);
+      print('Result: $result');
     } on PortException {
       rethrow;
     } catch (e, s) {

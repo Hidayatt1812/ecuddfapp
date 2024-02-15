@@ -29,16 +29,6 @@ class _HomeCartesiusState extends State<HomeCartesius>
     super.initState();
 
     context.read<CartesiusProvider>().setTpsRPMLinesValue(6, 3);
-    // context.read<HomeBloc>().add(
-    //       const GetPortsEvent(),
-    //     );
-    // context.read<HomeBloc>().add(
-    //       StreamGetTPSRPMLinesValueEvent(
-    //         port: context.read<PortProvider>().selectedPort,
-    //         // rpmLinesController: _rpmLinesController,
-    //         // tpsLinesController: _tpsLinesController,
-    //       ),
-    //     );
   }
 
   @override
@@ -260,7 +250,14 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                 ),
                                                 child: Center(
                                                   child: Text(
-                                                    '${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value}',
+                                                    cartesiusProvider
+                                                        .timings[j *
+                                                                cartesiusProvider
+                                                                    .tpss
+                                                                    .length +
+                                                            i]
+                                                        .value
+                                                        .toStringAsFixed(0),
                                                     style: const TextStyle(
                                                       fontFamily: Fonts.segoe,
                                                       fontSize: 10,

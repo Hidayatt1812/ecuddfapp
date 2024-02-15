@@ -1,8 +1,4 @@
-import 'dart:async';
-
-import 'package:dartz/dartz.dart';
-
-import '../../../../core/errors/failure.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 import '../../../../core/utils/typedef.dart';
 import '../entities/rpm.dart';
 import '../entities/timing.dart';
@@ -11,10 +7,8 @@ import '../entities/tps.dart';
 abstract class HomeRepository {
   const HomeRepository();
 
-  ResultStream<dynamic> getPortsValue({
-    required String port,
-    required StreamController<Either<Failure, List<double>>> controllerRepo,
-    required StreamController<dynamic> controllerDataSource,
+  ResultStream<List<double>> getTPSRPMLinesValue({
+    required SerialPortReader serialPortReader,
   });
 
   ResultFuture<List<String>> getPorts();
@@ -47,6 +41,13 @@ abstract class HomeRepository {
     required List<Timing> timings,
   });
 
+  ResultFuture<void> sendDataToECU({
+    required SerialPort serialPort,
+    required List<TPS> tpss,
+    required List<RPM> rpms,
+    required List<Timing> timings,
+  });
+
   ResultFuture<RPM> setRPMManually({
     required int position,
     required double value,
@@ -73,5 +74,10 @@ abstract class HomeRepository {
     required double minValue,
     required double maxValue,
     required int steps,
+  });
+
+  ResultFuture<void> switchPower({
+    required SerialPort serialPort,
+    required bool status,
   });
 }

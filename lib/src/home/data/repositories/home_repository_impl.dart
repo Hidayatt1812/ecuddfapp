@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failure.dart';
@@ -31,21 +32,26 @@ class HomeRepositoryImpl implements HomeRepository {
   final HomePortDataSource _portDataSource;
 
   @override
-  ResultStream<List<double>> getPortsValue({
-    required String port,
-    required StreamController<Either<Failure, List<double>>> controllerRepo,
-    required StreamController<dynamic> controllerDataSource,
+  ResultStream<List<double>> getTPSRPMLinesValue({
+    required SerialPortReader serialPortReader,
   }) async* {
     try {
-      final Stream<dynamic> result = _portDataSource.getPortsValue(
-        port: port,
-        controllerDataSource: controllerDataSource,
+      final result = _portDataSource.getTPSRPMLinesValue(
+        serialPortReader: serialPortReader,
       );
+
+      StreamController<Either<Failure, List<double>>> controllerRepo =
+          StreamController<Either<Failure, List<double>>>();
+
+      // return Right(result);
 
       result.listen((data) {
         controllerRepo.add(Right(data));
       }, onError: (e) {
         controllerRepo.add(Left(PortFailure.fromException(e)));
+        controllerRepo.close();
+      }, onDone: () {
+        controllerRepo.close();
       });
 
       yield* controllerRepo.stream;
@@ -156,6 +162,61 @@ class HomeRepositoryImpl implements HomeRepository {
       return Right(result);
     } on CacheException catch (e) {
       return Left(CacheFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultFuture<void> sendDataToECU({
+    required SerialPort serialPort,
+    required List<TPS> tpss,
+    required List<RPM> rpms,
+    required List<Timing> timings,
+  }) async {
+    try {
+      final result = await _portDataSource.sendDataToECU(
+        serialPort: serialPort,
+        tpss: tpss
+            .map(
+              (e) => TPSModel(
+                id: e.id,
+                isFirst: e.isFirst,
+                isLast: e.isLast,
+                value: e.value,
+                prevValue: e.prevValue,
+                nextValue: e.nextValue,
+              ),
+            )
+            .toList(),
+        rpms: rpms
+            .map(
+              (e) => RPMModel(
+                id: e.id,
+                isFirst: e.isFirst,
+                isLast: e.isLast,
+                value: e.value,
+                prevValue: e.prevValue,
+                nextValue: e.nextValue,
+              ),
+            )
+            .toList(),
+        timings: timings
+            .map(
+              (e) => TimingModel(
+                id: e.id,
+                tpsValue: e.tpsValue,
+                mintpsValue: e.mintpsValue,
+                maxtpsValue: e.maxtpsValue,
+                rpmValue: e.rpmValue,
+                minrpmValue: e.minrpmValue,
+                maxrpmValue: e.maxrpmValue,
+                value: e.value,
+              ),
+            )
+            .toList(),
+      );
+      return Right(result);
+    } on PortException catch (e) {
+      return Left(PortFailure.fromException(e));
     }
   }
 
@@ -287,6 +348,22 @@ class HomeRepositoryImpl implements HomeRepository {
   ResultFuture<List<Timing>> loadTimingValue() async {
     try {
       dynamic result = await _localDataSource.loadTimingValue();
+      return Right(result);
+    } on CacheException catch (e) {
+      return Left(CacheFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultFuture<void> switchPower({
+    required SerialPort serialPort,
+    required bool status,
+  }) async {
+    try {
+      final result = await _portDataSource.switchPower(
+        serialPort: serialPort,
+        status: status,
+      );
       return Right(result);
     } on CacheException catch (e) {
       return Left(CacheFailure.fromException(e));
