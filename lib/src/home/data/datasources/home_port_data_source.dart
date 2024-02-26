@@ -16,6 +16,10 @@ abstract class HomePortDataSource {
     required SerialPortReader serialPortReader,
   });
 
+  Stream<String> getFeedbackValue({
+    required SerialPortReader serialPortReader,
+  });
+
   Future<List<String>> getPorts();
 
   Future<void> sendDataToECU({
@@ -67,15 +71,16 @@ class HomePortDataSourceImpl implements HomePortDataSource {
                 }
               }
               if (type == 'FFFA' && value.length == 4) {
-                portsValues
-                    .add(double.tryParse(CoreUtils.hexToDouble(value)) ?? 0);
+                portsValues.add(
+                    double.tryParse(CoreUtils.hexToDoubleString(value)) ?? 0);
                 type = '';
               } else if (type == 'FFFB' &&
                   portsValues.isNotEmpty &&
                   value.length == 4) {
-                portsValues
-                    .add(double.tryParse(CoreUtils.hexToDouble(value)) ?? 0);
+                portsValues.add(
+                    double.tryParse(CoreUtils.hexToDoubleString(value)) ?? 0);
                 controllerDataSource.add(List<double>.from(portsValues));
+                print('Values: $portsValues');
                 portsValues.clear();
                 type = '';
               } else if (value.length == 4) {
@@ -136,16 +141,45 @@ class HomePortDataSourceImpl implements HomePortDataSource {
     required List<TimingModel> timings,
   }) async {
     try {
-      final listDouble = [
+      SerialPortReader serialPortReader = SerialPortReader(serialPort);
+      Stream upcomingData = serialPortReader.stream.map(
+        (data) => data,
+      );
+
+      final List<double> listDouble = [
+        CoreUtils.hexToDouble('FFFA'),
         ...tpss.map((e) => e.value).toList(),
+        CoreUtils.hexToDouble('FFFB'),
         ...rpms.map((e) => e.value).toList(),
+        CoreUtils.hexToDouble('FFFC'),
         ...timings.map((e) => e.value).toList(),
       ];
 
-      final value = CoreUtils.listDoubleToHexadecimal(listDouble);
-      final bytesData = CoreUtils.hexaToBytes(value);
+      final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
+      print('ValueSend: $valueSend');
+      final bytesData = CoreUtils.hexaToBytes(valueSend);
       final result = serialPort.write(bytesData);
+
       print('Result: $result');
+
+      String value = '';
+
+      upcomingData.forEach((element) {
+        try {
+          String input = String.fromCharCodes(element);
+          value += input;
+        } catch (e) {
+          print('Error-Value: $value');
+          throw PortException(message: e.toString());
+        }
+      });
+      await Future.delayed(const Duration(seconds: 3), () {
+        print('Value: $value');
+        print('Stream is closed');
+        serialPortReader.close();
+        serialPort.close();
+        serialPort.dispose();
+      });
     } on PortException {
       rethrow;
     } catch (e, s) {
@@ -162,12 +196,74 @@ class HomePortDataSourceImpl implements HomePortDataSource {
     try {
       dynamic bytesData;
       if (status) {
-        bytesData = CoreUtils.hexaToBytes('FFFE');
+        bytesData = CoreUtils.hexaToBytes('FFFD');
       } else {
-        bytesData = CoreUtils.hexaToBytes('FFFF');
+        bytesData = CoreUtils.hexaToBytes('FFFE');
       }
       final result = serialPort.write(bytesData);
       print('Result: $result');
+    } on PortException {
+      rethrow;
+    } catch (e, s) {
+      debugPrintStack(stackTrace: s);
+      throw PortException(message: e.toString());
+    }
+  }
+
+  @override
+  Stream<String> getFeedbackValue(
+      {required SerialPortReader serialPortReader}) async* {
+    try {
+      final StreamController<String> controllerDataSource =
+          StreamController<String>();
+
+      Stream upcomingData = serialPortReader.stream.map(
+        (data) => data,
+      );
+
+      String mod = '';
+      String char = '';
+      String value = '';
+      StreamSubscription subscription = upcomingData.listen(
+        (data) {
+          try {
+            String input = String.fromCharCodes(data);
+            if (input.length <= 4) {
+              input = mod + input;
+              mod = '';
+              for (int i = 0; i < input.length; i++) {
+                char = input[i];
+                if (value.length < 4) {
+                  value += char;
+                } else {
+                  mod += char;
+                }
+              }
+              if (value.length == 4) {
+                controllerDataSource.add(value);
+                value = '';
+              }
+            }
+          } catch (e) {
+            throw PortException(message: e.toString());
+          }
+        },
+        onError: (e, s) {
+          debugPrintStack(stackTrace: s);
+          controllerDataSource.close();
+        },
+        onDone: () {
+          controllerDataSource.close();
+        },
+        cancelOnError: true,
+      );
+
+      if (controllerDataSource.isClosed) {
+        subscription.cancel();
+        throw const PortException(message: 'Stream is closed');
+      }
+
+      yield* controllerDataSource.stream;
     } on PortException {
       rethrow;
     } catch (e, s) {

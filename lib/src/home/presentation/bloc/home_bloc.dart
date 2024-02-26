@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:ddfapp/src/home/domain/usecases/switch_power.dart';
@@ -340,8 +339,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           (failure) => emit(HomeError(failure.message)),
           (data) => emit(AxisUpdated(
             Size(
-              data[0] * Random().nextInt(10),
-              data[1] * Random().nextInt(10),
+              data[0], //* Random().nextInt(10),
+              data[1], // * Random().nextInt(10),
             ),
           )),
         );

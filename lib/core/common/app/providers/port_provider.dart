@@ -10,9 +10,8 @@ class PortProvider extends ChangeNotifier {
     if (_ports != ports) {
       _ports = ports;
       _ports.add('None');
-
-      Future.delayed(Duration.zero, notifyListeners);
     }
+    notifyListeners();
   }
 
   String _selectedPort = "None";
@@ -85,7 +84,7 @@ class PortProvider extends ChangeNotifier {
 
   void closeSerialPort() {
     if (_serialPort != null) {
-      _serialPort!.close();
+      _serialPort!.dispose();
       _serialPort = null;
     }
     notifyListeners();

@@ -88,9 +88,14 @@ class CoreUtils {
     return int.parse(value, radix: 16).toString();
   }
 
-  static String hexToDouble(String hex) {
+  static String hexToDoubleString(String hex) {
     var value = hex;
     return int.parse(value, radix: 16).toStringAsFixed(0);
+  }
+
+  static double hexToDouble(String hex) {
+    var value = hex;
+    return int.parse(value, radix: 16).toDouble();
   }
 
   static bool checkSizeFile(double maxSize, File file) {

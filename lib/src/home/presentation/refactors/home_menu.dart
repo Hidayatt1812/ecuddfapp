@@ -1,6 +1,5 @@
 import 'package:ddfapp/core/common/app/providers/port_provider.dart';
 import 'package:ddfapp/core/common/widgets/main_divider.dart';
-import 'package:ddfapp/core/extensions/context_extensions.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:ddfapp/src/home/presentation/widgets/menu_container.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -330,12 +329,12 @@ class _HomeMenuState extends State<HomeMenu> {
                           CoreUtils.showSnackBar(context, 'Data saved',
                               severity: InfoBarSeverity.success);
                         } else if (state is DataSent) {
-                          CoreUtils.showSnackBar(
-                            context,
-                            'Data sent to ECU',
-                            severity: InfoBarSeverity.success,
-                          );
-                          context.portProvider.closeSerialPort();
+                          // CoreUtils.showSnackBar(
+                          //   context,
+                          //   'Data sent to ECU',
+                          //   severity: InfoBarSeverity.success,
+                          // );
+                          // context.portProvider.closeSerialPort();
                         }
                       },
                       builder: (context, state) {

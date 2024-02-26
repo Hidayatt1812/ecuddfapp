@@ -214,6 +214,14 @@ class HomeRepositoryImpl implements HomeRepository {
             )
             .toList(),
       );
+      // SerialPortReader serialPortReader =
+      //     SerialPortReader(serialPort, timeout: 10000);
+      // final resultFeedback =
+      //     _portDataSource.getFeedbackValue(serialPortReader: serialPortReader);
+
+      // await resultFeedback.forEach((element) {
+      //   print('Feedback: $element');
+      // });
       return Right(result);
     } on PortException catch (e) {
       return Left(PortFailure.fromException(e));
