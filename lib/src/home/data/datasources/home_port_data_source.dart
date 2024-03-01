@@ -149,10 +149,14 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       final List<double> listDouble = [
         CoreUtils.hexToDouble('FFFA'),
         ...tpss.map((e) => e.value).toList(),
+        for (int i = tpss.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
         CoreUtils.hexToDouble('FFFB'),
         ...rpms.map((e) => e.value).toList(),
+        for (int i = rpms.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
         CoreUtils.hexToDouble('FFFC'),
         ...timings.map((e) => e.value).toList(),
+        for (int i = timings.length; i < 900; i++)
+          CoreUtils.hexToDouble('FFFF'),
       ];
 
       final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
