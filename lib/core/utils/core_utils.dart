@@ -107,7 +107,8 @@ class CoreUtils {
     return true;
   }
 
-  static dynamic intOrDouble(double value) {
+  static dynamic intOrDouble(double valueInput) {
+    double value = double.parse(valueInput.toStringAsFixed(2));
     return (value % 1 == 0) ? value.toInt() : value.toStringAsFixed(2);
   }
 

@@ -17,12 +17,14 @@ class CartesiusHeader extends StatelessWidget {
     required this.title,
     this.direction = Axis.horizontal,
     this.values = const [],
+    this.multip = 1,
     required this.size,
   });
   final Axis direction;
   final String title;
   final List<dynamic> values;
   final Size size;
+  final int multip;
   @override
   Widget build(BuildContext context) {
     double mines = 25;
@@ -54,7 +56,8 @@ class CartesiusHeader extends StatelessWidget {
                   itemCount: values.length,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    dynamic value = CoreUtils.intOrDouble(values[index].value);
+                    dynamic value =
+                        CoreUtils.intOrDouble(values[index].value * multip);
                     return GestureDetector(
                       onDoubleTap: () {
                         showDialog(
@@ -65,7 +68,7 @@ class CartesiusHeader extends StatelessWidget {
                             return MainPopUp(
                               title: 'Edit $title',
                               controller: controller,
-                              value: value.toString(),
+                              value: '${value} Voltage',
                               onPressedPositive: () {
                                 if (values is List<TPS>) {
                                   if (controller.text.isNotEmpty) {

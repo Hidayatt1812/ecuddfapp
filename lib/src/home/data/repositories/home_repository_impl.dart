@@ -256,8 +256,9 @@ class HomeRepositoryImpl implements HomeRepository {
             isFirst: index == 0,
             isLast: index == steps - 1,
             value: index * interval + minValue,
-            prevValue: index == 0 ? null : (index - 1) * interval,
-            nextValue: index == steps - 1 ? null : (index + 1) * interval,
+            prevValue: index == 0 ? null : (index - 1) * interval + minValue,
+            nextValue:
+                index == steps - 1 ? null : (index + 1) * interval + minValue,
           ),
         ),
       );
@@ -294,8 +295,9 @@ class HomeRepositoryImpl implements HomeRepository {
             isFirst: index == 0,
             isLast: index == steps - 1,
             value: index * interval + minValue,
-            prevValue: index == 0 ? null : (index - 1) * interval,
-            nextValue: index == steps - 1 ? null : (index + 1) * interval,
+            prevValue: index == 0 ? null : (index - 1) * interval + minValue,
+            nextValue:
+                index == steps - 1 ? null : (index + 1) * interval + minValue,
           ),
         ),
       );

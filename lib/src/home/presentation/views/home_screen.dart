@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
           CoreUtils.showSnackBar(context, state.message);
         } else if (state is HomeUpdated) {
           if (state.data is List<TPS>) {
+            print('tps: ${state.data}');
             context.read<CartesiusProvider>().initTpss(state.data);
           } else if (state.data is List<RPM>) {
             context.read<CartesiusProvider>().initRpms(state.data);

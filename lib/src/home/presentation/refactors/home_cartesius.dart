@@ -87,6 +87,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                           size: Size(parentWidth - size, size),
                           values: cartesiusProvider.tpss,
                           direction: Axis.horizontal,
+                          multip: 1000,
                         ),
                       ),
                       Stack(

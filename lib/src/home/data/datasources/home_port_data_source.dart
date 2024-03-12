@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:ddfapp/core/utils/core_utils.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'package:get/get.dart';
 // import 'package:serial_port_win32/serial_port_win32.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -142,11 +143,18 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   }) async {
     try {
       SerialPortReader serialPortReader = SerialPortReader(serialPort);
+      if (!serialPort.isOpen) {
+        serialPort.close();
+      }
+      if (serialPortReader.isBlank ?? true) {
+        print('Stream is closed');
+        throw const PortException(message: 'Stream is closed');
+      }
       Stream upcomingData = serialPortReader.stream.map(
         (data) => data,
       );
 
-      final List<double> listDouble = [
+      List<double> listDouble = [
         CoreUtils.hexToDouble('FFFA'),
         ...tpss.map((e) => e.value).toList(),
         for (int i = tpss.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
@@ -161,10 +169,16 @@ class HomePortDataSourceImpl implements HomePortDataSource {
 
       final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
       print('ValueSend: $valueSend');
-      final bytesData = CoreUtils.hexaToBytes(valueSend);
-      final result = serialPort.write(bytesData);
 
-      print('Result: $result');
+      for (int i = 0; i < 107; i++) {
+        Future.delayed(Duration(milliseconds: 50 * i), () {
+          final bytesData =
+              CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
+          final result = serialPort.write(bytesData);
+
+          print('Result: $result');
+        });
+      }
 
       String value = '';
 
@@ -177,7 +191,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
           throw PortException(message: e.toString());
         }
       });
-      await Future.delayed(const Duration(seconds: 3), () {
+      await Future.delayed(const Duration(milliseconds: 50 * 108), () {
         print('Value: $value');
         print('Stream is closed');
         serialPortReader.close();
