@@ -5,6 +5,7 @@ import 'package:ddfapp/src/home/presentation/refactors/home_menu.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_sidebar.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_voltage_graph.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/common/app/providers/power_provider.dart';
@@ -46,6 +47,18 @@ class _HomeScreenState extends State<HomeScreen> {
             context.read<CartesiusProvider>().initRpms(state.data);
           } else if (state.data is List<Timing>) {
             context.read<CartesiusProvider>().initTimings(state.data);
+            if (context.portProvider.selectedPort != "None") {
+              context.portProvider.setSerialPort();
+              context.read<HomeBloc>().add(
+                    SendDataToECUEvent(
+                      serialPort: context.portProvider.serialPort!,
+                      tpss: context.read<CartesiusProvider>().tpss,
+                      rpms: context.read<CartesiusProvider>().rpms,
+                      timings: context.read<CartesiusProvider>().timings,
+                      status: context.powerProvider.powerStatus,
+                    ),
+                  );
+            }
           }
           final String message = state.data is List<TPS>
               ? 'TPS updated'
@@ -72,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
           CoreUtils.showSnackBar(
               context, 'Power switched to ${status ? 'on' : 'off'}',
               severity: InfoBarSeverity.success);
-          context.portProvider.closeSerialPort();
         } else if (state is PortLoaded) {
           context.portProvider.initPorts(state.data);
         }
@@ -84,37 +96,58 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Expanded(
-                // height: 750,
-                child: Flex(
-                  direction: Axis.horizontal,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Stack(
                   children: [
-                    SizedBox(
-                      width: 1060,
-                      height: double.infinity,
-                      child: Flex(
-                        direction: Axis.vertical,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const HomeMenu(),
-                          const HomeCartesius(),
-                          Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(
-                                  'Value Timing: ${context.read<CartesiusProvider>().valueTiming}',
+                    Flex(
+                      direction: Axis.horizontal,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 1060,
+                          height: double.infinity,
+                          child: Flex(
+                            direction: Axis.vertical,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const HomeMenu(),
+                              const HomeCartesius(),
+                              Center(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(
+                                      'Value Timing: ${context.read<CartesiusProvider>().valueTiming}',
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              const HomeVoltageGraph(),
+                            ],
                           ),
-                          const HomeVoltageGraph(),
-                        ],
-                      ),
+                        ),
+                        const Expanded(
+                          child: HomeSidebar(),
+                        ),
+                      ],
                     ),
-                    const Expanded(
-                      child: HomeSidebar(),
-                    )
+                    state is HomeLoading
+                        ? Positioned(
+                            top: 0,
+                            right: 0,
+                            left: 0,
+                            bottom: 0,
+                            child: Container(
+                              color: Colours.primaryColour.withOpacity(0.8),
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colours.secondaryColour),
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox(),
                   ],
                 ),
               ),

@@ -98,6 +98,15 @@ class CoreUtils {
     return int.parse(value, radix: 16).toDouble();
   }
 
+  static String doubleToHex(double value) {
+    return value.toInt().toRadixString(16).toUpperCase().padLeft(4, "0");
+  }
+
+  static String intToHex(int value) {
+    // return with 4 digits char
+    return value.toRadixString(16).toUpperCase().padLeft(4, "0");
+  }
+
   static bool checkSizeFile(double maxSize, File file) {
     int sizeInBytes = file.lengthSync();
     double sizeInMb = sizeInBytes / (1024 * 1024);
@@ -105,6 +114,20 @@ class CoreUtils {
       return false;
     }
     return true;
+  }
+
+  static int countOccurrences(String input, String search) {
+    int count = 0;
+    int index = 0;
+
+    while (index < input.length) {
+      if (input.substring(index, index + search.length) == search) {
+        count++;
+      }
+      index += search.length;
+    }
+
+    return count;
   }
 
   static dynamic intOrDouble(double valueInput) {
@@ -165,6 +188,11 @@ class CoreUtils {
     }
 
     return doubleList;
+  }
+
+  static bool isHexadecimal(String input) {
+    final RegExp hexRegex = RegExp(r'^[0-9A-Fa-f]+$');
+    return hexRegex.hasMatch(input);
   }
 
   static Uint8List hexaToBytes(String value) {

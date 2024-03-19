@@ -11,6 +11,22 @@ class PortProvider extends ChangeNotifier {
       _ports = ports;
       _ports.add('None');
     }
+
+    initComboBoxItems();
+    notifyListeners();
+  }
+
+  List<ComboBoxItem<String>> _comboBoxItems = [];
+
+  List<ComboBoxItem<String>> get comboBoxItems => _comboBoxItems;
+
+  void initComboBoxItems() {
+    _comboBoxItems = _ports
+        .map((e) => ComboBoxItem(
+              value: e.toString(),
+              child: Text(e.toString()),
+            ))
+        .toList();
     notifyListeners();
   }
 
@@ -61,7 +77,7 @@ class PortProvider extends ChangeNotifier {
   void setSerialPort() {
     final SerialPortConfig cfg = SerialPortConfig();
     cfg.baudRate = 9600;
-    cfg.bits = 64;
+    cfg.bits = 32;
     try {
       _serialPort = SerialPort(selectedPort);
       _serialPort!.config = cfg;

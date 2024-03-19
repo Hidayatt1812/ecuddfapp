@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:ddfapp/core/utils/core_utils.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
-import 'package:get/get.dart';
 // import 'package:serial_port_win32/serial_port_win32.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -28,11 +27,19 @@ abstract class HomePortDataSource {
     required List<TPSModel> tpss,
     required List<RPMModel> rpms,
     required List<TimingModel> timings,
+    required bool status,
   });
 
   Future<void> switchPower({
     required SerialPort serialPort,
+    required List<TPSModel> tpss,
+    required List<RPMModel> rpms,
+    required List<TimingModel> timings,
     required bool status,
+  });
+
+  Future<List<dynamic>> getDataFromECU({
+    required SerialPort serialPort,
   });
 }
 
@@ -44,6 +51,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
     required SerialPortReader serialPortReader,
   }) async* {
     try {
+      print('masuk');
       final StreamController<List<double>> controllerDataSource =
           StreamController<List<double>>();
 
@@ -58,39 +66,67 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       List<double> portsValues = [];
       StreamSubscription subscription = upcomingData.listen(
         (data) {
+          print(String.fromCharCodes(data));
           try {
             String input = String.fromCharCodes(data);
-            if (input.length <= 4) {
+            if (input.length <= 16) {
               input = mod + input;
               mod = '';
               for (int i = 0; i < input.length; i++) {
                 char = input[i];
-                if (value.length < 4) {
+                if (value.length < 16) {
                   value += char;
                 } else {
                   mod += char;
                 }
               }
-              if (type == 'FFFA' && value.length == 4) {
-                portsValues.add(
-                    double.tryParse(CoreUtils.hexToDoubleString(value)) ?? 0);
-                type = '';
-              } else if (type == 'FFFB' &&
-                  portsValues.isNotEmpty &&
-                  value.length == 4) {
-                portsValues.add(
-                    double.tryParse(CoreUtils.hexToDoubleString(value)) ?? 0);
-                controllerDataSource.add(List<double>.from(portsValues));
-                print('Values: $portsValues');
-                portsValues.clear();
-                type = '';
-              } else if (value.length == 4) {
-                if (value == 'FFFA' || value == 'FFFB') {
-                  type = value;
-                }
-                value = '';
-              }
             }
+            if (value.length == 16 && CoreUtils.isHexadecimal(value)) {
+              portsValues.add((double.tryParse(
+                        CoreUtils.hexToDoubleString(value.substring(4, 8)),
+                      ) ??
+                      0) /
+                  4096 *
+                  3.3);
+              portsValues.add(double.tryParse(
+                      CoreUtils.hexToDoubleString(value.substring(12, 16))) ??
+                  0);
+              controllerDataSource.add(List<double>.from(portsValues));
+              print('Values: $portsValues');
+              portsValues.clear();
+              value = '';
+            }
+            // if (input.length <= 4) {
+            //   input = mod + input;
+            //   mod = '';
+            //   for (int i = 0; i < input.length; i++) {
+            //     char = input[i];
+            //     if (value.length < 4) {
+            //       value += char;
+            //     } else {
+            //       mod += char;
+            //     }
+            //   }
+            //   if (type == 'FFFA' && value.length == 4) {
+            //     portsValues.add(
+            //         double.tryParse(CoreUtils.hexToDoubleString(value)) ?? 0);
+            //     type = '';
+            //   } else if (type == 'FFFB' &&
+            //       portsValues.isNotEmpty &&
+            //       value.length == 4) {
+            //     portsValues.add(
+            //         double.tryParse(CoreUtils.hexToDoubleString(value)) ?? 0);
+            //     controllerDataSource.add(List<double>.from(portsValues));
+            //     print('Values: $portsValues');
+            //     portsValues.clear();
+            //     type = '';
+            //   } else if (value.length == 4) {
+            //     if (value == 'FFFA' || value == 'FFFB') {
+            //       type = value;
+            //     }
+            //     value = '';
+            //   }
+            // }
           } catch (e) {
             throw PortException(message: e.toString());
           }
@@ -122,9 +158,6 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   Future<List<String>> getPorts() async {
     try {
       final ports = SerialPort.availablePorts;
-      if (ports.isEmpty) {
-        throw const PortException(message: 'No Available Ports were found');
-      }
       return ports;
     } on PortException {
       rethrow;
@@ -140,23 +173,16 @@ class HomePortDataSourceImpl implements HomePortDataSource {
     required List<TPSModel> tpss,
     required List<RPMModel> rpms,
     required List<TimingModel> timings,
+    required bool status,
   }) async {
     try {
-      SerialPortReader serialPortReader = SerialPortReader(serialPort);
       if (!serialPort.isOpen) {
         serialPort.close();
       }
-      if (serialPortReader.isBlank ?? true) {
-        print('Stream is closed');
-        throw const PortException(message: 'Stream is closed');
-      }
-      Stream upcomingData = serialPortReader.stream.map(
-        (data) => data,
-      );
 
       List<double> listDouble = [
         CoreUtils.hexToDouble('FFFA'),
-        ...tpss.map((e) => e.value).toList(),
+        ...tpss.map((e) => e.value / 3.3 * 4096).toList(),
         for (int i = tpss.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
         CoreUtils.hexToDouble('FFFB'),
         ...rpms.map((e) => e.value).toList(),
@@ -165,6 +191,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
         ...timings.map((e) => e.value).toList(),
         for (int i = timings.length; i < 900; i++)
           CoreUtils.hexToDouble('FFFF'),
+        status ? CoreUtils.hexToDouble('FFFD') : CoreUtils.hexToDouble('FFFE'),
       ];
 
       final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
@@ -179,22 +206,15 @@ class HomePortDataSourceImpl implements HomePortDataSource {
           print('Result: $result');
         });
       }
+      Future.delayed(const Duration(milliseconds: 50 * 107), () {
+        final bytesData = CoreUtils.hexaToBytes(
+            valueSend.substring(107 * 36, (107) * 36 + 4));
+        final result = serialPort.write(bytesData);
 
-      String value = '';
-
-      upcomingData.forEach((element) {
-        try {
-          String input = String.fromCharCodes(element);
-          value += input;
-        } catch (e) {
-          print('Error-Value: $value');
-          throw PortException(message: e.toString());
-        }
+        print('Result: $result');
       });
-      await Future.delayed(const Duration(milliseconds: 50 * 108), () {
-        print('Value: $value');
+      await Future.delayed(const Duration(milliseconds: 50 * 109), () {
         print('Stream is closed');
-        serialPortReader.close();
         serialPort.close();
         serialPort.dispose();
       });
@@ -209,17 +229,53 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   @override
   Future<void> switchPower({
     required SerialPort serialPort,
+    required List<TPSModel> tpss,
+    required List<RPMModel> rpms,
+    required List<TimingModel> timings,
     required bool status,
   }) async {
     try {
-      dynamic bytesData;
-      if (status) {
-        bytesData = CoreUtils.hexaToBytes('FFFD');
-      } else {
-        bytesData = CoreUtils.hexaToBytes('FFFE');
+      if (!serialPort.isOpen) {
+        serialPort.close();
       }
-      final result = serialPort.write(bytesData);
-      print('Result: $result');
+      List<double> listDouble = [
+        CoreUtils.hexToDouble('FFFA'),
+        ...tpss.map((e) => e.value).toList(),
+        for (int i = tpss.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
+        CoreUtils.hexToDouble('FFFB'),
+        ...rpms.map((e) => e.value).toList(),
+        for (int i = rpms.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
+        CoreUtils.hexToDouble('FFFC'),
+        ...timings.map((e) => e.value).toList(),
+        for (int i = timings.length; i < 900; i++)
+          CoreUtils.hexToDouble('FFFF'),
+        status ? CoreUtils.hexToDouble('FFFD') : CoreUtils.hexToDouble('FFFE'),
+      ];
+
+      final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
+      print('ValueSend: $valueSend');
+
+      for (int i = 0; i < 107; i++) {
+        Future.delayed(Duration(milliseconds: 50 * i), () {
+          final bytesData =
+              CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
+          final result = serialPort.write(bytesData);
+
+          print('Result: $result');
+        });
+      }
+      Future.delayed(const Duration(milliseconds: 50 * 107), () {
+        final bytesData = CoreUtils.hexaToBytes(
+            valueSend.substring(107 * 36, (107) * 36 + 4));
+        final result = serialPort.write(bytesData);
+
+        print('Result: $result');
+      });
+      await Future.delayed(const Duration(milliseconds: 50 * 109), () {
+        print('Stream is closed');
+        serialPort.close();
+        serialPort.dispose();
+      });
     } on PortException {
       rethrow;
     } catch (e, s) {
@@ -282,6 +338,102 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       }
 
       yield* controllerDataSource.stream;
+    } on PortException {
+      rethrow;
+    } catch (e, s) {
+      debugPrintStack(stackTrace: s);
+      throw PortException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<List<dynamic>> getDataFromECU({
+    required SerialPort serialPort,
+  }) async {
+    try {
+      print('Masuk getDataFromECU in data source');
+      if (!serialPort.isOpen) {
+        serialPort.close();
+      }
+
+      SerialPortReader serialPortReader =
+          SerialPortReader(serialPort, timeout: 10000);
+
+      Stream upcomingData = serialPortReader.stream.map(
+        (data) => data,
+      );
+
+      List<TimingModel> timings = [];
+      List<TPSModel> tpss = [];
+      List<RPMModel> rpms = [];
+
+      String upcomingDataStringDummy = '';
+      String timingsListDummy = "";
+      String tpssListDummy = "";
+      String rpmsListDummy = "";
+      for (int i = 0; i < 100; i++) {
+        timingsListDummy += CoreUtils.intToHex(i);
+      }
+      for (int i = 0; i < 800; i++) {
+        timingsListDummy += "FFFF";
+      }
+
+      for (int i = 0; i < 10; i++) {
+        tpssListDummy += CoreUtils.intToHex(i);
+        rpmsListDummy += CoreUtils.intToHex(i * 100);
+      }
+
+      for (int i = 0; i < 20; i++) {
+        tpssListDummy += "FFFF";
+        rpmsListDummy += "FFFF";
+      }
+
+      upcomingDataStringDummy =
+          "FFFA${tpssListDummy}FFFB${rpmsListDummy}FFFC$timingsListDummy";
+
+      String upcomingDataString = '';
+      String timingsList = "";
+      String tpssList = "";
+      String rpmsList = "";
+
+      upcomingData.forEach((data) {
+        print(String.fromCharCodes(data));
+        try {
+          upcomingDataString += String.fromCharCodes(data);
+        } catch (e) {
+          throw PortException(message: e.toString());
+        }
+      });
+
+      await Future.delayed(const Duration(seconds: 5), () {
+        print('Stream is closed');
+        serialPortReader.close();
+        serialPort.close();
+
+        upcomingDataString = upcomingDataStringDummy;
+
+        tpssList = upcomingDataString.substring(4, 124);
+        rpmsList = upcomingDataString.substring(128, 248);
+        timingsList = upcomingDataString.substring(252, 3852);
+        timings = List.generate(
+          900 - CoreUtils.countOccurrences(timingsList, "FFFF"),
+          (index) => const TimingModel.empty(),
+        );
+        tpss = List.generate(
+          30 - CoreUtils.countOccurrences(tpssList, "FFFF"),
+          (index) => const TPSModel.empty(),
+        );
+        rpms = List.generate(
+          30 - CoreUtils.countOccurrences(rpmsList, "FFFF"),
+          (index) => const RPMModel.empty(),
+        );
+      });
+
+      return [
+        timings,
+        tpss,
+        rpms,
+      ];
     } on PortException {
       rethrow;
     } catch (e, s) {

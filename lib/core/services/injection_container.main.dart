@@ -24,6 +24,7 @@ Future<void> _initHome() async {
   sl
     ..registerFactory(
       () => HomeBloc(
+        getDataFromECU: sl(),
         getTPSRPMLinesValue: sl(),
         getPorts: sl(),
         getTimingCell: sl(),
@@ -43,6 +44,7 @@ Future<void> _initHome() async {
         switchPower: sl(),
       ),
     )
+    ..registerLazySingleton(() => GetDataFromECU(sl()))
     ..registerLazySingleton(() => GetTPSRPMLinesValue(sl()))
     ..registerLazySingleton(() => GetPorts(sl()))
     ..registerLazySingleton(() => GetTimingCell(sl()))

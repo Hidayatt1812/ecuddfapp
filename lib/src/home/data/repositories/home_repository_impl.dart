@@ -171,9 +171,10 @@ class HomeRepositoryImpl implements HomeRepository {
     required List<TPS> tpss,
     required List<RPM> rpms,
     required List<Timing> timings,
+    required bool status,
   }) async {
     try {
-      final result = await _portDataSource.sendDataToECU(
+      await _portDataSource.sendDataToECU(
         serialPort: serialPort,
         tpss: tpss
             .map(
@@ -213,16 +214,9 @@ class HomeRepositoryImpl implements HomeRepository {
               ),
             )
             .toList(),
+        status: status,
       );
-      // SerialPortReader serialPortReader =
-      //     SerialPortReader(serialPort, timeout: 10000);
-      // final resultFeedback =
-      //     _portDataSource.getFeedbackValue(serialPortReader: serialPortReader);
-
-      // await resultFeedback.forEach((element) {
-      //   print('Feedback: $element');
-      // });
-      return Right(result);
+      return const Right(null);
     } on PortException catch (e) {
       return Left(PortFailure.fromException(e));
     }
@@ -367,12 +361,65 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   ResultFuture<void> switchPower({
     required SerialPort serialPort,
+    required List<TPS> tpss,
+    required List<RPM> rpms,
+    required List<Timing> timings,
     required bool status,
   }) async {
     try {
-      final result = await _portDataSource.switchPower(
+      await _portDataSource.switchPower(
         serialPort: serialPort,
+        tpss: tpss
+            .map(
+              (e) => TPSModel(
+                id: e.id,
+                isFirst: e.isFirst,
+                isLast: e.isLast,
+                value: e.value,
+                prevValue: e.prevValue,
+                nextValue: e.nextValue,
+              ),
+            )
+            .toList(),
+        rpms: rpms
+            .map(
+              (e) => RPMModel(
+                id: e.id,
+                isFirst: e.isFirst,
+                isLast: e.isLast,
+                value: e.value,
+                prevValue: e.prevValue,
+                nextValue: e.nextValue,
+              ),
+            )
+            .toList(),
+        timings: timings
+            .map(
+              (e) => TimingModel(
+                id: e.id,
+                tpsValue: e.tpsValue,
+                mintpsValue: e.mintpsValue,
+                maxtpsValue: e.maxtpsValue,
+                rpmValue: e.rpmValue,
+                minrpmValue: e.minrpmValue,
+                maxrpmValue: e.maxrpmValue,
+                value: e.value,
+              ),
+            )
+            .toList(),
         status: status,
+      );
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultFuture<List> getDataFromECU({required SerialPort serialPort}) async {
+    try {
+      dynamic result = await _portDataSource.getDataFromECU(
+        serialPort: serialPort,
       );
       return Right(result);
     } on CacheException catch (e) {

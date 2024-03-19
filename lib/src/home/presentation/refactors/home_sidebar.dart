@@ -83,6 +83,13 @@ class _HomeSidebarState extends State<HomeSidebar>
                               context.read<HomeBloc>().add(SwitchPowerEvent(
                                     serialPort:
                                         context.portProvider.serialPort!,
+                                    tpss:
+                                        context.read<CartesiusProvider>().tpss,
+                                    rpms:
+                                        context.read<CartesiusProvider>().rpms,
+                                    timings: context
+                                        .read<CartesiusProvider>()
+                                        .timings,
                                     status: !powerProvider.powerStatus,
                                   ));
                             },
@@ -108,19 +115,14 @@ class _HomeSidebarState extends State<HomeSidebar>
                               ),
                             ),
                             value: portProvider.selectedPort,
-                            items: portProvider.ports.map((e) {
-                              return ComboBoxItem(
-                                value: e.toString(),
-                                child: Text(e.toString()),
-                              );
-                            }).toList(),
+                            items: portProvider.comboBoxItems,
                             onTap: () {
                               context
                                   .read<HomeBloc>()
                                   .add(const GetPortsEvent());
                             },
                             onChanged: ((value) {
-                              context.portProvider.setSelectedPort(value!);
+                              portProvider.setSelectedPort(value!);
                             }),
                           ),
                         );
@@ -185,7 +187,7 @@ class _HomeSidebarState extends State<HomeSidebar>
                           SidebarItem(
                             title: "TPS",
                             dataValue:
-                                "${cartesiusProvider.tpsValue.toStringAsFixed(0)} V",
+                                "${cartesiusProvider.tpsValue.toStringAsFixed(2)} V",
                             titleIcon: FluentIcons.chart_y_angle,
                           ),
                           SidebarItem(

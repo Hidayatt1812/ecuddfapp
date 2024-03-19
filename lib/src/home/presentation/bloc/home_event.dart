@@ -153,14 +153,19 @@ class SetTPSParameterEvent extends HomeEvent {
 class SwitchPowerEvent extends HomeEvent {
   const SwitchPowerEvent({
     required this.serialPort,
+    required this.tpss,
+    required this.rpms,
+    required this.timings,
     required this.status,
   });
-
   final SerialPort serialPort;
+  final dynamic tpss;
+  final dynamic rpms;
+  final dynamic timings;
   final bool status;
 
   @override
-  List<Object> get props => [serialPort, status];
+  List<Object> get props => [serialPort, tpss, rpms, timings, status];
 }
 
 class StopStreamDataEvent extends HomeEvent {
@@ -183,9 +188,25 @@ class SendDataToECUEvent extends HomeEvent {
     required this.tpss,
     required this.rpms,
     required this.timings,
+    required this.status,
   });
   final SerialPort serialPort;
   final dynamic tpss;
   final dynamic rpms;
   final dynamic timings;
+  final bool status;
+
+  @override
+  List<Object> get props => [serialPort, tpss, rpms, timings, status];
+}
+
+class GetDataFromECUEvent extends HomeEvent {
+  const GetDataFromECUEvent({
+    required this.serialPort,
+  });
+
+  final SerialPort serialPort;
+
+  @override
+  List<Object> get props => [serialPort];
 }

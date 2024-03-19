@@ -7,7 +7,10 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:stream_transform/stream_transform.dart';
 
+import '../../domain/entities/rpm.dart';
 import '../../domain/entities/timing.dart';
+import '../../domain/entities/tps.dart';
+import '../../domain/usecases/get_data_from_ecu.dart';
 import '../../domain/usecases/get_tps_rpm_lines_value.dart';
 import '../../domain/usecases/get_ports.dart';
 import '../../domain/usecases/get_timing_cell.dart';
@@ -40,6 +43,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required PostAllTiming postAllTiming,
     required PostDynamicTiming postDynamicTiming,
     required SaveValue saveValue,
+    required GetDataFromECU getDataFromECU,
     required SendDataToECU sendDataToECU,
     required SetRPMManually setRPMManually,
     required SetRPMParameter setRPMParameter,
@@ -57,6 +61,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _postAllTiming = postAllTiming,
         _postDynamicTiming = postDynamicTiming,
         _saveValue = saveValue,
+        _getDataFromECU = getDataFromECU,
         _sendDataToECU = sendDataToECU,
         _setRPMManually = setRPMManually,
         _setRPMParameter = setRPMParameter,
@@ -77,6 +82,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<PostAllTimingEvent>(_postAllTimingHandler);
     on<PostDynamicTimingEvent>(_postDynamicTimingHandler);
     on<SaveValueEvent>(_saveValueHandler);
+    on<GetDataFromECUEvent>(_getDataFromECUHandler);
     on<SendDataToECUEvent>(_sendDataToECUHandler);
     on<SetRPMManuallyEvent>(_setRPMManuallyHandler);
     on<SetRPMParameterEvent>(_setRPMParameterHandler);
@@ -98,6 +104,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final PostAllTiming _postAllTiming;
   final PostDynamicTiming _postDynamicTiming;
   final SaveValue _saveValue;
+  final GetDataFromECU _getDataFromECU;
   final SendDataToECU _sendDataToECU;
   final SetRPMManually _setRPMManually;
   final SetRPMParameter _setRPMParameter;
@@ -216,6 +223,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
+  Future<void> _getDataFromECUHandler(
+    GetDataFromECUEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _getDataFromECU(
+      event.serialPort,
+    );
+
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(DataTablesLoaded(data[0], data[1], data[2])),
+    );
+  }
+
   Future<void> _sendDataToECUHandler(
     SendDataToECUEvent event,
     Emitter<HomeState> emit,
@@ -225,6 +246,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       tpss: event.tpss,
       rpms: event.rpms,
       timings: event.timings,
+      status: event.status,
     ));
 
     result.fold(
@@ -317,6 +339,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     final result = await _switchPower(SwitchPowerParams(
       serialPort: event.serialPort,
+      tpss: event.tpss,
+      rpms: event.rpms,
+      timings: event.timings,
       status: event.status,
     ));
 
@@ -330,6 +355,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     GetTPSRPMLinesValueEvent event,
     Emitter<HomeState> emit,
   ) async {
+    emit(const HomeStreaming());
     final result = _getTPSRPMLinesValue(event.serialPortReader);
 
     await emit.forEach(

@@ -12,6 +12,7 @@ class MainPopUp extends StatelessWidget {
     this.placholder,
     this.value,
     required this.onPressedPositive,
+    this.isLoading = false,
     this.onPressedNegative,
     this.positiveText,
   });
@@ -21,6 +22,7 @@ class MainPopUp extends StatelessWidget {
   final TextEditingController? controller;
   final String? placholder;
   final String? positiveText;
+  final bool isLoading;
   final Function() onPressedPositive;
   final Function()? onPressedNegative;
 
@@ -36,34 +38,39 @@ class MainPopUp extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (value != null) ...[
-            Text(
-              "Current value: $value",
-              style: const TextStyle(
-                fontFamily: Fonts.segoe,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-          if (controller != null)
-            Container(
-              padding: const EdgeInsets.only(left: 20),
-              child: MainTextInput(
-                boxDecoration: const BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: Color.fromARGB(255, 249, 249, 249)),
-                disabled: false,
-                placholder: placholder,
-                controller: controller,
-              ),
+      content: isLoading
+          ? CircularProgressIndicator(
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(Colours.secondaryColour),
             )
-        ],
-      ),
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (value != null) ...[
+                  Text(
+                    "Current value: $value",
+                    style: const TextStyle(
+                      fontFamily: Fonts.segoe,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (controller != null)
+                  Container(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: MainTextInput(
+                      boxDecoration: const BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Color.fromARGB(255, 249, 249, 249)),
+                      disabled: false,
+                      placholder: placholder,
+                      controller: controller,
+                    ),
+                  )
+              ],
+            ),
       actions: [
         TextButton(
           onPressed: () {

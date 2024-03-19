@@ -19,6 +19,10 @@ class HomeLoading extends HomeState {
   const HomeLoading();
 }
 
+class HomeStreaming extends HomeState {
+  const HomeStreaming();
+}
+
 class HomeError extends HomeState {
   const HomeError(
     this.message,
@@ -54,6 +58,21 @@ class AxisUpdated extends HomeState {
 
 class DataSaved extends HomeState {
   const DataSaved();
+}
+
+class DataTablesLoaded extends HomeState {
+  const DataTablesLoaded(
+    this.timings,
+    this.tpss,
+    this.rpms,
+  );
+
+  final List<Timing> timings;
+  final List<TPS> tpss;
+  final List<RPM> rpms;
+
+  @override
+  List<Object> get props => [timings, tpss, rpms];
 }
 
 class TpsLoaded extends HomeState {

@@ -41,11 +41,16 @@ abstract class HomeRepository {
     required List<Timing> timings,
   });
 
+  ResultFuture<List<dynamic>> getDataFromECU({
+    required SerialPort serialPort,
+  });
+
   ResultFuture<void> sendDataToECU({
     required SerialPort serialPort,
     required List<TPS> tpss,
     required List<RPM> rpms,
     required List<Timing> timings,
+    required bool status,
   });
 
   ResultFuture<RPM> setRPMManually({
@@ -78,6 +83,9 @@ abstract class HomeRepository {
 
   ResultFuture<void> switchPower({
     required SerialPort serialPort,
+    required List<TPS> tpss,
+    required List<RPM> rpms,
+    required List<Timing> timings,
     required bool status,
   });
 }

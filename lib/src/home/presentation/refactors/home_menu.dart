@@ -328,12 +328,12 @@ class _HomeMenuState extends State<HomeMenu> {
                         } else if (state is DataSaved) {
                           CoreUtils.showSnackBar(context, 'Data saved',
                               severity: InfoBarSeverity.success);
-                        } else if (state is DataSent) {
-                          // CoreUtils.showSnackBar(
-                          //   context,
-                          //   'Data sent to ECU',
-                          //   severity: InfoBarSeverity.success,
-                          // );
+                        } else if (state is DataTablesLoaded) {
+                          CoreUtils.showSnackBar(
+                            context,
+                            'Data tables imported',
+                            severity: InfoBarSeverity.success,
+                          );
                           // context.portProvider.closeSerialPort();
                         }
                       },
@@ -363,7 +363,7 @@ class _HomeMenuState extends State<HomeMenu> {
                                             Colours.secondaryColour),
                                       ),
                                       child: const SizedBox(
-                                          width: 100,
+                                          width: 120,
                                           child: Text("Save Value")),
                                       onPressed: () {
                                         context.read<HomeBloc>().add(
@@ -391,8 +391,7 @@ class _HomeMenuState extends State<HomeMenu> {
                                 builder: (_, portProvider, __) {
                                   return IgnorePointer(
                                     ignoring:
-                                        portProvider.selectedPort == "None" ||
-                                            portProvider.isStreaming,
+                                        portProvider.selectedPort == "None",
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -411,9 +410,8 @@ class _HomeMenuState extends State<HomeMenu> {
                                         FilledButton(
                                           style: ButtonStyle(
                                             backgroundColor: portProvider
-                                                            .selectedPort ==
-                                                        "None" ||
-                                                    portProvider.isStreaming
+                                                        .selectedPort ==
+                                                    "None"
                                                 ? ButtonState.all(Colours
                                                     .secondaryColour
                                                     .withOpacity(0.5))
@@ -421,27 +419,17 @@ class _HomeMenuState extends State<HomeMenu> {
                                                     Colours.secondaryColour),
                                           ),
                                           child: const SizedBox(
-                                            width: 100,
-                                            child: Text("Send to ECU"),
+                                            width: 120,
+                                            child: Text("Import from ECU"),
                                           ),
                                           onPressed: () {
                                             portProvider.setSerialPort();
                                             context.read<HomeBloc>().add(
-                                                SendDataToECUEvent(
+                                                  GetDataFromECUEvent(
                                                     serialPort: portProvider
                                                         .serialPort!,
-                                                    tpss: context
-                                                        .read<
-                                                            CartesiusProvider>()
-                                                        .tpss,
-                                                    rpms: context
-                                                        .read<
-                                                            CartesiusProvider>()
-                                                        .rpms,
-                                                    timings: context
-                                                        .read<
-                                                            CartesiusProvider>()
-                                                        .timings));
+                                                  ),
+                                                );
                                           },
                                         ),
                                       ],

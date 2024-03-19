@@ -20,6 +20,7 @@ class SendDataToECU implements UsecaseWithParams<void, SendDataToECUParams> {
         tpss: params.tpss,
         rpms: params.rpms,
         timings: params.timings,
+        status: params.status,
       );
 }
 
@@ -29,13 +30,15 @@ class SendDataToECUParams extends Equatable {
     required this.tpss,
     required this.rpms,
     required this.timings,
+    required this.status,
   });
 
   final SerialPort serialPort;
   final List<TPS> tpss;
   final List<RPM> rpms;
   final List<Timing> timings;
+  final bool status;
 
   @override
-  List<Object?> get props => [tpss, rpms, timings];
+  List<Object?> get props => [serialPort, tpss, rpms, timings, status];
 }
