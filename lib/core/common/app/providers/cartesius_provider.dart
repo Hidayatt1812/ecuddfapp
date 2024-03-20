@@ -230,7 +230,6 @@ class CartesiusProvider extends ChangeNotifier {
   }
 
   void resetTiming() {
-    print(_tpss.length * _rpms.length);
     _timings = List.generate(
       _tpss.length * _rpms.length,
       (index) {

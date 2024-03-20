@@ -41,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
           CoreUtils.showSnackBar(context, state.message);
         } else if (state is HomeUpdated) {
           if (state.data is List<TPS>) {
-            print('tps: ${state.data}');
             context.read<CartesiusProvider>().initTpss(state.data);
           } else if (state.data is List<RPM>) {
             context.read<CartesiusProvider>().initRpms(state.data);
@@ -87,6 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
               severity: InfoBarSeverity.success);
         } else if (state is PortLoaded) {
           context.portProvider.initPorts(state.data);
+        } else if (state is DataTablesLoaded) {
+          context.read<CartesiusProvider>().initTpss(state.tpss);
+          context.read<CartesiusProvider>().initRpms(state.rpms);
+          context.read<CartesiusProvider>().initTimings(state.timings);
         }
       },
       builder: (context, state) {

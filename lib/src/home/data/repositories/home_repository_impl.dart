@@ -426,4 +426,14 @@ class HomeRepositoryImpl implements HomeRepository {
       return Left(CacheFailure.fromException(e));
     }
   }
+
+  @override
+  ResultFuture<List> getDataFromCSV() async {
+    try {
+      dynamic result = await _localDataSource.getDataFromCSV();
+      return Right(result);
+    } on CacheException catch (e) {
+      return Left(CacheFailure.fromException(e));
+    }
+  }
 }

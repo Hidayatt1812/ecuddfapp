@@ -24,6 +24,7 @@ Future<void> _initHome() async {
   sl
     ..registerFactory(
       () => HomeBloc(
+        getDataFromCSV: sl(),
         getDataFromECU: sl(),
         getTPSRPMLinesValue: sl(),
         getPorts: sl(),
@@ -44,6 +45,7 @@ Future<void> _initHome() async {
         switchPower: sl(),
       ),
     )
+    ..registerLazySingleton(() => GetDataFromCSV(sl()))
     ..registerLazySingleton(() => GetDataFromECU(sl()))
     ..registerLazySingleton(() => GetTPSRPMLinesValue(sl()))
     ..registerLazySingleton(() => GetPorts(sl()))
@@ -71,6 +73,7 @@ Future<void> _initHome() async {
       () => HomeLocalDataSourceImpl(
         localstore: sl(),
         sharedPreferences: sl(),
+        filePicker: sl(),
       ),
     )
     ..registerLazySingleton<HomePortDataSource>(

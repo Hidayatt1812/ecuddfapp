@@ -68,7 +68,7 @@ class CartesiusHeader extends StatelessWidget {
                             return MainPopUp(
                               title: 'Edit $title',
                               controller: controller,
-                              value: '${value} Voltage',
+                              value: '$value Voltage',
                               onPressedPositive: () {
                                 if (values is List<TPS>) {
                                   if (controller.text.isNotEmpty) {

@@ -45,6 +45,8 @@ abstract class HomeRepository {
     required SerialPort serialPort,
   });
 
+  ResultFuture<List<dynamic>> getDataFromCSV();
+
   ResultFuture<void> sendDataToECU({
     required SerialPort serialPort,
     required List<TPS> tpss,

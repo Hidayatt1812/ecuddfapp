@@ -39,7 +39,7 @@ class MainPopUp extends StatelessWidget {
         ),
       ),
       content: isLoading
-          ? CircularProgressIndicator(
+          ? const CircularProgressIndicator(
               valueColor:
                   AlwaysStoppedAnimation<Color>(Colours.secondaryColour),
             )

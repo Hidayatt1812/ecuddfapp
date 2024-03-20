@@ -10,6 +10,7 @@ import 'package:stream_transform/stream_transform.dart';
 import '../../domain/entities/rpm.dart';
 import '../../domain/entities/timing.dart';
 import '../../domain/entities/tps.dart';
+import '../../domain/usecases/get_data_from_csv.dart';
 import '../../domain/usecases/get_data_from_ecu.dart';
 import '../../domain/usecases/get_tps_rpm_lines_value.dart';
 import '../../domain/usecases/get_ports.dart';
@@ -44,6 +45,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required PostDynamicTiming postDynamicTiming,
     required SaveValue saveValue,
     required GetDataFromECU getDataFromECU,
+    required GetDataFromCSV getDataFromCSV,
     required SendDataToECU sendDataToECU,
     required SetRPMManually setRPMManually,
     required SetRPMParameter setRPMParameter,
@@ -62,6 +64,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _postDynamicTiming = postDynamicTiming,
         _saveValue = saveValue,
         _getDataFromECU = getDataFromECU,
+        _getDataFromCSV = getDataFromCSV,
         _sendDataToECU = sendDataToECU,
         _setRPMManually = setRPMManually,
         _setRPMParameter = setRPMParameter,
@@ -83,6 +86,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<PostDynamicTimingEvent>(_postDynamicTimingHandler);
     on<SaveValueEvent>(_saveValueHandler);
     on<GetDataFromECUEvent>(_getDataFromECUHandler);
+    on<GetDataFromCSVEvent>(_getDataFromCSVHandler);
     on<SendDataToECUEvent>(_sendDataToECUHandler);
     on<SetRPMManuallyEvent>(_setRPMManuallyHandler);
     on<SetRPMParameterEvent>(_setRPMParameterHandler);
@@ -105,6 +109,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final PostDynamicTiming _postDynamicTiming;
   final SaveValue _saveValue;
   final GetDataFromECU _getDataFromECU;
+  final GetDataFromCSV _getDataFromCSV;
   final SendDataToECU _sendDataToECU;
   final SetRPMManually _setRPMManually;
   final SetRPMParameter _setRPMParameter;
@@ -230,6 +235,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final result = await _getDataFromECU(
       event.serialPort,
     );
+
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(DataTablesLoaded(data[0], data[1], data[2])),
+    );
+  }
+
+  Future<void> _getDataFromCSVHandler(
+    GetDataFromCSVEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _getDataFromCSV();
 
     result.fold(
       (failure) => emit(HomeError(failure.message)),

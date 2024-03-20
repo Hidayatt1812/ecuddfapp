@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:ddfapp/core/utils/core_utils.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
-// import 'package:serial_port_win32/serial_port_win32.dart';
 
 import '../../../../core/errors/exceptions.dart';
 import '../models/rpm_model.dart';
@@ -51,7 +51,6 @@ class HomePortDataSourceImpl implements HomePortDataSource {
     required SerialPortReader serialPortReader,
   }) async* {
     try {
-      print('masuk');
       final StreamController<List<double>> controllerDataSource =
           StreamController<List<double>>();
 
@@ -59,14 +58,13 @@ class HomePortDataSourceImpl implements HomePortDataSource {
         (data) => data,
       );
 
-      String type = '';
       String mod = '';
       String char = '';
       String value = '';
       List<double> portsValues = [];
       StreamSubscription subscription = upcomingData.listen(
         (data) {
-          print(String.fromCharCodes(data));
+          log(String.fromCharCodes(data));
           try {
             String input = String.fromCharCodes(data);
             if (input.length <= 16) {
@@ -92,7 +90,6 @@ class HomePortDataSourceImpl implements HomePortDataSource {
                       CoreUtils.hexToDoubleString(value.substring(12, 16))) ??
                   0);
               controllerDataSource.add(List<double>.from(portsValues));
-              print('Values: $portsValues');
               portsValues.clear();
               value = '';
             }
@@ -195,7 +192,6 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       ];
 
       final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
-      print('ValueSend: $valueSend');
 
       for (int i = 0; i < 107; i++) {
         Future.delayed(Duration(milliseconds: 50 * i), () {
@@ -203,7 +199,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
               CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
           final result = serialPort.write(bytesData);
 
-          print('Result: $result');
+          log('Result: $result');
         });
       }
       Future.delayed(const Duration(milliseconds: 50 * 107), () {
@@ -211,10 +207,10 @@ class HomePortDataSourceImpl implements HomePortDataSource {
             valueSend.substring(107 * 36, (107) * 36 + 4));
         final result = serialPort.write(bytesData);
 
-        print('Result: $result');
+        log('Result: $result');
       });
       await Future.delayed(const Duration(milliseconds: 50 * 109), () {
-        print('Stream is closed');
+        log('Stream is closed');
         serialPort.close();
         serialPort.dispose();
       });
@@ -253,7 +249,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       ];
 
       final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
-      print('ValueSend: $valueSend');
+      log('ValueSend: $valueSend');
 
       for (int i = 0; i < 107; i++) {
         Future.delayed(Duration(milliseconds: 50 * i), () {
@@ -261,7 +257,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
               CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
           final result = serialPort.write(bytesData);
 
-          print('Result: $result');
+          log('Result: $result');
         });
       }
       Future.delayed(const Duration(milliseconds: 50 * 107), () {
@@ -269,10 +265,10 @@ class HomePortDataSourceImpl implements HomePortDataSource {
             valueSend.substring(107 * 36, (107) * 36 + 4));
         final result = serialPort.write(bytesData);
 
-        print('Result: $result');
+        log('Result: $result');
       });
       await Future.delayed(const Duration(milliseconds: 50 * 109), () {
-        print('Stream is closed');
+        log('Stream is closed');
         serialPort.close();
         serialPort.dispose();
       });
@@ -351,7 +347,6 @@ class HomePortDataSourceImpl implements HomePortDataSource {
     required SerialPort serialPort,
   }) async {
     try {
-      print('Masuk getDataFromECU in data source');
       if (!serialPort.isOpen) {
         serialPort.close();
       }
@@ -397,7 +392,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       String rpmsList = "";
 
       upcomingData.forEach((data) {
-        print(String.fromCharCodes(data));
+        log(String.fromCharCodes(data));
         try {
           upcomingDataString += String.fromCharCodes(data);
         } catch (e) {
@@ -406,7 +401,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       });
 
       await Future.delayed(const Duration(seconds: 5), () {
-        print('Stream is closed');
+        log('Stream is closed');
         serialPortReader.close();
         serialPort.close();
 

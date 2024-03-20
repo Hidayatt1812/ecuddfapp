@@ -61,50 +61,6 @@ class _HomeMenuState extends State<HomeMenu> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // MenuContainer(
-                  //   title: 'CLEAR',
-                  //   icon: const Icon(
-                  //     FluentIcons.remove_filter,
-                  //     size: 14,
-                  //   ),
-                  //   children: [
-                  //     Button(
-                  //       child: const SizedBox(
-                  //         width: 80,
-                  //         child: Text(" TPS "),
-                  //       ),
-                  //       onPressed: () {},
-                  //     ),
-                  //     const SizedBox(
-                  //       height: 5,
-                  //     ),
-                  //     Button(
-                  //       child: const SizedBox(
-                  //         width: 80,
-                  //         child: Text(" RPM "),
-                  //       ),
-                  //       onPressed: () {},
-                  //     ),
-                  //     const SizedBox(
-                  //       height: 5,
-                  //     ),
-                  //     Button(
-                  //       child: const SizedBox(
-                  //         width: 80,
-                  //         child: Text(" INJ "),
-                  //       ),
-                  //       onPressed: () {},
-                  //     ),
-                  //     const SizedBox(
-                  //       height: 16,
-                  //     ),
-                  //   ],
-                  // ),
-                  // const MainDivider(
-                  //   size: 160,
-                  //   marginH: 20,
-                  //   marginV: 20,
-                  // ),
                   MenuContainer(
                     title: 'INSERT',
                     icon: const Icon(
@@ -156,13 +112,7 @@ class _HomeMenuState extends State<HomeMenu> {
                                     onPressedPositive: () {
                                       context
                                           .read<HomeBloc>()
-                                          .add(const LoadRPMValueEvent());
-                                      context
-                                          .read<HomeBloc>()
-                                          .add(const LoadTPSValueEvent());
-                                      context
-                                          .read<HomeBloc>()
-                                          .add(const LoadTimingValueEvent());
+                                          .add(const GetDataFromCSVEvent());
                                       Navigator.of(context).pop();
                                     },
                                     positiveText: 'Load',

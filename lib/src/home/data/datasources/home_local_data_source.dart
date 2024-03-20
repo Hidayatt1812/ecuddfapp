@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:intl/intl.dart';
 import 'package:localstore/localstore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,17 +26,22 @@ abstract class HomeLocalDataSource {
   Future<List<RPMModel>> loadRPMValue();
 
   Future<List<TimingModel>> loadTimingValue();
+
+  Future<List<dynamic>> getDataFromCSV();
 }
 
 class HomeLocalDataSourceImpl implements HomeLocalDataSource {
   const HomeLocalDataSourceImpl({
     required Localstore localstore,
     required SharedPreferences sharedPreferences,
+    required FilePicker filePicker,
   })  : _localstore = localstore,
-        _sharedPreferences = sharedPreferences;
+        _sharedPreferences = sharedPreferences,
+        _filePicker = filePicker;
 
   final Localstore _localstore;
   final SharedPreferences _sharedPreferences;
+  final FilePicker _filePicker;
 
   final String db = 'cartesius';
 
@@ -135,19 +141,15 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       for (int i = tpss.length; i < 30; i++) {
         tpssList += ',FFFF';
       }
-      print('tpssList: $tpssList');
       String rpmsList =
           rpms.map((e) => CoreUtils.doubleToHex(e.value)).join(',');
       for (int i = rpms.length; i < 30; i++) {
         rpmsList += ',FFFF';
       }
-      print('rpmsList: $rpmsList');
       String timingsList = "";
 
-      // fill the rest of the list with FFFF, considering the 30 of i and j
       for (int i = 0; i < 30; i++) {
         for (int j = 0; j < 30; j++) {
-          print(i * 30 + j);
           if (j < tpss.length && i * tpss.length + j < timings.length) {
             timingsList +=
                 CoreUtils.doubleToHex(timings[i * tpss.length + j].value);
@@ -158,22 +160,13 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
             timingsList += ',';
           }
         }
-        // print('timingsList: $timingsList}');
         if (i < 29) {
           timingsList += ',';
         }
       }
-      print('timingsList: $timingsList, length: ${timingsList.length}');
 
-      // |null|tps[0]|tps[1]|...|tps[29]|
-      // |rpms[29]|timings[29*29 + 0]|timings[29*29 + 1]|...|timings[29*29 + 29]|
-      // |rpms[28]|timings[28*29 + 0]|timings[28*29 + 1]|...|timings[28*29 + 29]|
-      // |...|...|...|...|...|
-      // |rpms[0]|timings[0*29 + 0]|timings[0*29 + 1]|...|timings[0*29 + 29]|
-
-      // convert to csv
       List<String> csv = [];
-      csv.add(',${tpssList}');
+      csv.add(',$tpssList');
       for (int i = 29; i >= 0; i--) {
         List<String> timingsSubList = [];
         for (int j = 0; j < 30; j++) {
@@ -182,11 +175,12 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         csv.add('${rpmsList.split(",")[i]},${timingsSubList.join(",")}');
       }
 
-      print('csv: $csv');
+      DateTime now = DateTime.now();
 
-      String? savePath = await FilePicker.platform.saveFile(
-        fileName: 'cartesius.csv',
-        allowedExtensions: ['svg'],
+      String? savePath = await _filePicker.saveFile(
+        fileName:
+            'ddfecuapp_datatables_${DateFormat('yyyyMMddHHmmss').format(now)}.csv',
+        allowedExtensions: ['csv'],
         type: FileType.custom,
         lockParentWindow: true,
       );
@@ -199,10 +193,125 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
 
       // Write to the file
       await file.writeAsString(csv.join('\n'));
+    } on CacheException {
+      rethrow;
+    } catch (e, s) {
+      debugPrintStack(stackTrace: s);
+      throw CacheException(message: e.toString());
+    }
+  }
 
-      print("CSV file saved to: $savePath");
+  @override
+  Future<List> getDataFromCSV() async {
+    try {
+      List<TimingModel> timings = [];
+      List<TPSModel> tpss = [];
+      List<RPMModel> rpms = [];
 
-      print('savePath: $savePath');
+      final loadedPath = await _filePicker.pickFiles(
+        allowedExtensions: ['csv'],
+        type: FileType.custom,
+        lockParentWindow: true,
+      );
+
+      if (loadedPath == null) {
+        throw const CacheException(message: 'No path was found');
+      }
+
+      final file = File(loadedPath.files.single.path!);
+      final upcomingDataString = await file.readAsString();
+
+      String timingsList = "";
+      String tpssList = "";
+      String rpmsList = "";
+
+      // tpssList
+      tpssList =
+          upcomingDataString.split('\n')[0].split(',').sublist(1, 30).join('');
+      tpssList = tpssList.replaceAll('FFFF', '');
+      // rpmsList
+      for (int i = 29; i >= 0; i--) {
+        rpmsList += upcomingDataString.split('\n')[i + 1].split(',')[0];
+      }
+      rpmsList = rpmsList.replaceAll('FFFF', '');
+
+      // timingsList
+      for (int i = 29; i >= 0; i--) {
+        for (int j = 0; j < 30; j++) {
+          timingsList +=
+              upcomingDataString.split('\n')[i + 1].split(',')[j + 1];
+        }
+      }
+      timingsList = timingsList.replaceAll('FFFF', '');
+
+      for (int i = 0; i < tpssList.length / 4; i++) {
+        tpss.add(
+          TPSModel(
+            id: i,
+            isFirst: i == 0,
+            isLast: i == tpssList.length / 4 - 1,
+            value: CoreUtils.hexToDouble(tpssList.substring(i * 4, i * 4 + 4)),
+            prevValue: i == 0
+                ? null
+                : CoreUtils.hexToDouble(tpssList.substring(i * 4 - 4, i * 4)),
+            nextValue: i == tpssList.length / 4 - 1
+                ? null
+                : CoreUtils.hexToDouble(
+                    tpssList.substring(i * 4 + 4, i * 4 + 8)),
+          ),
+        );
+      }
+
+      for (int i = 0; i < rpmsList.length / 4; i++) {
+        rpms.add(
+          RPMModel(
+            id: i,
+            isFirst: i == 0,
+            isLast: i == rpmsList.length / 4 - 1,
+            value: CoreUtils.hexToDouble(rpmsList.substring(i * 4, i * 4 + 4)),
+            prevValue: i == 0
+                ? null
+                : CoreUtils.hexToDouble(rpmsList.substring(i * 4 - 4, i * 4)),
+            nextValue: i == rpmsList.length / 4 - 1
+                ? null
+                : CoreUtils.hexToDouble(
+                    rpmsList.substring(i * 4 + 4, i * 4 + 8)),
+          ),
+        );
+      }
+
+      timings = List.generate(
+        tpss.length * rpms.length,
+        (index) {
+          int i = index % tpss.length;
+          int j = index ~/ tpss.length;
+          return TimingModel(
+            id: index,
+            tpsValue: tpss[i].value,
+            mintpsValue: (i > 0)
+                ? (tpss[i - 1].value + tpss[i].value) / 2
+                : tpss[0].value,
+            maxtpsValue: (i < tpss.length - 1)
+                ? (tpss[i].value + tpss[i + 1].value) / 2
+                : tpss[tpss.length - 1].value,
+            rpmValue: rpms[j].value,
+            minrpmValue: (j > 0)
+                ? (rpms[j - 1].value + rpms[j].value) / 2
+                : rpms[0].value,
+            maxrpmValue: (j < rpms.length - 1)
+                ? (rpms[j].value + rpms[j + 1].value) / 2
+                : rpms[rpms.length - 1].value,
+            value: CoreUtils.hexToDouble(
+                timingsList.substring(index * 4, index * 4 + 4)),
+          );
+        },
+      );
+
+      return [
+        timings,
+        tpss,
+        rpms,
+      ];
     } on CacheException {
       rethrow;
     } catch (e, s) {

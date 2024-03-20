@@ -30,6 +30,10 @@ class GetTimingFromControlUnitEvent extends HomeEvent {
   const GetTimingFromControlUnitEvent();
 }
 
+class GetDataFromCSVEvent extends HomeEvent {
+  const GetDataFromCSVEvent();
+}
+
 class LoadTPSValueEvent extends HomeEvent {
   const LoadTPSValueEvent();
 }
