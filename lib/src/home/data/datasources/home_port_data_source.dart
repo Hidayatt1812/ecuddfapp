@@ -67,6 +67,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
           log(String.fromCharCodes(data));
           try {
             String input = String.fromCharCodes(data);
+            input = CoreUtils.removeHexaChar(input);
             if (input.length <= 16) {
               input = mod + input;
               mod = '';
@@ -179,7 +180,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
 
       List<double> listDouble = [
         CoreUtils.hexToDouble('FFFA'),
-        ...tpss.map((e) => e.value / 3.3 * 4096).toList(),
+        ...tpss.map((e) => e.value * 4096 / 3.3).toList(),
         for (int i = tpss.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
         CoreUtils.hexToDouble('FFFB'),
         ...rpms.map((e) => e.value).toList(),
@@ -191,10 +192,10 @@ class HomePortDataSourceImpl implements HomePortDataSource {
         status ? CoreUtils.hexToDouble('FFFD') : CoreUtils.hexToDouble('FFFE'),
       ];
 
-      final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
+      final valueSend = "FFFW${CoreUtils.listDoubleToHexadecimal(listDouble)}";
 
       for (int i = 0; i < 107; i++) {
-        Future.delayed(Duration(milliseconds: 50 * i), () {
+        await Future.delayed(const Duration(milliseconds: 30), () {
           final bytesData =
               CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
           final result = serialPort.write(bytesData);
@@ -202,14 +203,14 @@ class HomePortDataSourceImpl implements HomePortDataSource {
           log('Result: $result');
         });
       }
-      Future.delayed(const Duration(milliseconds: 50 * 107), () {
+      await Future.delayed(const Duration(milliseconds: 10), () {
         final bytesData = CoreUtils.hexaToBytes(
-            valueSend.substring(107 * 36, (107) * 36 + 4));
+            valueSend.substring(107 * 36, (107) * 36 + 8));
         final result = serialPort.write(bytesData);
 
         log('Result: $result');
       });
-      await Future.delayed(const Duration(milliseconds: 50 * 109), () {
+      await Future.delayed(const Duration(milliseconds: 2000), () {
         log('Stream is closed');
         serialPort.close();
         serialPort.dispose();
@@ -362,66 +363,97 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       List<TPSModel> tpss = [];
       List<RPMModel> rpms = [];
 
-      String upcomingDataStringDummy = '';
-      String timingsListDummy = "";
-      String tpssListDummy = "";
-      String rpmsListDummy = "";
-      for (int i = 0; i < 100; i++) {
-        timingsListDummy += CoreUtils.intToHex(i);
-      }
-      for (int i = 0; i < 800; i++) {
-        timingsListDummy += "FFFF";
-      }
+      // String upcomingDataStringDummy = '';
+      // String timingsListDummy = "";
+      // String tpssListDummy = "";
+      // String rpmsListDummy = "";
+      // for (int i = 0; i < 100; i++) {
+      //   timingsListDummy += CoreUtils.intToHex(i);
+      // }
+      // for (int i = 0; i < 800; i++) {
+      //   timingsListDummy += "FFFF";
+      // }
 
-      for (int i = 0; i < 10; i++) {
-        tpssListDummy += CoreUtils.intToHex(i);
-        rpmsListDummy += CoreUtils.intToHex(i * 100);
-      }
+      // for (int i = 0; i < 10; i++) {
+      //   tpssListDummy += CoreUtils.intToHex(i);
+      //   rpmsListDummy += CoreUtils.intToHex(i * 100);
+      // }
 
-      for (int i = 0; i < 20; i++) {
-        tpssListDummy += "FFFF";
-        rpmsListDummy += "FFFF";
-      }
+      // for (int i = 0; i < 20; i++) {
+      //   tpssListDummy += "FFFF";
+      //   rpmsListDummy += "FFFF";
+      // }
 
-      upcomingDataStringDummy =
-          "FFFA${tpssListDummy}FFFB${rpmsListDummy}FFFC$timingsListDummy";
+      // upcomingDataStringDummy =
+      //     "FFFA${tpssListDummy}FFFB${rpmsListDummy}FFFC$timingsListDummy";
 
       String upcomingDataString = '';
       String timingsList = "";
       String tpssList = "";
       String rpmsList = "";
 
-      upcomingData.forEach((data) {
-        log(String.fromCharCodes(data));
-        try {
-          upcomingDataString += String.fromCharCodes(data);
-        } catch (e) {
-          throw PortException(message: e.toString());
+      String mod = "";
+      String char = "";
+      String value = "";
+
+      upcomingData.listen((event) {
+        upcomingDataString += String.fromCharCodes(event);
+        log(upcomingDataString);
+        if (upcomingDataString.length == 3856) {
+          serialPortReader.close();
+          serialPort.close();
         }
       });
 
-      await Future.delayed(const Duration(seconds: 5), () {
+      // upcomingData.forEach((data) {
+      //   log(String.fromCharCodes(data));
+
+      //   try {
+      //     String input = String.fromCharCodes(data);
+      //     if (input.length <= 16) {
+      //       input = mod + input;
+      //       mod = '';
+      //       for (int i = 0; i < input.length; i++) {
+      //         char = input[i];
+      //         if (value.length < 16) {
+      //           value += char;
+      //         } else {
+      //           mod += char;
+      //         }
+      //       }
+      //     }
+      //     if (value.length == 16 && CoreUtils.isHexadecimal(value)) {
+      //       log(value);
+      //       value = '';
+      //     }
+      //     if (upcomingDataString.length == 3856) {
+      //       log('upcomingDataString: $upcomingDataString');
+      //     }
+      //   } catch (e) {
+      //     throw PortException(message: e.toString());
+      //   }
+      // });
+
+      await Future.delayed(const Duration(seconds: 20), () {
         log('Stream is closed');
-        serialPortReader.close();
-        serialPort.close();
 
-        upcomingDataString = upcomingDataStringDummy;
+        // upcomingDataString = upcomingDataStringDummy;
 
-        tpssList = upcomingDataString.substring(4, 124);
-        rpmsList = upcomingDataString.substring(128, 248);
-        timingsList = upcomingDataString.substring(252, 3852);
-        timings = List.generate(
-          900 - CoreUtils.countOccurrences(timingsList, "FFFF"),
-          (index) => const TimingModel.empty(),
-        );
-        tpss = List.generate(
-          30 - CoreUtils.countOccurrences(tpssList, "FFFF"),
-          (index) => const TPSModel.empty(),
-        );
-        rpms = List.generate(
-          30 - CoreUtils.countOccurrences(rpmsList, "FFFF"),
-          (index) => const RPMModel.empty(),
-        );
+        // tpssList = upcomingDataString.substring(4, 124);
+        // rpmsList = upcomingDataString.substring(128, 248);
+        // timingsList = upcomingDataString.substring(252, 3852);
+        // timings = List.generate(
+        //   900 - CoreUtils.countOccurrences(timingsList, "FFFF"),
+        //   (index) => const TimingModel.empty(),
+        // );
+        // tpss = List.generate(
+        //   30 - CoreUtils.countOccurrences(tpssList, "FFFF"),
+        //   (index) => const TPSModel.empty(),
+        // );
+        // rpms = List.generate(
+        //   30 - CoreUtils.countOccurrences(rpmsList, "FFFF"),
+        //   (index) => const RPMModel.empty(),
+        // );
       });
 
       return [

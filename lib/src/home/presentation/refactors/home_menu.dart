@@ -341,7 +341,8 @@ class _HomeMenuState extends State<HomeMenu> {
                                 builder: (_, portProvider, __) {
                                   return IgnorePointer(
                                     ignoring:
-                                        portProvider.selectedPort == "None",
+                                        portProvider.selectedPort == "None" ||
+                                            true,
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -360,8 +361,9 @@ class _HomeMenuState extends State<HomeMenu> {
                                         FilledButton(
                                           style: ButtonStyle(
                                             backgroundColor: portProvider
-                                                        .selectedPort ==
-                                                    "None"
+                                                            .selectedPort ==
+                                                        "None" ||
+                                                    true
                                                 ? ButtonState.all(Colours
                                                     .secondaryColour
                                                     .withOpacity(0.5))

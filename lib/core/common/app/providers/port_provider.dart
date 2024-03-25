@@ -77,7 +77,7 @@ class PortProvider extends ChangeNotifier {
   void setSerialPort() {
     final SerialPortConfig cfg = SerialPortConfig();
     cfg.baudRate = 9600;
-    cfg.bits = 32;
+    cfg.bits = 256;
     try {
       _serialPort = SerialPort(selectedPort);
       _serialPort!.config = cfg;
