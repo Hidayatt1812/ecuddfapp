@@ -107,6 +107,11 @@ class CoreUtils {
     return value.toRadixString(16).toUpperCase().padLeft(4, "0");
   }
 
+  // remove un hexa char
+  static String removeHexaChar(String hex) {
+    return hex.replaceAll(RegExp(r'[^0-9A-Fa-f]'), '');
+  }
+
   static bool checkSizeFile(double maxSize, File file) {
     int sizeInBytes = file.lengthSync();
     double sizeInMb = sizeInBytes / (1024 * 1024);
