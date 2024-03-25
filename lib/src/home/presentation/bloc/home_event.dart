@@ -7,17 +7,6 @@ sealed class HomeEvent extends Equatable {
   List<Object> get props => [];
 }
 
-// class GetPortsValueEvent extends HomeEvent {
-//   const GetPortsValueEvent({
-//     required this.port,
-//   });
-
-//   final String port;
-
-//   @override
-//   List<Object> get props => [port];
-// }
-
 class GetPortsEvent extends HomeEvent {
   const GetPortsEvent();
 }
@@ -39,6 +28,10 @@ class GetTimingCellEvent extends HomeEvent {
 
 class GetTimingFromControlUnitEvent extends HomeEvent {
   const GetTimingFromControlUnitEvent();
+}
+
+class GetDataFromCSVEvent extends HomeEvent {
+  const GetDataFromCSVEvent();
 }
 
 class LoadTPSValueEvent extends HomeEvent {
@@ -162,16 +155,62 @@ class SetTPSParameterEvent extends HomeEvent {
 }
 
 class SwitchPowerEvent extends HomeEvent {
-  const SwitchPowerEvent();
+  const SwitchPowerEvent({
+    required this.serialPort,
+    required this.tpss,
+    required this.rpms,
+    required this.timings,
+    required this.status,
+  });
+  final SerialPort serialPort;
+  final dynamic tpss;
+  final dynamic rpms;
+  final dynamic timings;
+  final bool status;
+
+  @override
+  List<Object> get props => [serialPort, tpss, rpms, timings, status];
 }
 
-class StreamGetTPSRPMLinesValueEvent extends HomeEvent {
-  // final StreamController<double> tpsLinesController;
-  // final StreamController<double> rpmLinesController;
-  final String port;
-  const StreamGetTPSRPMLinesValueEvent({
-    // required this.tpsLinesController,
-    // required this.rpmLinesController,
-    required this.port,
+class StopStreamDataEvent extends HomeEvent {
+  const StopStreamDataEvent({
+    required this.serialPortReader,
   });
+  final SerialPortReader serialPortReader;
+}
+
+class GetTPSRPMLinesValueEvent extends HomeEvent {
+  final SerialPortReader serialPortReader;
+  const GetTPSRPMLinesValueEvent({
+    required this.serialPortReader,
+  });
+}
+
+class SendDataToECUEvent extends HomeEvent {
+  const SendDataToECUEvent({
+    required this.serialPort,
+    required this.tpss,
+    required this.rpms,
+    required this.timings,
+    required this.status,
+  });
+  final SerialPort serialPort;
+  final dynamic tpss;
+  final dynamic rpms;
+  final dynamic timings;
+  final bool status;
+
+  @override
+  List<Object> get props => [serialPort, tpss, rpms, timings, status];
+}
+
+class GetDataFromECUEvent extends HomeEvent {
+  const GetDataFromECUEvent({
+    required this.serialPort,
+  });
+
+  final SerialPort serialPort;
+
+  @override
+  List<Object> get props => [serialPort];
 }

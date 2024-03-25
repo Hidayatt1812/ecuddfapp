@@ -11,8 +11,16 @@ final class HomeInitial extends HomeState {
   const HomeInitial();
 }
 
+final class HomeIdle extends HomeState {
+  const HomeIdle();
+}
+
 class HomeLoading extends HomeState {
   const HomeLoading();
+}
+
+class HomeStreaming extends HomeState {
+  const HomeStreaming();
 }
 
 class HomeError extends HomeState {
@@ -52,6 +60,21 @@ class DataSaved extends HomeState {
   const DataSaved();
 }
 
+class DataTablesLoaded extends HomeState {
+  const DataTablesLoaded(
+    this.timings,
+    this.tpss,
+    this.rpms,
+  );
+
+  final List<Timing> timings;
+  final List<TPS> tpss;
+  final List<RPM> rpms;
+
+  @override
+  List<Object> get props => [timings, tpss, rpms];
+}
+
 class TpsLoaded extends HomeState {
   const TpsLoaded(this.data);
 
@@ -89,5 +112,18 @@ class PortLoaded extends HomeState {
 }
 
 class HomePowerSwitched extends HomeState {
-  const HomePowerSwitched();
+  const HomePowerSwitched(this.status);
+
+  final bool status;
+
+  @override
+  List<Object> get props => [status];
+}
+
+class StreamingDataStopped extends HomeState {
+  const StreamingDataStopped();
+}
+
+class DataSent extends HomeState {
+  const DataSent();
 }

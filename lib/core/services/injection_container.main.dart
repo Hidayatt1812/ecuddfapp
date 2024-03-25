@@ -24,7 +24,9 @@ Future<void> _initHome() async {
   sl
     ..registerFactory(
       () => HomeBloc(
-        getPortsValue: sl(),
+        getDataFromCSV: sl(),
+        getDataFromECU: sl(),
+        getTPSRPMLinesValue: sl(),
         getPorts: sl(),
         getTimingCell: sl(),
         getTimingFromControlUnit: sl(),
@@ -34,14 +36,18 @@ Future<void> _initHome() async {
         postAllTiming: sl(),
         postDynamicTiming: sl(),
         saveValue: sl(),
+        sendDataToECU: sl(),
         setRPMManually: sl(),
         setRPMParameter: sl(),
         setTimingManually: sl(),
         setTPSManually: sl(),
         setTPSParameter: sl(),
+        switchPower: sl(),
       ),
     )
-    ..registerLazySingleton(() => GetPortsValue(sl()))
+    ..registerLazySingleton(() => GetDataFromCSV(sl()))
+    ..registerLazySingleton(() => GetDataFromECU(sl()))
+    ..registerLazySingleton(() => GetTPSRPMLinesValue(sl()))
     ..registerLazySingleton(() => GetPorts(sl()))
     ..registerLazySingleton(() => GetTimingCell(sl()))
     ..registerLazySingleton(() => GetTimingFromControlUnit(sl()))
@@ -51,11 +57,13 @@ Future<void> _initHome() async {
     ..registerLazySingleton(() => PostAllTiming(sl()))
     ..registerLazySingleton(() => PostDynamicTiming(sl()))
     ..registerLazySingleton(() => SaveValue(sl()))
+    ..registerLazySingleton(() => SendDataToECU(sl()))
     ..registerLazySingleton(() => SetRPMManually(sl()))
     ..registerLazySingleton(() => SetRPMParameter(sl()))
     ..registerLazySingleton(() => SetTimingManually(sl()))
     ..registerLazySingleton(() => SetTPSManually(sl()))
     ..registerLazySingleton(() => SetTPSParameter(sl()))
+    ..registerLazySingleton(() => SwitchPower(sl()))
     ..registerLazySingleton<HomeRepository>(
         () => HomeRepositoryImpl(sl(), sl(), sl()))
     ..registerLazySingleton<HomeRemoteDataSource>(
@@ -65,6 +73,7 @@ Future<void> _initHome() async {
       () => HomeLocalDataSourceImpl(
         localstore: sl(),
         sharedPreferences: sl(),
+        filePicker: sl(),
       ),
     )
     ..registerLazySingleton<HomePortDataSource>(

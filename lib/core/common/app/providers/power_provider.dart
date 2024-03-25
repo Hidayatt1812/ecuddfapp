@@ -5,8 +5,8 @@ class PowerProvider extends ChangeNotifier {
 
   bool get powerStatus => _powerStatus;
 
-  bool switchPowerStatus() {
-    _powerStatus = !_powerStatus;
+  bool switchPowerStatus(bool status) {
+    _powerStatus = status;
 
     Future.delayed(Duration.zero, notifyListeners);
 

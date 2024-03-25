@@ -1,13 +1,16 @@
+import 'package:ddfapp/core/common/app/providers/port_provider.dart';
 import 'package:ddfapp/core/common/widgets/main_divider.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:ddfapp/src/home/presentation/widgets/menu_container.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/common/app/providers/cartesius_provider.dart';
 import '../../../../core/common/widgets/main_pop_up.dart';
 import '../../../../core/common/widgets/main_text_input.dart';
 import '../../../../core/res/colours.dart';
+import '../../../../core/utils/core_utils.dart';
 
 class HomeMenu extends StatefulWidget {
   const HomeMenu({super.key});
@@ -29,7 +32,7 @@ class _HomeMenuState extends State<HomeMenu> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160,
+      height: 140,
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
@@ -58,50 +61,6 @@ class _HomeMenuState extends State<HomeMenu> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MenuContainer(
-                    title: 'CLEAR',
-                    icon: const Icon(
-                      FluentIcons.remove_filter,
-                      size: 14,
-                    ),
-                    children: [
-                      Button(
-                        child: const SizedBox(
-                          width: 80,
-                          child: Text(" TPS "),
-                        ),
-                        onPressed: () {},
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Button(
-                        child: const SizedBox(
-                          width: 80,
-                          child: Text(" RPM "),
-                        ),
-                        onPressed: () {},
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Button(
-                        child: const SizedBox(
-                          width: 80,
-                          child: Text(" INJ "),
-                        ),
-                        onPressed: () {},
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                    ],
-                  ),
-                  const MainDivider(
-                    size: 160,
-                    marginH: 20,
-                    marginV: 20,
-                  ),
                   MenuContainer(
                     title: 'INSERT',
                     icon: const Icon(
@@ -153,13 +112,7 @@ class _HomeMenuState extends State<HomeMenu> {
                                     onPressedPositive: () {
                                       context
                                           .read<HomeBloc>()
-                                          .add(const LoadRPMValueEvent());
-                                      context
-                                          .read<HomeBloc>()
-                                          .add(const LoadTPSValueEvent());
-                                      context
-                                          .read<HomeBloc>()
-                                          .add(const LoadTimingValueEvent());
+                                          .add(const GetDataFromCSVEvent());
                                       Navigator.of(context).pop();
                                     },
                                     positiveText: 'Load',
@@ -167,28 +120,6 @@ class _HomeMenuState extends State<HomeMenu> {
                                 },
                               );
                             },
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          const SizedBox(
-                            height: 38,
-                            child: MainTextInput(
-                              boxDecoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 249, 249, 249)),
-                              disabled: false,
-                              placholder: "injector",
-                              // controller: setInjectorVal,
-                            ),
-                          ),
-                          FilledButton(
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  ButtonState.all(Colours.secondaryColour),
-                            ),
-                            child: const Text("OK"),
-                            onPressed: () {},
                           ),
                         ],
                       ),
@@ -331,56 +262,6 @@ class _HomeMenuState extends State<HomeMenu> {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          const Text(
-                            "INJ > ",
-                          ),
-                          SizedBox(
-                            height: 35,
-                            child: MainTextInput(
-                              boxDecoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 249, 249, 249)),
-                              disabled: false,
-                              placholder: "min",
-                              controller: minINJController,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 35,
-                            child: MainTextInput(
-                              boxDecoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 249, 249, 249)),
-                              disabled: false,
-                              placholder: "max",
-                              controller: maxINJController,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          FilledButton(
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  ButtonState.all(Colours.secondaryColour),
-                            ),
-                            child: const Text(
-                              "OK",
-                            ),
-                            onPressed: () {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              // context.read<HomeBloc>().add(
-                              //       SetINJParameterEvent(
-                              //         minValue:
-                              //             double.parse(minINJController.text),
-                              //         maxValue:
-                              //             double.parse(maxINJController.text),
-                              //       ),
-                              //     );
-                            },
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                   const MainDivider(
@@ -388,139 +269,128 @@ class _HomeMenuState extends State<HomeMenu> {
                     marginH: 20,
                     marginV: 20,
                   ),
-                  // MenuContainer(
-                  //   title: 'EDIT',
-                  //   icon: const Icon(
-                  //     FluentIcons.app_icon_default_edit,
-                  //     size: 14,
-                  //   ),
-                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                  //   children: [
-                  //     Row(
-                  //       children: [
-                  //         ToggleSwitch(
-                  //           checked: true,
-                  //           onChanged: (x) {},
-                  //           content: const Text("TPS"),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     const SizedBox(
-                  //       height: 2,
-                  //     ),
-                  //     Row(
-                  //       children: [
-                  //         ToggleSwitch(
-                  //           checked: true,
-                  //           onChanged: (v) {},
-                  //           content: const Text("RPM"),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     const SizedBox(
-                  //       height: 2,
-                  //     ),
-                  //     Row(
-                  //       children: [
-                  //         ToggleSwitch(
-                  //           checked: true,
-                  //           onChanged: (y) {},
-                  //           content: const Text(
-                  //             "INJ",
-                  //             textAlign: TextAlign.center,
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ],
-                  // ),
-                  // const MainDivider(
-                  //   direction: Axis.vertical,
-                  //   size: 160,
-                  //   marginH: 20,
-                  //   marginV: 20,
-                  // ),
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 30),
-                    child: MenuContainer(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: BlocConsumer<HomeBloc, HomeState>(
+                      listener: (context, state) {
+                        if (state is HomeError) {
+                          CoreUtils.showSnackBar(context, state.message);
+                        } else if (state is DataSaved) {
+                          CoreUtils.showSnackBar(context, 'Data saved',
+                              severity: InfoBarSeverity.success);
+                        } else if (state is DataTablesLoaded) {
+                          CoreUtils.showSnackBar(
+                            context,
+                            'Data tables imported',
+                            severity: InfoBarSeverity.success,
+                          );
+                          // context.portProvider.closeSerialPort();
+                        }
+                      },
+                      builder: (context, state) {
+                        return MenuContainer(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // false
-                              //     ? Icon(FluentIcons.skype_circle_check,
-                              //         color: Colors.green)
-                              //     :
-                              const Icon(
-                                FluentIcons.sync_status_solid,
-                                color: Color.fromARGB(90, 49, 49, 49),
-                              ),
-                              const SizedBox(
-                                width: 15,
-                              ),
-                              FlyoutTarget(
-                                controller: FlyoutController(),
-                                child: FilledButton(
-                                  style: ButtonStyle(
-                                    backgroundColor: ButtonState.all(
-                                        Colours.secondaryColour),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  state is DataSaved
+                                      ? Icon(FluentIcons.skype_circle_check,
+                                          color: Colors.green)
+                                      : const Icon(
+                                          FluentIcons.sync_status_solid,
+                                          color: Color.fromARGB(90, 49, 49, 49),
+                                        ),
+                                  const SizedBox(
+                                    width: 15,
                                   ),
-                                  child: const SizedBox(
-                                      width: 100, child: Text("Save Value")),
-                                  onPressed: () {
-                                    context.read<HomeBloc>().add(
-                                          SaveValueEvent(
-                                            tpss: context
-                                                .read<CartesiusProvider>()
-                                                .tpss,
-                                            rpms: context
-                                                .read<CartesiusProvider>()
-                                                .rpms,
-                                            timings: context
-                                                .read<CartesiusProvider>()
-                                                .timings,
-                                          ),
-                                        );
-                                    print("Save Value");
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              // false
-                              //     ? Icon(FluentIcons.skype_circle_check,
-                              //         color: Colors.green)
-                              //     :
-                              const Icon(
-                                FluentIcons.sync_status_solid,
-                                color: Color.fromARGB(90, 49, 49, 49),
+                                  FlyoutTarget(
+                                    controller: FlyoutController(),
+                                    child: FilledButton(
+                                      style: ButtonStyle(
+                                        backgroundColor: ButtonState.all(
+                                            Colours.secondaryColour),
+                                      ),
+                                      child: const SizedBox(
+                                          width: 120,
+                                          child: Text("Save Value")),
+                                      onPressed: () {
+                                        context.read<HomeBloc>().add(
+                                              SaveValueEvent(
+                                                tpss: context
+                                                    .read<CartesiusProvider>()
+                                                    .tpss,
+                                                rpms: context
+                                                    .read<CartesiusProvider>()
+                                                    .rpms,
+                                                timings: context
+                                                    .read<CartesiusProvider>()
+                                                    .timings,
+                                              ),
+                                            );
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(
-                                width: 15,
+                                height: 10,
                               ),
-                              FilledButton(
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      ButtonState.all(Colours.secondaryColour),
-                                ),
-                                child: const SizedBox(
-                                  width: 100,
-                                  child: Text("Send to ECU"),
-                                ),
-                                onPressed: () {},
+                              Consumer<PortProvider>(
+                                builder: (_, portProvider, __) {
+                                  return IgnorePointer(
+                                    ignoring:
+                                        portProvider.selectedPort == "None",
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        state is DataSent
+                                            ? Icon(
+                                                FluentIcons.skype_circle_check,
+                                                color: Colors.green)
+                                            : const Icon(
+                                                FluentIcons.sync_status_solid,
+                                                color: Color.fromARGB(
+                                                    90, 49, 49, 49),
+                                              ),
+                                        const SizedBox(
+                                          width: 15,
+                                        ),
+                                        FilledButton(
+                                          style: ButtonStyle(
+                                            backgroundColor: portProvider
+                                                        .selectedPort ==
+                                                    "None"
+                                                ? ButtonState.all(Colours
+                                                    .secondaryColour
+                                                    .withOpacity(0.5))
+                                                : ButtonState.all(
+                                                    Colours.secondaryColour),
+                                          ),
+                                          child: const SizedBox(
+                                            width: 120,
+                                            child: Text("Import from ECU"),
+                                          ),
+                                          onPressed: () {
+                                            portProvider.setSerialPort();
+                                            context.read<HomeBloc>().add(
+                                                  GetDataFromECUEvent(
+                                                    serialPort: portProvider
+                                                        .serialPort!,
+                                                  ),
+                                                );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ],

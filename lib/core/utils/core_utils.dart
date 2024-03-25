@@ -88,6 +88,25 @@ class CoreUtils {
     return int.parse(value, radix: 16).toString();
   }
 
+  static String hexToDoubleString(String hex) {
+    var value = hex;
+    return int.parse(value, radix: 16).toStringAsFixed(0);
+  }
+
+  static double hexToDouble(String hex) {
+    var value = hex;
+    return int.parse(value, radix: 16).toDouble();
+  }
+
+  static String doubleToHex(double value) {
+    return value.toInt().toRadixString(16).toUpperCase().padLeft(4, "0");
+  }
+
+  static String intToHex(int value) {
+    // return with 4 digits char
+    return value.toRadixString(16).toUpperCase().padLeft(4, "0");
+  }
+
   static bool checkSizeFile(double maxSize, File file) {
     int sizeInBytes = file.lengthSync();
     double sizeInMb = sizeInBytes / (1024 * 1024);
@@ -97,7 +116,22 @@ class CoreUtils {
     return true;
   }
 
-  static dynamic intOrDouble(double value) {
+  static int countOccurrences(String input, String search) {
+    int count = 0;
+    int index = 0;
+
+    while (index < input.length) {
+      if (input.substring(index, index + search.length) == search) {
+        count++;
+      }
+      index += search.length;
+    }
+
+    return count;
+  }
+
+  static dynamic intOrDouble(double valueInput) {
+    double value = double.parse(valueInput.toStringAsFixed(2));
     return (value % 1 == 0) ? value.toInt() : value.toStringAsFixed(2);
   }
 
@@ -133,6 +167,13 @@ class CoreUtils {
       }
     }
 
+//     flutter: result: [42, 33, 242, 16]
+// flutter: portsValue: [8490.0, 4338.0]
+// flutter: event: [8490.0, 4338.0]
+// flutter: result: [126, 132, 176, 40]
+// flutter: portsValue: [33918.0, 10416.0]
+// flutter: event: [33918.0, 10416.0]
+
     List<int> intList = [];
 
     for (String hexValue in transformedList) {
@@ -147,5 +188,36 @@ class CoreUtils {
     }
 
     return doubleList;
+  }
+
+  static bool isHexadecimal(String input) {
+    final RegExp hexRegex = RegExp(r'^[0-9A-Fa-f]+$');
+    return hexRegex.hasMatch(input);
+  }
+
+  static Uint8List hexaToBytes(String value) {
+    List<int> codeUnits = value.codeUnits;
+    Uint8List uint8List = Uint8List.fromList(codeUnits);
+    return uint8List;
+  }
+
+  static String listDoubleToHexadecimal(List<double> value) {
+    List<int> intList = [];
+
+    for (double doubleValue in value) {
+      int intValue = doubleValue.toInt();
+      intList.add(intValue);
+    }
+
+    List<String> hexList = [];
+
+    for (int intValue in intList) {
+      String hexValue = intValue.toRadixString(16).toUpperCase();
+      hexList.add(hexValue.padLeft(4, "0"));
+    }
+
+    String hexString = hexList.join("");
+
+    return hexString;
   }
 }

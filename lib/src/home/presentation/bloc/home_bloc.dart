@@ -1,12 +1,18 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:ddfapp/src/home/domain/usecases/switch_power.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:stream_transform/stream_transform.dart';
 
+import '../../domain/entities/rpm.dart';
 import '../../domain/entities/timing.dart';
-import '../../domain/usecases/get_ports_value.dart';
+import '../../domain/entities/tps.dart';
+import '../../domain/usecases/get_data_from_csv.dart';
+import '../../domain/usecases/get_data_from_ecu.dart';
+import '../../domain/usecases/get_tps_rpm_lines_value.dart';
 import '../../domain/usecases/get_ports.dart';
 import '../../domain/usecases/get_timing_cell.dart';
 import '../../domain/usecases/get_timing_from_control_unit.dart';
@@ -16,6 +22,7 @@ import '../../domain/usecases/load_tps_value.dart';
 import '../../domain/usecases/post_all_timing.dart';
 import '../../domain/usecases/post_dynamic_timing.dart';
 import '../../domain/usecases/save_value.dart';
+import '../../domain/usecases/send_data_to_ecu.dart';
 import '../../domain/usecases/set_rpm_manually.dart';
 import '../../domain/usecases/set_rpm_parameter.dart';
 import '../../domain/usecases/set_timing_manually.dart';
@@ -27,7 +34,7 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({
-    required GetPortsValue getPortsValue,
+    required GetTPSRPMLinesValue getTPSRPMLinesValue,
     required GetPorts getPorts,
     required GetTimingCell getTimingCell,
     required GetTimingFromControlUnit getTimingFromControlUnit,
@@ -37,12 +44,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required PostAllTiming postAllTiming,
     required PostDynamicTiming postDynamicTiming,
     required SaveValue saveValue,
+    required GetDataFromECU getDataFromECU,
+    required GetDataFromCSV getDataFromCSV,
+    required SendDataToECU sendDataToECU,
     required SetRPMManually setRPMManually,
     required SetRPMParameter setRPMParameter,
     required SetTimingManually setTimingManually,
     required SetTPSManually setTPSManually,
     required SetTPSParameter setTPSParameter,
-  })  : _getPortsValue = getPortsValue,
+    required SwitchPower switchPower,
+  })  : _getTPSRPMLinesValue = getTPSRPMLinesValue,
         _getPorts = getPorts,
         _getTimingCell = getTimingCell,
         _getTimingFromControlUnit = getTimingFromControlUnit,
@@ -52,16 +63,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _postAllTiming = postAllTiming,
         _postDynamicTiming = postDynamicTiming,
         _saveValue = saveValue,
+        _getDataFromECU = getDataFromECU,
+        _getDataFromCSV = getDataFromCSV,
+        _sendDataToECU = sendDataToECU,
         _setRPMManually = setRPMManually,
         _setRPMParameter = setRPMParameter,
         _setTimingManually = setTimingManually,
         _setTPSManually = setTPSManually,
         _setTPSParameter = setTPSParameter,
+        _switchPower = switchPower,
         super(const HomeInitial()) {
     on<HomeEvent>((event, emit) {
       emit(const HomeLoading());
     });
-    // on<GetPortsValueEvent>(_getPortsValueHandler);
     on<GetPortsEvent>(_getPortsHandler);
     on<GetTimingCellEvent>(_getTimingCellHandler);
     on<GetTimingFromControlUnitEvent>(_getTimingFromControlUnitHandler);
@@ -71,18 +85,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<PostAllTimingEvent>(_postAllTimingHandler);
     on<PostDynamicTimingEvent>(_postDynamicTimingHandler);
     on<SaveValueEvent>(_saveValueHandler);
+    on<GetDataFromECUEvent>(_getDataFromECUHandler);
+    on<GetDataFromCSVEvent>(_getDataFromCSVHandler);
+    on<SendDataToECUEvent>(_sendDataToECUHandler);
     on<SetRPMManuallyEvent>(_setRPMManuallyHandler);
     on<SetRPMParameterEvent>(_setRPMParameterHandler);
     on<SetTimingManuallyEvent>(_setTimingManuallyHandler);
     on<SetTPSManuallyEvent>(_setTPSManuallyHandler);
     on<SetTPSParameterEvent>(_setTPSParameterHandler);
     on<SwitchPowerEvent>(_switchPowerHandler);
-    on<StreamGetTPSRPMLinesValueEvent>(_streamGetTPSRPMLinesValueHandler,
+    on<GetTPSRPMLinesValueEvent>(_getTPSRPMLinesValueHandler,
         transformer: (events, mapper) => events.switchMap(mapper));
+    on<StopStreamDataEvent>(_stopStreamDataHandler);
   }
-
-  // ignore: unused_field
-  final GetPortsValue _getPortsValue;
+  final GetTPSRPMLinesValue _getTPSRPMLinesValue;
   final GetPorts _getPorts;
   final GetTimingCell _getTimingCell;
   final GetTimingFromControlUnit _getTimingFromControlUnit;
@@ -92,22 +108,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final PostAllTiming _postAllTiming;
   final PostDynamicTiming _postDynamicTiming;
   final SaveValue _saveValue;
+  final GetDataFromECU _getDataFromECU;
+  final GetDataFromCSV _getDataFromCSV;
+  final SendDataToECU _sendDataToECU;
   final SetRPMManually _setRPMManually;
   final SetRPMParameter _setRPMParameter;
   final SetTimingManually _setTimingManually;
   final SetTPSManually _setTPSManually;
   final SetTPSParameter _setTPSParameter;
-
-  // Future<void> _getPortsValueHandler(
-  //   GetDynamicRPMEvent event,
-  //   Emitter<HomeState> emit,
-  // ) async {
-  //   final result = await _getPortsValue(event.port);
-  //   result.fold(
-  //     (failure) => emit(HomeError(failure.message)),
-  //     (data) => emit(HomeUpdated(data)),
-  //   );
-  // }
+  final SwitchPower _switchPower;
 
   Future<void> _getPortsHandler(
     GetPortsEvent event,
@@ -219,6 +228,50 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
+  Future<void> _getDataFromECUHandler(
+    GetDataFromECUEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _getDataFromECU(
+      event.serialPort,
+    );
+
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(DataTablesLoaded(data[0], data[1], data[2])),
+    );
+  }
+
+  Future<void> _getDataFromCSVHandler(
+    GetDataFromCSVEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _getDataFromCSV();
+
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(DataTablesLoaded(data[0], data[1], data[2])),
+    );
+  }
+
+  Future<void> _sendDataToECUHandler(
+    SendDataToECUEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await _sendDataToECU(SendDataToECUParams(
+      serialPort: event.serialPort,
+      tpss: event.tpss,
+      rpms: event.rpms,
+      timings: event.timings,
+      status: event.status,
+    ));
+
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (_) => emit(const DataSent()),
+    );
+  }
+
   Future<void> _setRPMManuallyHandler(
     SetRPMManuallyEvent event,
     Emitter<HomeState> emit,
@@ -254,8 +307,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     SetTimingManuallyEvent event,
     Emitter<HomeState> emit,
   ) async {
-    print('timings.type: ${event.timings.runtimeType}');
-    print('value.type: ${event.value.runtimeType}');
     final result = await _setTimingManually(SetTimingManuallyParams(
       ids: event.ids,
       timings: event.timings,
@@ -303,45 +354,53 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     SwitchPowerEvent event,
     Emitter<HomeState> emit,
   ) async {
-    emit(const HomePowerSwitched());
+    final result = await _switchPower(SwitchPowerParams(
+      serialPort: event.serialPort,
+      tpss: event.tpss,
+      rpms: event.rpms,
+      timings: event.timings,
+      status: event.status,
+    ));
+
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (_) => emit(HomePowerSwitched(event.status)),
+    );
   }
 
-  Stream<Size> getTPSRPMLinesValue(String port) async* {
-    // int lengthNumber = 600;
-    // List<double> randomTPSLinesValue =
-    //     CoreUtils.generateRandomNumbers(lengthNumber);
-    // List<double> randomRPMLinesValue =
-    //     CoreUtils.generateRandomNumbers(lengthNumber);
-
-    // for (var i = 0; i < lengthNumber; i++) {
-    //   await Future.delayed(const Duration(milliseconds: 500));
-    //   yield Size(
-    //     randomTPSLinesValue[i].toDouble(),
-    //     randomRPMLinesValue[i].toDouble(),
-    //   );
-    // }
-
-    final result = _getPortsValue(port);
-
-    result.listen((data) {
-      data.fold(
-        (failure) => throw failure,
-        (value) async* {
-          yield Size(value[0], value[1]);
-        },
-      );
-    });
-  }
-
-  Future<void> _streamGetTPSRPMLinesValueHandler(
-    StreamGetTPSRPMLinesValueEvent event,
+  Future<void> _getTPSRPMLinesValueHandler(
+    GetTPSRPMLinesValueEvent event,
     Emitter<HomeState> emit,
   ) async {
-    await emit.forEach<Size>(
-      getTPSRPMLinesValue(event.port),
+    emit(const HomeStreaming());
+    final result = _getTPSRPMLinesValue(event.serialPortReader);
+
+    await emit.forEach(
+      result,
       onData: (value) {
-        return AxisUpdated(value);
+        value.fold(
+          (failure) => emit(HomeError(failure.message)),
+          (data) => emit(AxisUpdated(
+            Size(
+              data[0], //* Random().nextInt(10),
+              data[1], // * Random().nextInt(10),
+            ),
+          )),
+        );
+        return const HomeIdle();
+      },
+      onError: (e, s) {
+        debugPrintStack(stackTrace: s);
+        return HomeError(e.toString());
       },
     );
+  }
+
+  Future<void> _stopStreamDataHandler(
+    StopStreamDataEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    event.serialPortReader.close();
+    emit(const StreamingDataStopped());
   }
 }

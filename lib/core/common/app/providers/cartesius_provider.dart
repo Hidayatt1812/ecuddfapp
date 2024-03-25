@@ -14,9 +14,9 @@ class CartesiusProvider extends ChangeNotifier {
             id: index,
             isFirst: index == 0,
             isLast: index == 9,
-            value: index.toDouble(),
-            prevValue: index == 0 ? null : (index - 1).toDouble(),
-            nextValue: index == 9 ? null : (index + 1).toDouble(),
+            value: index.toDouble() * 100,
+            prevValue: index == 0 ? null : (index - 1).toDouble() * 100,
+            nextValue: index == 9 ? null : (index + 1).toDouble() * 100,
           ));
 
   List<RPM> get rpms => _rpms;
@@ -408,9 +408,9 @@ class CartesiusProvider extends ChangeNotifier {
               id: index,
               isFirst: index == 0,
               isLast: index == 9,
-              value: index.toDouble(),
-              prevValue: index == 0 ? null : (index - 1).toDouble(),
-              nextValue: index == 9 ? null : (index + 1).toDouble(),
+              value: index.toDouble() * 100,
+              prevValue: index == 0 ? null : (index - 1).toDouble() * 100,
+              nextValue: index == 9 ? null : (index + 1).toDouble() * 100,
             ));
 
     _tpss = List.generate(

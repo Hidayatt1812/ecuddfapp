@@ -47,7 +47,7 @@ class MenuContainer extends StatelessWidget {
             ],
           )
         : Container(
-            width: 180,
+            width: 200,
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
