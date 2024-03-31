@@ -68,6 +68,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
           try {
             String input = String.fromCharCodes(data);
             input = CoreUtils.removeHexaChar(input);
+
             if (input.length <= 16) {
               input = mod + input;
               mod = '';
@@ -80,7 +81,12 @@ class HomePortDataSourceImpl implements HomePortDataSource {
                 }
               }
             }
+            if (value.length >= 4 && value.substring(0, 4) != "FFFA") {
+              value = "";
+              mod = "";
+            }
             if (value.length == 16 && CoreUtils.isHexadecimal(value)) {
+              print(value);
               portsValues.add((double.tryParse(
                         CoreUtils.hexToDoubleString(value.substring(4, 8)),
                       ) ??
@@ -193,7 +199,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       ];
 
       final valueSend = "FFFW${CoreUtils.listDoubleToHexadecimal(listDouble)}";
-
+      print('value.lenght = ${valueSend.length}');
       for (int i = 0; i < 107; i++) {
         await Future.delayed(const Duration(milliseconds: 30), () {
           final bytesData =
@@ -203,7 +209,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
           log('Result: $result');
         });
       }
-      await Future.delayed(const Duration(milliseconds: 10), () {
+      await Future.delayed(const Duration(milliseconds: 30), () {
         final bytesData = CoreUtils.hexaToBytes(
             valueSend.substring(107 * 36, (107) * 36 + 8));
         final result = serialPort.write(bytesData);

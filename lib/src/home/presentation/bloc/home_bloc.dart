@@ -401,6 +401,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     event.serialPortReader.close();
+    event.serialPort.close();
     emit(const StreamingDataStopped());
   }
 }

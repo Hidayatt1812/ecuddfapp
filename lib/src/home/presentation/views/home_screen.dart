@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         SizedBox(
                           width: 1060,
-                          height: double.infinity,
+                          height: MediaQuery.of(context).size.height - 80,
                           child: Flex(
                             direction: Axis.vertical,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                               ),
-                              const HomeVoltageGraph(),
+                              // const HomeVoltageGraph(),
                             ],
                           ),
                         ),

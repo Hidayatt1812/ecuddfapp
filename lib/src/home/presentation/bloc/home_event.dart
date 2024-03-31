@@ -175,8 +175,10 @@ class SwitchPowerEvent extends HomeEvent {
 class StopStreamDataEvent extends HomeEvent {
   const StopStreamDataEvent({
     required this.serialPortReader,
+    required this.serialPort,
   });
   final SerialPortReader serialPortReader;
+  final SerialPort serialPort;
 }
 
 class GetTPSRPMLinesValueEvent extends HomeEvent {

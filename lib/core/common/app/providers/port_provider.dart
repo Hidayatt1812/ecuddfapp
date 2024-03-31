@@ -77,11 +77,13 @@ class PortProvider extends ChangeNotifier {
   void setSerialPort() {
     final SerialPortConfig cfg = SerialPortConfig();
     cfg.baudRate = 9600;
-    cfg.bits = 256;
+    // cfg.bits = 256;
+    cfg.dtr = 1;
+
     try {
       _serialPort = SerialPort(selectedPort);
-      _serialPort!.config = cfg;
       _serialPort!.openReadWrite();
+      _serialPort!.config = cfg;
     } catch (e) {
       debugPrintStack(label: e.toString());
     }
@@ -101,6 +103,7 @@ class PortProvider extends ChangeNotifier {
   void closeSerialPort() {
     if (_serialPort != null) {
       _serialPort!.dispose();
+      // _serialPort!.close();
       _serialPort = null;
     }
     notifyListeners();

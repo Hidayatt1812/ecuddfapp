@@ -42,7 +42,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
               margin: const EdgeInsets.only(top: 20),
               padding: const EdgeInsets.all(10),
               width: 1060,
-              height: 450,
+              height: 420,
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
