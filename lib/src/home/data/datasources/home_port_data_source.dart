@@ -81,7 +81,11 @@ class HomePortDataSourceImpl implements HomePortDataSource {
                 }
               }
             }
-            if (value.length >= 4 && value.substring(0, 4) != "FFFA") {
+            if (value.length > 4 && value.substring(0, 4) != "FFFA") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 12 && value.substring(8, 12) != "FFFB") {
               value = "";
               mod = "";
             }
@@ -137,10 +141,14 @@ class HomePortDataSourceImpl implements HomePortDataSource {
         },
         onError: (e, s) {
           debugPrintStack(stackTrace: s);
-          controllerDataSource.close();
+          if (!controllerDataSource.isClosed) {
+            controllerDataSource.close();
+          }
         },
         onDone: () {
-          controllerDataSource.close();
+          if (!controllerDataSource.isClosed) {
+            controllerDataSource.close();
+          }
         },
         cancelOnError: true,
       );
@@ -394,13 +402,6 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       //     "FFFA${tpssListDummy}FFFB${rpmsListDummy}FFFC$timingsListDummy";
 
       String upcomingDataString = '';
-      String timingsList = "";
-      String tpssList = "";
-      String rpmsList = "";
-
-      String mod = "";
-      String char = "";
-      String value = "";
 
       upcomingData.listen((event) {
         upcomingDataString += String.fromCharCodes(event);

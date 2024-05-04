@@ -361,9 +361,8 @@ class _HomeMenuState extends State<HomeMenu> {
                                         FilledButton(
                                           style: ButtonStyle(
                                             backgroundColor: portProvider
-                                                            .selectedPort ==
-                                                        "None" ||
-                                                    true
+                                                        .selectedPort ==
+                                                    "None"
                                                 ? ButtonState.all(Colours
                                                     .secondaryColour
                                                     .withOpacity(0.5))

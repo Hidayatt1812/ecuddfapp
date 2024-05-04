@@ -85,7 +85,9 @@ class PortProvider extends ChangeNotifier {
   }
 
   void disposeSerialPortConfig() {
-    _cfg!.dispose();
+    if (cfg != null) {
+      _cfg = null;
+    }
   }
 
   SerialPort? _serialPort;
@@ -116,8 +118,8 @@ class PortProvider extends ChangeNotifier {
 
   void closeSerialPort() {
     if (_serialPort != null) {
-      _serialPort!.dispose();
       _serialPort!.close();
+      _serialPort!.dispose();
       _serialPort = null;
     }
     disposeSerialPortConfig();

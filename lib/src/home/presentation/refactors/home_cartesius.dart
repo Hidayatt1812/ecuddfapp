@@ -63,7 +63,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                 builder: (BuildContext context, BoxConstraints constraints) {
                   double parentWidth = constraints.maxWidth;
                   double parentHeight = constraints.maxHeight;
-                  double size = 64;
+                  double size = 68;
                   return Row(
                     children: [
                       Column(
