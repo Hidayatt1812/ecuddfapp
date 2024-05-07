@@ -20,10 +20,6 @@ class HomeCartesius extends StatefulWidget {
 class _HomeCartesiusState extends State<HomeCartesius>
     with TickerProviderStateMixin {
   late Size positionLines;
-  // final StreamController<double> _tpsLinesController =
-  //     StreamController<double>();
-  // final StreamController<double> _rpmLinesController =
-  //     StreamController<double>();
 
   @override
   void initState() {
@@ -293,11 +289,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                 ),
                               ),
                               CartesiusLines(
-                                size: Size(
-                                    (parentWidth - size),
-                                    // *
-                                    //     (cartesiusProvider.tpss.length - 1) /
-                                    //     (cartesiusProvider.tpss.length),
+                                size: Size((parentWidth - size),
                                     (parentHeight - size)),
                                 color: Colours.accentColour,
                                 direction: Axis.horizontal,
@@ -307,9 +299,6 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                 size: Size(
                                   (parentWidth - size),
                                   (parentHeight - size),
-                                  //  *
-                                  //     (cartesiusProvider.rpms.length - 1) /
-                                  //     (cartesiusProvider.rpms.length),
                                 ),
                                 color: Colours.accentColour,
                                 direction: Axis.vertical,
