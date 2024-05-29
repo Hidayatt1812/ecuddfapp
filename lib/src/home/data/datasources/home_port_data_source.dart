@@ -188,9 +188,9 @@ class HomePortDataSourceImpl implements HomePortDataSource {
     required bool status,
   }) async {
     try {
-      if (!serialPort.isOpen) {
-        serialPort.close();
-      }
+      // if (!serialPort.isOpen) {
+      //   serialPort.close();
+      // }
 
       List<double> listDouble = [
         CoreUtils.hexToDouble('FFFA'),
@@ -208,26 +208,31 @@ class HomePortDataSourceImpl implements HomePortDataSource {
 
       final valueSend = "FFFW${CoreUtils.listDoubleToHexadecimal(listDouble)}";
       print('value.lenght = ${valueSend.length}');
-      for (int i = 0; i < 107; i++) {
-        await Future.delayed(const Duration(milliseconds: 30), () {
-          final bytesData =
-              CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
-          final result = serialPort.write(bytesData);
 
-          log('Result: $result');
-        });
-      }
-      await Future.delayed(const Duration(milliseconds: 30), () {
-        final bytesData = CoreUtils.hexaToBytes(
-            valueSend.substring(107 * 36, (107) * 36 + 8));
-        final result = serialPort.write(bytesData);
+      final bytesData = CoreUtils.hexaToBytes(valueSend);
+      final result = serialPort.write(bytesData, timeout: 0);
+      log('Result: $result');
 
-        log('Result: $result');
-      });
+      // for (int i = 0; i < 107; i++) {
+      //   await Future.delayed(const Duration(milliseconds: 30), () {
+      //     final bytesData =
+      //         CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
+      //     final result = serialPort.write(bytesData);
+
+      //     log('Result: $result');
+      //   });
+      // }
+      // await Future.delayed(const Duration(milliseconds: 30), () {
+      //   final bytesData = CoreUtils.hexaToBytes(
+      //       valueSend.substring(107 * 36, (107) * 36 + 8));
+      //   final result = serialPort.write(bytesData);
+
+      //   log('Result: $result');
+      // });
       await Future.delayed(const Duration(milliseconds: 2000), () {
         log('Stream is closed');
         serialPort.close();
-        serialPort.dispose();
+        // serialPort.dispose();
       });
     } on PortException {
       rethrow;

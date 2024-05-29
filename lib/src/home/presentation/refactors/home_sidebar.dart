@@ -46,193 +46,234 @@ class _HomeSidebarState extends State<HomeSidebar>
           child: Flex(
             direction: Axis.vertical,
             children: [
-              Consumer<PortProvider>(
-                builder: (_, portProvider, __) {
-                  return IgnorePointer(
-                    ignoring: portProvider.selectedPort == "None" ||
-                        portProvider.isStreaming,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      height: 150,
-                      child: Consumer<PowerProvider>(
-                        builder: (_, powerProvider, __) {
-                          return FilledButton(
-                            style: ButtonStyle(
-                              backgroundColor: portProvider.selectedPort ==
-                                          "None" ||
-                                      portProvider.isStreaming
-                                  ? ButtonState.all(
-                                      Colours.secondaryColour.withOpacity(0.5))
-                                  : ButtonState.all(powerProvider.powerStatus
-                                      ? Colours.errorColour
-                                      : Colours.secondaryColour),
-                            ),
-                            child: Center(
-                              child: SizedBox(
-                                width: 100,
-                                child: Icon(
-                                  powerProvider.powerStatus
-                                      ? FluentIcons.circle_stop
-                                      : FluentIcons.power_button,
-                                  size: 60,
-                                ),
-                              ),
-                            ),
-                            onPressed: () {
-                              context.portProvider.setSerialPort();
-                              context.read<HomeBloc>().add(SwitchPowerEvent(
-                                    serialPort:
-                                        context.portProvider.serialPort!,
-                                    tpss:
-                                        context.read<CartesiusProvider>().tpss,
-                                    rpms:
-                                        context.read<CartesiusProvider>().rpms,
-                                    timings: context
-                                        .read<CartesiusProvider>()
-                                        .timings,
-                                    status: !powerProvider.powerStatus,
-                                  ));
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Consumer<PortProvider>(
-                      builder: (_, portProvider, __) {
-                        return IgnorePointer(
-                          ignoring: portProvider.isStreaming,
-                          child: ComboBox<String>(
-                            placeholder: const Text(
-                              "PORT",
-                              style: TextStyle(
-                                fontFamily: Fonts.segoe,
-                              ),
-                            ),
-                            value: portProvider.selectedPort,
-                            items: portProvider.comboBoxItems,
-                            onTap: () {
-                              context
-                                  .read<HomeBloc>()
-                                  .add(const GetPortsEvent());
-                            },
-                            onChanged: ((value) {
-                              portProvider.setSelectedPort(value!);
-                            }),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                ],
-              ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 10, top: 10),
-                height: 40,
-                child: Consumer<PortProvider>(
-                  builder: (_, portProvider, __) {
-                    return IgnorePointer(
-                      ignoring: portProvider.selectedPort == "None",
-                      child: FilledButton(
-                        style: ButtonStyle(
-                          backgroundColor: ButtonState.all(
-                              portProvider.isStreaming
-                                  ? Colours.errorColour
-                                  : Colours.secondaryColour),
-                        ),
-                        child: Center(
-                          child: SizedBox(
-                            width: 100,
-                            child: Icon(
-                              portProvider.isStreaming
-                                  ? FluentIcons.stop
-                                  : FluentIcons.play,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        onPressed: () {
-                          if (portProvider.isStreaming) {
-                            context.portProvider.closeSerialPortReader();
-                          } else {
-                            context.portProvider.setSerialPortReader();
-                            context.read<HomeBloc>().add(
-                                  GetTPSRPMLinesValueEvent(
-                                    serialPortReader:
-                                        context.portProvider.serialPortReader!,
-                                  ),
-                                );
-                          }
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    double parentWidth = constraints.maxWidth;
-                    double parentHeight = constraints.maxHeight;
-                    return SizedBox(
-                      height: parentHeight,
-                      width: parentWidth,
-                      child: ListView(
-                        children: [
-                          SidebarItem(
-                            title: "TPS",
-                            dataValue:
-                                "${cartesiusProvider.tpsValue.toStringAsFixed(2)} V",
-                            titleIcon: FluentIcons.chart_y_angle,
-                          ),
-                          SidebarItem(
-                            title: "RPM",
-                            dataValue:
-                                cartesiusProvider.rpmValue.toStringAsFixed(0),
-                            titleIcon: FluentIcons.speed_high,
-                          ),
-                          const SidebarItem(
-                            title: "MAP",
-                            dataValue: "0 V",
-                            titleIcon: FluentIcons.duststorm,
-                          ),
-                          const SidebarItem(
-                            title: "TEMP",
-                            dataValue: "18 °C",
-                            titleIcon: FluentIcons.frigid,
-                          ),
-                          const SidebarItem(
-                            title: "INJ 1",
-                            dataValue: "18 °C",
-                            titleIcon: FluentIcons.frigid,
-                          ),
-                          const SidebarItem(
-                            title: "INJ 2",
-                            dataValue: "18 °C",
-                            titleIcon: FluentIcons.frigid,
-                          ),
-                          const SidebarItem(
-                            title: "INJ 3",
-                            dataValue: "18 °C",
-                            titleIcon: FluentIcons.frigid,
-                          ),
-                          const SidebarItem(
-                            title: "INJ 4",
-                            dataValue: "18 °C",
-                            titleIcon: FluentIcons.frigid,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+              const PowerButton(),
+              const PortSelection(),
+              const StartSerialButton(),
+              InputValueParameter(
+                tpsValue: cartesiusProvider.tpsValue.toStringAsFixed(2),
+                rpmValue: cartesiusProvider.rpmValue.toStringAsFixed(0),
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class InputValueParameter extends StatelessWidget {
+  const InputValueParameter({
+    super.key,
+    required this.tpsValue,
+    required this.rpmValue,
+  });
+
+  final String tpsValue;
+  final String rpmValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          double parentWidth = constraints.maxWidth;
+          double parentHeight = constraints.maxHeight;
+          return SizedBox(
+            height: parentHeight,
+            width: parentWidth,
+            child: ListView(
+              children: [
+                SidebarItem(
+                  title: "TPS",
+                  dataValue: "${tpsValue} V",
+                  titleIcon: FluentIcons.chart_y_angle,
+                ),
+                SidebarItem(
+                  title: "RPM",
+                  dataValue: rpmValue,
+                  titleIcon: FluentIcons.speed_high,
+                ),
+                const SidebarItem(
+                  title: "MAP",
+                  dataValue: "0 V",
+                  titleIcon: FluentIcons.duststorm,
+                ),
+                const SidebarItem(
+                  title: "TEMP",
+                  dataValue: "18 °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                const SidebarItem(
+                  title: "INJ 1",
+                  dataValue: "18 °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                const SidebarItem(
+                  title: "INJ 2",
+                  dataValue: "18 °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                const SidebarItem(
+                  title: "INJ 3",
+                  dataValue: "18 °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                const SidebarItem(
+                  title: "INJ 4",
+                  dataValue: "18 °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class StartSerialButton extends StatelessWidget {
+  const StartSerialButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10, top: 10),
+      height: 40,
+      child: Consumer<PortProvider>(
+        builder: (_, portProvider, __) {
+          return IgnorePointer(
+            ignoring: portProvider.selectedPort == "None",
+            child: FilledButton(
+              style: ButtonStyle(
+                backgroundColor: ButtonState.all(portProvider.isStreaming
+                    ? Colours.errorColour
+                    : Colours.secondaryColour),
+              ),
+              child: Center(
+                child: SizedBox(
+                  width: 100,
+                  child: Icon(
+                    portProvider.isStreaming
+                        ? FluentIcons.stop
+                        : FluentIcons.play,
+                    size: 20,
+                  ),
+                ),
+              ),
+              onPressed: () {
+                if (portProvider.isStreaming) {
+                  context.portProvider.closeSerialPortReader();
+                } else {
+                  context.portProvider.setSerialPortReader();
+                  context.read<HomeBloc>().add(
+                        GetTPSRPMLinesValueEvent(
+                          serialPortReader:
+                              context.portProvider.serialPortReader!,
+                        ),
+                      );
+                }
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class PortSelection extends StatelessWidget {
+  const PortSelection({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Consumer<PortProvider>(
+            builder: (_, portProvider, __) {
+              return IgnorePointer(
+                ignoring: portProvider.isStreaming,
+                child: ComboBox<String>(
+                  placeholder: const Text(
+                    "PORT",
+                    style: TextStyle(
+                      fontFamily: Fonts.segoe,
+                    ),
+                  ),
+                  value: portProvider.selectedPort,
+                  items: portProvider.comboBoxItems,
+                  onTap: () {
+                    context.read<HomeBloc>().add(const GetPortsEvent());
+                  },
+                  onChanged: ((value) {
+                    portProvider.setSelectedPort(value!);
+                  }),
+                ),
+              );
+            },
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class PowerButton extends StatelessWidget {
+  const PowerButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<PortProvider>(
+      builder: (_, portProvider, __) {
+        return IgnorePointer(
+          ignoring:
+              portProvider.selectedPort == "None" || portProvider.isStreaming,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            height: 150,
+            child: Consumer<PowerProvider>(
+              builder: (_, powerProvider, __) {
+                return FilledButton(
+                  style: ButtonStyle(
+                    backgroundColor: portProvider.selectedPort == "None" ||
+                            portProvider.isStreaming
+                        ? ButtonState.all(
+                            Colours.secondaryColour.withOpacity(0.5))
+                        : ButtonState.all(powerProvider.powerStatus
+                            ? Colours.errorColour
+                            : Colours.secondaryColour),
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      width: 100,
+                      child: Icon(
+                        powerProvider.powerStatus
+                            ? FluentIcons.circle_stop
+                            : FluentIcons.power_button,
+                        size: 60,
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    context.portProvider.setSerialPort();
+                    context.read<HomeBloc>().add(SwitchPowerEvent(
+                          serialPort: context.portProvider.serialPort!,
+                          tpss: context.read<CartesiusProvider>().tpss,
+                          rpms: context.read<CartesiusProvider>().rpms,
+                          timings: context.read<CartesiusProvider>().timings,
+                          status: !powerProvider.powerStatus,
+                        ));
+                  },
+                );
+              },
+            ),
           ),
         );
       },

@@ -78,7 +78,16 @@ class PortProvider extends ChangeNotifier {
     _cfg = SerialPortConfig();
     if (_cfg != null) {
       _cfg!.baudRate = 9600;
-      _cfg!.bits = 256;
+      // _cfg!.bits = 256;
+      // _cfg!.dtr = 1;
+      // _cfg!.baudRate = 115200;
+      _cfg!.bits = 8;
+      _cfg!.parity = SerialPortParity.none;
+      _cfg!.stopBits = 1;
+      _cfg!.xonXoff = 0;
+      _cfg!.rts = 1;
+      _cfg!.cts = 0;
+      _cfg!.dsr = 0;
       _cfg!.dtr = 1;
     }
     notifyListeners();
@@ -100,6 +109,7 @@ class PortProvider extends ChangeNotifier {
       _serialPort = SerialPort(selectedPort);
       _serialPort!.openReadWrite();
       _serialPort!.config = cfg!;
+      _cfg!.dispose();
     } catch (e) {
       debugPrintStack(label: e.toString());
     }
@@ -119,10 +129,10 @@ class PortProvider extends ChangeNotifier {
   void closeSerialPort() {
     if (_serialPort != null) {
       _serialPort!.close();
-      _serialPort!.dispose();
+      // _serialPort!.dispose();
       _serialPort = null;
     }
-    disposeSerialPortConfig();
+    // disposeSerialPortConfig();
     notifyListeners();
   }
 }
