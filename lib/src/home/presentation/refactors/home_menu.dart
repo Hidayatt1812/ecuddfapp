@@ -141,7 +141,7 @@ class _HomeMenuState extends State<HomeMenu> {
                       Row(
                         children: [
                           const Text(
-                            "TPS > ",
+                            "TPS (V) > ",
                           ),
                           SizedBox(
                             height: 35,
@@ -288,108 +288,114 @@ class _HomeMenuState extends State<HomeMenu> {
                         }
                       },
                       builder: (context, state) {
-                        return MenuContainer(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                        return Consumer<CartesiusProvider>(
+                          builder: (_, cartesiusProvider, __) {
+                            return MenuContainer(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  state is DataSaved
-                                      ? Icon(FluentIcons.skype_circle_check,
-                                          color: Colors.green)
-                                      : const Icon(
-                                          FluentIcons.sync_status_solid,
-                                          color: Color.fromARGB(90, 49, 49, 49),
-                                        ),
-                                  const SizedBox(
-                                    width: 15,
-                                  ),
-                                  FlyoutTarget(
-                                    controller: FlyoutController(),
-                                    child: FilledButton(
-                                      style: ButtonStyle(
-                                        backgroundColor: ButtonState.all(
-                                            Colours.secondaryColour),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      state is DataSaved
+                                          ? Icon(FluentIcons.skype_circle_check,
+                                              color: Colors.green)
+                                          : const Icon(
+                                              FluentIcons.sync_status_solid,
+                                              color: Color.fromARGB(
+                                                  90, 49, 49, 49),
+                                            ),
+                                      const SizedBox(
+                                        width: 15,
                                       ),
-                                      child: const SizedBox(
-                                          width: 120,
-                                          child: Text("Save Value")),
-                                      onPressed: () {
-                                        context.read<HomeBloc>().add(
-                                              SaveValueEvent(
-                                                tpss: context
-                                                    .read<CartesiusProvider>()
-                                                    .tpss,
-                                                rpms: context
-                                                    .read<CartesiusProvider>()
-                                                    .rpms,
-                                                timings: context
-                                                    .read<CartesiusProvider>()
-                                                    .timings,
-                                              ),
-                                            );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Consumer<PortProvider>(
-                                builder: (_, portProvider, __) {
-                                  return IgnorePointer(
-                                    ignoring:
-                                        portProvider.selectedPort == "None" ||
-                                            true,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        state is DataSent
-                                            ? Icon(
-                                                FluentIcons.skype_circle_check,
-                                                color: Colors.green)
-                                            : const Icon(
-                                                FluentIcons.sync_status_solid,
-                                                color: Color.fromARGB(
-                                                    90, 49, 49, 49),
-                                              ),
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        FilledButton(
+                                      FlyoutTarget(
+                                        controller: FlyoutController(),
+                                        child: FilledButton(
                                           style: ButtonStyle(
-                                            backgroundColor: portProvider
-                                                        .selectedPort ==
-                                                    "None"
-                                                ? ButtonState.all(Colours
-                                                    .secondaryColour
-                                                    .withOpacity(0.5))
-                                                : ButtonState.all(
-                                                    Colours.secondaryColour),
+                                            backgroundColor: ButtonState.all(
+                                                Colours.secondaryColour),
                                           ),
                                           child: const SizedBox(
-                                            width: 120,
-                                            child: Text("Import from ECU"),
-                                          ),
+                                              width: 120,
+                                              child: Text("Save Value")),
                                           onPressed: () {
-                                            portProvider.setSerialPort();
                                             context.read<HomeBloc>().add(
-                                                  GetDataFromECUEvent(
-                                                    serialPort: portProvider
-                                                        .serialPort!,
+                                                  SaveValueEvent(
+                                                    tpss:
+                                                        cartesiusProvider.tpss,
+                                                    rpms:
+                                                        cartesiusProvider.rpms,
+                                                    timings: cartesiusProvider
+                                                        .timings,
                                                   ),
                                                 );
                                           },
                                         ),
-                                      ],
-                                    ),
-                                  );
-                                },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Consumer<PortProvider>(
+                                    builder: (_, portProvider, __) {
+                                      return IgnorePointer(
+                                        ignoring: portProvider.selectedPort ==
+                                                "None" ||
+                                            portProvider.isStreaming,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            state is DataSent
+                                                ? Icon(
+                                                    FluentIcons
+                                                        .skype_circle_check,
+                                                    color: Colors.green)
+                                                : const Icon(
+                                                    FluentIcons
+                                                        .sync_status_solid,
+                                                    color: Color.fromARGB(
+                                                        90, 49, 49, 49),
+                                                  ),
+                                            const SizedBox(
+                                              width: 15,
+                                            ),
+                                            FilledButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: portProvider
+                                                                .selectedPort ==
+                                                            "None" ||
+                                                        portProvider.isStreaming
+                                                    ? ButtonState.all(Colours
+                                                        .secondaryColour
+                                                        .withOpacity(0.5))
+                                                    : ButtonState.all(Colours
+                                                        .secondaryColour),
+                                              ),
+                                              child: const SizedBox(
+                                                width: 120,
+                                                child: Text("Import from ECU"),
+                                              ),
+                                              onPressed: () {
+                                                portProvider.setSerialPort();
+                                                context.read<HomeBloc>().add(
+                                                      GetDataFromECUEvent(
+                                                        serialPort: portProvider
+                                                            .serialPort!,
+                                                      ),
+                                                    );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            );
+                          },
                         );
                       },
                     ),

@@ -1,5 +1,6 @@
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 import '../../../../core/utils/typedef.dart';
+import '../entities/ecu.dart';
 import '../entities/rpm.dart';
 import '../entities/timing.dart';
 import '../entities/tps.dart';
@@ -7,7 +8,7 @@ import '../entities/tps.dart';
 abstract class HomeRepository {
   const HomeRepository();
 
-  ResultStream<List<double>> getTPSRPMLinesValue({
+  ResultStream<ECU> getTPSRPMLinesValue({
     required SerialPortReader serialPortReader,
   });
 
@@ -85,9 +86,6 @@ abstract class HomeRepository {
 
   ResultFuture<void> switchPower({
     required SerialPort serialPort,
-    required List<TPS> tpss,
-    required List<RPM> rpms,
-    required List<Timing> timings,
     required bool status,
   });
 }

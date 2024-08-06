@@ -6,7 +6,9 @@ import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/common/app/providers/cartesius_provider.dart';
+import '../../../../core/common/app/providers/ecu_provider.dart';
 import '../../../../core/res/fonts.dart';
+import '../../domain/entities/ecu.dart';
 import '../widgets/sidebar_item.dart';
 
 class HomeSidebar extends StatefulWidget {
@@ -25,7 +27,7 @@ class _HomeSidebarState extends State<HomeSidebar>
         return Container(
           margin: const EdgeInsets.only(left: 20),
           padding: const EdgeInsets.all(20),
-          width: 1060,
+          width: 200,
           height: double.maxFinite,
           decoration: BoxDecoration(
             boxShadow: [
@@ -49,9 +51,14 @@ class _HomeSidebarState extends State<HomeSidebar>
               const PowerButton(),
               const PortSelection(),
               const StartSerialButton(),
-              InputValueParameter(
-                tpsValue: cartesiusProvider.tpsValue.toStringAsFixed(2),
-                rpmValue: cartesiusProvider.rpmValue.toStringAsFixed(0),
+              Consumer<ECUProvider>(
+                builder: (_, ecuProvider, __) {
+                  return ECUValueParameter(
+                    tpsValue: cartesiusProvider.tpsValue.toStringAsFixed(2),
+                    rpmValue: cartesiusProvider.rpmValue.toStringAsFixed(0),
+                    ecu: ecuProvider.ecu,
+                  );
+                },
               ),
             ],
           ),
@@ -61,15 +68,17 @@ class _HomeSidebarState extends State<HomeSidebar>
   }
 }
 
-class InputValueParameter extends StatelessWidget {
-  const InputValueParameter({
+class ECUValueParameter extends StatelessWidget {
+  const ECUValueParameter({
     super.key,
     required this.tpsValue,
     required this.rpmValue,
+    required this.ecu,
   });
 
   final String tpsValue;
   final String rpmValue;
+  final ECU ecu;
 
   @override
   Widget build(BuildContext context) {
@@ -85,43 +94,53 @@ class InputValueParameter extends StatelessWidget {
               children: [
                 SidebarItem(
                   title: "TPS",
-                  dataValue: "${tpsValue} V",
+                  dataValue: "${ecu.tps.toStringAsFixed(2)} V",
                   titleIcon: FluentIcons.chart_y_angle,
                 ),
                 SidebarItem(
                   title: "RPM",
-                  dataValue: rpmValue,
+                  dataValue: ecu.rpm.toStringAsFixed(0),
                   titleIcon: FluentIcons.speed_high,
                 ),
-                const SidebarItem(
+                SidebarItem(
                   title: "MAP",
-                  dataValue: "0 V",
+                  dataValue: "${ecu.map.toStringAsFixed(2)} V",
                   titleIcon: FluentIcons.duststorm,
                 ),
-                const SidebarItem(
-                  title: "TEMP",
-                  dataValue: "18 °C",
+                SidebarItem(
+                  title: "TEMP 1",
+                  dataValue: "${ecu.temp1.toStringAsFixed(0)} °C",
                   titleIcon: FluentIcons.frigid,
                 ),
-                const SidebarItem(
+                SidebarItem(
+                  title: "TEMP 2",
+                  dataValue: "${ecu.temp2.toStringAsFixed(0)} °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                SidebarItem(
+                  title: "TEMP 3",
+                  dataValue: "${ecu.temp3.toStringAsFixed(0)} °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                SidebarItem(
                   title: "INJ 1",
-                  dataValue: "18 °C",
-                  titleIcon: FluentIcons.frigid,
+                  dataValue: ecu.timing1.toStringAsFixed(2),
+                  titleIcon: FluentIcons.timer,
                 ),
-                const SidebarItem(
+                SidebarItem(
                   title: "INJ 2",
-                  dataValue: "18 °C",
-                  titleIcon: FluentIcons.frigid,
+                  dataValue: ecu.timing2.toStringAsFixed(2),
+                  titleIcon: FluentIcons.timer,
                 ),
-                const SidebarItem(
+                SidebarItem(
                   title: "INJ 3",
-                  dataValue: "18 °C",
-                  titleIcon: FluentIcons.frigid,
+                  dataValue: ecu.timing3.toStringAsFixed(2),
+                  titleIcon: FluentIcons.timer,
                 ),
-                const SidebarItem(
+                SidebarItem(
                   title: "INJ 4",
-                  dataValue: "18 °C",
-                  titleIcon: FluentIcons.frigid,
+                  dataValue: ecu.timing4.toStringAsFixed(2),
+                  titleIcon: FluentIcons.timer,
                 ),
               ],
             ),
@@ -191,34 +210,29 @@ class PortSelection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Consumer<PortProvider>(
-            builder: (_, portProvider, __) {
-              return IgnorePointer(
-                ignoring: portProvider.isStreaming,
-                child: ComboBox<String>(
-                  placeholder: const Text(
-                    "PORT",
-                    style: TextStyle(
-                      fontFamily: Fonts.segoe,
-                    ),
-                  ),
-                  value: portProvider.selectedPort,
-                  items: portProvider.comboBoxItems,
-                  onTap: () {
-                    context.read<HomeBloc>().add(const GetPortsEvent());
-                  },
-                  onChanged: ((value) {
-                    portProvider.setSelectedPort(value!);
-                  }),
-                ),
-              );
+    return Consumer<PortProvider>(
+      builder: (_, portProvider, __) {
+        return IgnorePointer(
+          ignoring: portProvider.isStreaming,
+          child: ComboBox<String>(
+            placeholder: const Text(
+              "PORT",
+              style: TextStyle(
+                fontFamily: Fonts.segoe,
+              ),
+            ),
+            isExpanded: true,
+            value: portProvider.selectedPort,
+            items: portProvider.comboBoxItems,
+            onTap: () {
+              context.read<HomeBloc>().add(const GetPortsEvent());
             },
+            onChanged: ((value) {
+              portProvider.setSelectedPort(value!);
+            }),
           ),
-        )
-      ],
+        );
+      },
     );
   }
 }
@@ -237,7 +251,7 @@ class PowerButton extends StatelessWidget {
               portProvider.selectedPort == "None" || portProvider.isStreaming,
           child: Container(
             margin: const EdgeInsets.only(bottom: 10),
-            height: 150,
+            height: 100,
             child: Consumer<PowerProvider>(
               builder: (_, powerProvider, __) {
                 return FilledButton(
@@ -265,9 +279,6 @@ class PowerButton extends StatelessWidget {
                     context.portProvider.setSerialPort();
                     context.read<HomeBloc>().add(SwitchPowerEvent(
                           serialPort: context.portProvider.serialPort!,
-                          tpss: context.read<CartesiusProvider>().tpss,
-                          rpms: context.read<CartesiusProvider>().rpms,
-                          timings: context.read<CartesiusProvider>().timings,
                           status: !powerProvider.powerStatus,
                         ));
                   },

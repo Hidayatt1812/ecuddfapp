@@ -24,7 +24,17 @@ class PortProvider extends ChangeNotifier {
     _comboBoxItems = _ports
         .map((e) => ComboBoxItem(
               value: e.toString(),
-              child: Text(e.toString()),
+              child: Tooltip(
+                displayHorizontally: true,
+                message: e.toString(),
+                child: Text(
+                  e.toString(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
             ))
         .toList();
     notifyListeners();

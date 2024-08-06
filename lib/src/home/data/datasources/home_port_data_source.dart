@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:ddfapp/core/utils/core_utils.dart';
+import 'package:ddfapp/src/home/data/models/ecu_model.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter_libserialport/flutter_libserialport.dart';
 
@@ -12,7 +13,7 @@ import '../models/tps_model.dart';
 abstract class HomePortDataSource {
   const HomePortDataSource();
 
-  Stream<List<double>> getTPSRPMLinesValue({
+  Stream<ECUModel> getTPSRPMLinesValue({
     required SerialPortReader serialPortReader,
   });
 
@@ -32,9 +33,6 @@ abstract class HomePortDataSource {
 
   Future<void> switchPower({
     required SerialPort serialPort,
-    required List<TPSModel> tpss,
-    required List<RPMModel> rpms,
-    required List<TimingModel> timings,
     required bool status,
   });
 
@@ -47,12 +45,12 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   const HomePortDataSourceImpl();
 
   @override
-  Stream<List<double>> getTPSRPMLinesValue({
+  Stream<ECUModel> getTPSRPMLinesValue({
     required SerialPortReader serialPortReader,
   }) async* {
     try {
-      final StreamController<List<double>> controllerDataSource =
-          StreamController<List<double>>();
+      final StreamController<ECUModel> controllerDataSource =
+          StreamController<ECUModel>();
 
       Stream upcomingData = serialPortReader.stream.map(
         (data) => data,
@@ -61,26 +59,35 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       String mod = '';
       String char = '';
       String value = '';
-      List<double> portsValues = [];
+      // List<double> portsValues = [];
+      ECUModel ecuModel = const ECUModel.empty();
       StreamSubscription subscription = upcomingData.listen(
         (data) {
-          log(String.fromCharCodes(data));
+          // log(String.fromCharCodes(data));
           try {
             String input = String.fromCharCodes(data);
+            // print("1:$input");
             input = CoreUtils.removeHexaChar(input);
+            // print("2:$input");
 
-            if (input.length <= 16) {
+            if (input.length <= 84) {
               input = mod + input;
               mod = '';
               for (int i = 0; i < input.length; i++) {
                 char = input[i];
-                if (value.length < 16) {
+                if (value.length < 84) {
                   value += char;
                 } else {
                   mod += char;
                 }
               }
             }
+
+            if (value.contains("FFFA")) {
+              value = value.substring(value.indexOf("FFFA"));
+              log(value);
+            }
+            // FFFA-XXXX-FFFB-XXXX-FFFM-XXXX-FFTA-XXXX-FFTB-XXXX-FFTC-XXXX-FFIA-XXXX-FFIB-XXXX-FFIC-XXXX-FFID-XXXX-FFFD
             if (value.length > 4 && value.substring(0, 4) != "FFFA") {
               value = "";
               mod = "";
@@ -89,19 +96,98 @@ class HomePortDataSourceImpl implements HomePortDataSource {
               value = "";
               mod = "";
             }
-            if (value.length == 16 && CoreUtils.isHexadecimal(value)) {
-              print(value);
-              portsValues.add((double.tryParse(
-                        CoreUtils.hexToDoubleString(value.substring(4, 8)),
-                      ) ??
-                      0) /
-                  4096 *
-                  3.3);
-              portsValues.add(double.tryParse(
-                      CoreUtils.hexToDoubleString(value.substring(12, 16))) ??
-                  0);
-              controllerDataSource.add(List<double>.from(portsValues));
-              portsValues.clear();
+            if (value.length > 20 && value.substring(16, 20) != "FFFM") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 28 && value.substring(24, 28) != "FFTA") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 36 && value.substring(32, 36) != "FFTB") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 44 && value.substring(40, 44) != "FFTC") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 52 && value.substring(48, 52) != "FFIA") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 60 && value.substring(56, 60) != "FFIB") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 68 && value.substring(64, 68) != "FFIC") {
+              value = "";
+              mod = "";
+            }
+            if (value.length > 76 && value.substring(72, 76) != "FFID") {
+              value = "";
+              mod = "";
+            }
+            if (value.length == 84 &&
+                (value.substring(80, 84) != "FFFD" &&
+                    value.substring(80, 84) != "FFFE")) {
+              value = "";
+              mod = "";
+            }
+            if (value.length == 84 && CoreUtils.isECUDataFormat(value)) {
+              log(value);
+              // portsValues.add((double.tryParse(
+              //           CoreUtils.hexToDoubleString(value.substring(4, 8)),
+              //         ) ??
+              //         0) /
+              //     4096 *
+              //     3.3);
+              // portsValues.add(double.tryParse(
+              //         CoreUtils.hexToDoubleString(value.substring(12, 16))) ??
+              //     0);
+              ecuModel = ecuModel.copyWith(
+                tps: (double.tryParse(CoreUtils.hexToDoubleString(
+                            value.substring(4, 8))) ??
+                        0) /
+                    4096 *
+                    3.3,
+                rpm: (double.tryParse(
+                      CoreUtils.hexToDoubleString(value.substring(12, 16)),
+                    ) ??
+                    0),
+                map: double.tryParse(
+                        CoreUtils.hexToDoubleString(value.substring(20, 24))) ??
+                    0,
+                temp1: double.tryParse(
+                        CoreUtils.hexToDoubleString(value.substring(28, 32))) ??
+                    0,
+                temp2: double.tryParse(
+                        CoreUtils.hexToDoubleString(value.substring(36, 40))) ??
+                    0,
+                temp3: double.tryParse(
+                        CoreUtils.hexToDoubleString(value.substring(44, 48))) ??
+                    0,
+                timing1: (double.tryParse(CoreUtils.hexToDoubleString(
+                            value.substring(52, 56))) ??
+                        0) /
+                    100,
+                timing2: (double.tryParse(CoreUtils.hexToDoubleString(
+                            value.substring(60, 64))) ??
+                        0) /
+                    100,
+                timing3: (double.tryParse(CoreUtils.hexToDoubleString(
+                            value.substring(68, 72))) ??
+                        0) /
+                    100,
+                timing4: (double.tryParse(CoreUtils.hexToDoubleString(
+                            value.substring(76, 80))) ??
+                        0) /
+                    100,
+                powerStatus: value.substring(80, 84) == "FFFD",
+              );
+              log(ecuModel.toString());
+              controllerDataSource.add(ecuModel);
+              // portsValues.clear();
               value = '';
             }
             // if (input.length <= 4) {
@@ -125,7 +211,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
             //     portsValues.add(
             //         double.tryParse(CoreUtils.hexToDoubleString(value)) ?? 0);
             //     controllerDataSource.add(List<double>.from(portsValues));
-            //     print('Values: $portsValues');
+            //     log('Values: $portsValues');
             //     portsValues.clear();
             //     type = '';
             //   } else if (value.length == 4) {
@@ -200,14 +286,15 @@ class HomePortDataSourceImpl implements HomePortDataSource {
         ...rpms.map((e) => e.value).toList(),
         for (int i = rpms.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
         CoreUtils.hexToDouble('FFFC'),
-        ...timings.map((e) => e.value).toList(),
+        ...timings.map((e) => e.value * 100).toList(),
         for (int i = timings.length; i < 900; i++)
           CoreUtils.hexToDouble('FFFF'),
         status ? CoreUtils.hexToDouble('FFFD') : CoreUtils.hexToDouble('FFFE'),
       ];
 
       final valueSend = "FFFW${CoreUtils.listDoubleToHexadecimal(listDouble)}";
-      print('value.lenght = ${valueSend.length}');
+      log('value.lenght = ${valueSend.length}');
+      log(valueSend);
 
       final bytesData = CoreUtils.hexaToBytes(valueSend);
       final result = serialPort.write(bytesData, timeout: 0);
@@ -229,7 +316,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
 
       //   log('Result: $result');
       // });
-      await Future.delayed(const Duration(milliseconds: 2000), () {
+      await Future.delayed(const Duration(milliseconds: 5000), () {
         log('Stream is closed');
         serialPort.close();
         // serialPort.dispose();
@@ -245,52 +332,26 @@ class HomePortDataSourceImpl implements HomePortDataSource {
   @override
   Future<void> switchPower({
     required SerialPort serialPort,
-    required List<TPSModel> tpss,
-    required List<RPMModel> rpms,
-    required List<TimingModel> timings,
     required bool status,
   }) async {
     try {
       if (!serialPort.isOpen) {
         serialPort.close();
       }
-      List<double> listDouble = [
-        CoreUtils.hexToDouble('FFFA'),
-        ...tpss.map((e) => e.value).toList(),
-        for (int i = tpss.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
-        CoreUtils.hexToDouble('FFFB'),
-        ...rpms.map((e) => e.value).toList(),
-        for (int i = rpms.length; i < 30; i++) CoreUtils.hexToDouble('FFFF'),
-        CoreUtils.hexToDouble('FFFC'),
-        ...timings.map((e) => e.value).toList(),
-        for (int i = timings.length; i < 900; i++)
-          CoreUtils.hexToDouble('FFFF'),
-        status ? CoreUtils.hexToDouble('FFFD') : CoreUtils.hexToDouble('FFFE'),
-      ];
-
-      final valueSend = CoreUtils.listDoubleToHexadecimal(listDouble);
-      log('ValueSend: $valueSend');
-
-      for (int i = 0; i < 107; i++) {
-        Future.delayed(Duration(milliseconds: 50 * i), () {
-          final bytesData =
-              CoreUtils.hexaToBytes(valueSend.substring(i * 36, (i + 1) * 36));
-          final result = serialPort.write(bytesData);
-
-          log('Result: $result');
-        });
+      String valueSend = status ? "FFFD" : "FFFE";
+      for (int i = 0; i < 964; i++) {
+        valueSend += "FFFF";
       }
-      Future.delayed(const Duration(milliseconds: 50 * 107), () {
-        final bytesData = CoreUtils.hexaToBytes(
-            valueSend.substring(107 * 36, (107) * 36 + 4));
-        final result = serialPort.write(bytesData);
 
-        log('Result: $result');
-      });
-      await Future.delayed(const Duration(milliseconds: 50 * 109), () {
+      log('value.lenght = ${valueSend.length}');
+
+      final bytesData = CoreUtils.hexaToBytes(valueSend);
+      final result = serialPort.write(bytesData, timeout: 0);
+      log('Result: $result');
+
+      await Future.delayed(const Duration(milliseconds: 5000), () {
         log('Stream is closed');
         serialPort.close();
-        serialPort.dispose();
       });
     } on PortException {
       rethrow;
@@ -370,17 +431,53 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       if (!serialPort.isOpen) {
         serialPort.close();
       }
-
       SerialPortReader serialPortReader =
-          SerialPortReader(serialPort, timeout: 10000);
+          SerialPortReader(serialPort, timeout: 0);
 
       Stream upcomingData = serialPortReader.stream.map(
         (data) => data,
       );
+      String upcomingDataString = '';
+      upcomingData.listen((event) {
+        upcomingDataString += String.fromCharCodes(event);
+        // log(upcomingDataString);
+        if (upcomingDataString.length > 8 &&
+            upcomingDataString.contains("FFFW")) {
+          upcomingDataString =
+              upcomingDataString.substring(upcomingDataString.indexOf("FFFW"));
+          if (upcomingDataString.length > 3860) {
+            serialPortReader.close();
+            serialPort.close();
+          }
+        } else {
+          upcomingDataString = '';
+        }
+      });
+
+      String valueSend = "FFFR";
+      for (int i = 0; i < 964; i++) {
+        valueSend += "FFFF";
+      }
+
+      log('value.lenght = ${valueSend.length}');
+
+      final bytesData = CoreUtils.hexaToBytes(valueSend);
+      final result = serialPort.write(bytesData, timeout: 0);
+      log('Result: $result');
+
+      await Future.delayed(const Duration(milliseconds: 4000), () {
+        log('Stream is closed');
+      });
 
       List<TimingModel> timings = [];
       List<TPSModel> tpss = [];
       List<RPMModel> rpms = [];
+      log('Stream is open');
+
+      while (upcomingDataString.length < 3860) {
+        log(upcomingDataString.length.toString());
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
 
       // String upcomingDataStringDummy = '';
       // String timingsListDummy = "";
@@ -406,16 +503,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       // upcomingDataStringDummy =
       //     "FFFA${tpssListDummy}FFFB${rpmsListDummy}FFFC$timingsListDummy";
 
-      String upcomingDataString = '';
-
-      upcomingData.listen((event) {
-        upcomingDataString += String.fromCharCodes(event);
-        log(upcomingDataString);
-        if (upcomingDataString.length == 3856) {
-          serialPortReader.close();
-          serialPort.close();
-        }
-      });
+      // cut upcomingDataString to have only 3860 characters
 
       // upcomingData.forEach((data) {
       //   log(String.fromCharCodes(data));
@@ -434,7 +522,7 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       //         }
       //       }
       //     }
-      //     if (value.length == 16 && CoreUtils.isHexadecimal(value)) {
+      //     if (value.length == 16 && CoreUtils.isECUDataFormat(value)) {
       //       log(value);
       //       value = '';
       //     }
@@ -446,27 +534,95 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       //   }
       // });
 
-      await Future.delayed(const Duration(seconds: 20), () {
-        log('Stream is closed');
+      // await Future.delayed(const Duration(seconds: 10), () {
+      //   log('Stream is closed');
+      //   log('length: ${upcomingDataString.length}');
+      //   log('upcomingDataString: $upcomingDataString');
 
-        // upcomingDataString = upcomingDataStringDummy;
+      //   // upcomingDataString = upcomingDataStringDummy;
+      // });
+      upcomingDataString = upcomingDataString.substring(0, 3860);
+      if (upcomingDataString.length != 3860) {
+        throw const PortException(message: 'Data is not complete');
+      }
 
-        // tpssList = upcomingDataString.substring(4, 124);
-        // rpmsList = upcomingDataString.substring(128, 248);
-        // timingsList = upcomingDataString.substring(252, 3852);
-        // timings = List.generate(
-        //   900 - CoreUtils.countOccurrences(timingsList, "FFFF"),
-        //   (index) => const TimingModel.empty(),
-        // );
-        // tpss = List.generate(
-        //   30 - CoreUtils.countOccurrences(tpssList, "FFFF"),
-        //   (index) => const TPSModel.empty(),
-        // );
-        // rpms = List.generate(
-        //   30 - CoreUtils.countOccurrences(rpmsList, "FFFF"),
-        //   (index) => const RPMModel.empty(),
-        // );
-      });
+      String tpssList = upcomingDataString.substring(8, 128);
+      String rpmsList = upcomingDataString.substring(132, 252);
+      String timingsList = upcomingDataString.substring(256, 3856);
+      tpssList = tpssList.replaceAll('FFFF', '');
+
+      rpmsList = rpmsList.replaceAll('FFFF', '');
+
+      timingsList = timingsList.replaceAll('FFFF', '');
+      for (int i = 0; i < tpssList.length / 4; i++) {
+        tpss.add(
+          TPSModel(
+            id: i,
+            isFirst: i == 0,
+            isLast: i == tpssList.length / 4 - 1,
+            value: CoreUtils.hexToDouble(tpssList.substring(i * 4, i * 4 + 4)) *
+                3.3 /
+                4096,
+            prevValue: i == 0
+                ? null
+                : CoreUtils.hexToDouble(tpssList.substring(i * 4 - 4, i * 4)) *
+                    3.3 /
+                    4096,
+            nextValue: i == tpssList.length / 4 - 1
+                ? null
+                : CoreUtils.hexToDouble(
+                        tpssList.substring(i * 4 + 4, i * 4 + 8)) *
+                    3.3 /
+                    4096,
+          ),
+        );
+      }
+
+      for (int i = 0; i < rpmsList.length / 4; i++) {
+        rpms.add(
+          RPMModel(
+            id: i,
+            isFirst: i == 0,
+            isLast: i == rpmsList.length / 4 - 1,
+            value: CoreUtils.hexToDouble(rpmsList.substring(i * 4, i * 4 + 4)),
+            prevValue: i == 0
+                ? null
+                : CoreUtils.hexToDouble(rpmsList.substring(i * 4 - 4, i * 4)),
+            nextValue: i == rpmsList.length / 4 - 1
+                ? null
+                : CoreUtils.hexToDouble(
+                    rpmsList.substring(i * 4 + 4, i * 4 + 8)),
+          ),
+        );
+      }
+
+      timings = List.generate(
+        tpss.length * rpms.length,
+        (index) {
+          int i = index % tpss.length;
+          int j = index ~/ tpss.length;
+          return TimingModel(
+            id: index,
+            tpsValue: tpss[i].value,
+            mintpsValue: (i > 0)
+                ? (tpss[i - 1].value + tpss[i].value) / 2
+                : tpss[0].value,
+            maxtpsValue: (i < tpss.length - 1)
+                ? (tpss[i].value + tpss[i + 1].value) / 2
+                : tpss[tpss.length - 1].value,
+            rpmValue: rpms[j].value,
+            minrpmValue: (j > 0)
+                ? (rpms[j - 1].value + rpms[j].value) / 2
+                : rpms[0].value,
+            maxrpmValue: (j < rpms.length - 1)
+                ? (rpms[j].value + rpms[j + 1].value) / 2
+                : rpms[rpms.length - 1].value,
+            value: CoreUtils.hexToDouble(
+                    timingsList.substring(index * 4, index * 4 + 4)) /
+                100,
+          );
+        },
+      );
 
       return [
         timings,

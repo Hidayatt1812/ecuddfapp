@@ -38,8 +38,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
             return Container(
               margin: const EdgeInsets.only(top: 20),
               padding: const EdgeInsets.all(10),
-              width: 1060,
-              height: 420,
+              height: 620,
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -88,6 +87,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                               values: cartesiusProvider.tpss,
                               direction: Axis.horizontal,
                               multip: 1000,
+                              unit: "mV",
                             ),
                           ),
                           Stack(
@@ -265,15 +265,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                           ),
                                                           child: Center(
                                                             child: Text(
-                                                              cartesiusProvider
-                                                                  .timings[j *
-                                                                          cartesiusProvider
-                                                                              .tpss
-                                                                              .length +
-                                                                      i]
-                                                                  .value
-                                                                  .toStringAsFixed(
-                                                                      0),
+                                                              '${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value % 1 == 0 ? cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value.toInt() : cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value}',
                                                               style:
                                                                   const TextStyle(
                                                                 fontFamily:

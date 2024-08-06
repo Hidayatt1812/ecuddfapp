@@ -4,6 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:window_size/window_size.dart';
 
+import 'core/common/app/providers/ecu_provider.dart';
 import 'core/common/app/providers/port_provider.dart';
 import 'core/common/app/providers/power_provider.dart';
 import 'core/services/injection_container.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => CartesiusProvider()),
         ChangeNotifierProvider(create: (context) => PortProvider()),
         ChangeNotifierProvider(create: (context) => PowerProvider()),
+        ChangeNotifierProvider(create: (context) => ECUProvider()),
       ],
       child: FluentApp(
         theme: FluentThemeData(
