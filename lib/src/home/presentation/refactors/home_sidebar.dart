@@ -108,21 +108,6 @@ class ECUValueParameter extends StatelessWidget {
                   titleIcon: FluentIcons.duststorm,
                 ),
                 SidebarItem(
-                  title: "TEMP 1",
-                  dataValue: "${ecu.temp1.toStringAsFixed(0)} °C",
-                  titleIcon: FluentIcons.frigid,
-                ),
-                SidebarItem(
-                  title: "TEMP 2",
-                  dataValue: "${ecu.temp2.toStringAsFixed(0)} °C",
-                  titleIcon: FluentIcons.frigid,
-                ),
-                SidebarItem(
-                  title: "TEMP 3",
-                  dataValue: "${ecu.temp3.toStringAsFixed(0)} °C",
-                  titleIcon: FluentIcons.frigid,
-                ),
-                SidebarItem(
                   title: "INJ 1",
                   dataValue: ecu.timing1.toStringAsFixed(2),
                   titleIcon: FluentIcons.timer,
@@ -141,6 +126,21 @@ class ECUValueParameter extends StatelessWidget {
                   title: "INJ 4",
                   dataValue: ecu.timing4.toStringAsFixed(2),
                   titleIcon: FluentIcons.timer,
+                ),
+                SidebarItem(
+                  title: "TEMP 1",
+                  dataValue: "${ecu.temp1.toStringAsFixed(0)} °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                SidebarItem(
+                  title: "TEMP 2",
+                  dataValue: "${ecu.temp2.toStringAsFixed(0)} °C",
+                  titleIcon: FluentIcons.frigid,
+                ),
+                SidebarItem(
+                  title: "TEMP 3",
+                  dataValue: "${ecu.temp3.toStringAsFixed(0)} °C",
+                  titleIcon: FluentIcons.frigid,
                 ),
               ],
             ),

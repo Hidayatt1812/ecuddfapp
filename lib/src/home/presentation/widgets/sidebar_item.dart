@@ -17,8 +17,8 @@ class SidebarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      height: 38,
+      // padding: const EdgeInsets.symmetric(vertical: 2),
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         color: Colours.primaryColour,
@@ -26,6 +26,7 @@ class SidebarItem extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             // width: 130,
@@ -40,11 +41,11 @@ class SidebarItem extends StatelessWidget {
                 Text(
                   dataValue,
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontFamily: Fonts.segoe,
                   ),
                 ),
-                Icon(titleIcon, size: 14),
+                Icon(titleIcon, size: 12),
               ],
             ),
           ),
