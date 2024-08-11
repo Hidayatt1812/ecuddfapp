@@ -87,10 +87,10 @@ class PortProvider extends ChangeNotifier {
   void setSerialPortConfig() {
     _cfg = SerialPortConfig();
     if (_cfg != null) {
-      _cfg!.baudRate = 9600;
+      // _cfg!.baudRate = 9600;
       // _cfg!.bits = 256;
       // _cfg!.dtr = 1;
-      // _cfg!.baudRate = 115200;
+      _cfg!.baudRate = 115200;
       _cfg!.bits = 8;
       _cfg!.parity = SerialPortParity.none;
       _cfg!.stopBits = 1;

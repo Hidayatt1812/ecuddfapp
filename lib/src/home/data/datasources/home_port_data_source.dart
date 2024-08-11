@@ -316,11 +316,11 @@ class HomePortDataSourceImpl implements HomePortDataSource {
 
       //   log('Result: $result');
       // });
-      await Future.delayed(const Duration(milliseconds: 5000), () {
-        log('Stream is closed');
-        serialPort.close();
-        // serialPort.dispose();
-      });
+      while (result != 3860) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      log('Stream is closed');
+      serialPort.close();
     } on PortException {
       rethrow;
     } catch (e, s) {
@@ -349,10 +349,11 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       final result = serialPort.write(bytesData, timeout: 0);
       log('Result: $result');
 
-      await Future.delayed(const Duration(milliseconds: 5000), () {
-        log('Stream is closed');
-        serialPort.close();
-      });
+      while (result != 3860) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      log('Stream is closed');
+      serialPort.close();
     } on PortException {
       rethrow;
     } catch (e, s) {
@@ -465,9 +466,13 @@ class HomePortDataSourceImpl implements HomePortDataSource {
       final result = serialPort.write(bytesData, timeout: 0);
       log('Result: $result');
 
-      await Future.delayed(const Duration(milliseconds: 4000), () {
-        log('Stream is closed');
-      });
+      // await Future.delayed(const Duration(milliseconds: 4000), () {
+      //   log('Stream is closed');
+      // });
+      while (result != 3860) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      log('Stream is closed');
 
       List<TimingModel> timings = [];
       List<TPSModel> tpss = [];
