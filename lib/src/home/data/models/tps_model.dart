@@ -44,9 +44,9 @@ class TPSModel extends TPS {
           id: map['id'],
           isFirst: map['isFirst'],
           isLast: map['isLast'],
-          value: map['value'],
-          prevValue: map['prevValue'],
-          nextValue: map['nextValue'],
+          value: map['value'] / 1000,
+          prevValue: map['prevValue'] != null ? map['prevValue'] / 1000 : null,
+          nextValue: map['nextValue'] != null ? map['nextValue'] / 1000 : null,
         );
 
   DataMap toMap() {

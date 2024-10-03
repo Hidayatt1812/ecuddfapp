@@ -109,7 +109,7 @@ class CoreUtils {
 
   // remove un hexa char
   static String removeHexaChar(String hex) {
-    return hex.replaceAll(RegExp(r'[^0-9A-Fa-f]'), '');
+    return hex.replaceAll(RegExp(r'[^0-9A-Za-z]'), '');
   }
 
   static bool checkSizeFile(double maxSize, File file) {
@@ -197,6 +197,11 @@ class CoreUtils {
 
   static bool isHexadecimal(String input) {
     final RegExp hexRegex = RegExp(r'^[0-9A-Fa-f]+$');
+    return hexRegex.hasMatch(input);
+  }
+
+  static bool isECUDataFormat(String input) {
+    final RegExp hexRegex = RegExp(r'^[0-9A-Za-z]+$');
     return hexRegex.hasMatch(input);
   }
 

@@ -17,15 +17,16 @@ class SidebarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      height: 38,
+      // padding: const EdgeInsets.symmetric(vertical: 2),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         color: Colours.primaryColour,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             // width: 130,
@@ -35,20 +36,17 @@ class SidebarItem extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 12),
                 ),
-                Icon(titleIcon)
+                Text(
+                  dataValue,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: Fonts.segoe,
+                  ),
+                ),
+                Icon(titleIcon, size: 12),
               ],
-            ),
-          ),
-          const SizedBox(
-            height: 2,
-          ),
-          Text(
-            dataValue,
-            style: const TextStyle(
-              fontSize: 32,
-              fontFamily: Fonts.segoe,
             ),
           ),
         ],

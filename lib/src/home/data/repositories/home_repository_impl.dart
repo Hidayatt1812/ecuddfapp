@@ -13,6 +13,7 @@ import '../../domain/repository/home_repository.dart';
 import '../datasources/home_local_data_source.dart';
 import '../datasources/home_port_data_source.dart';
 import '../datasources/home_remote_data_source.dart';
+import '../models/ecu_model.dart';
 import '../models/rpm_model.dart';
 import '../models/timing_model.dart';
 import '../models/tps_model.dart';
@@ -32,7 +33,7 @@ class HomeRepositoryImpl implements HomeRepository {
   final HomePortDataSource _portDataSource;
 
   @override
-  ResultStream<List<double>> getTPSRPMLinesValue({
+  ResultStream<ECUModel> getTPSRPMLinesValue({
     required SerialPortReader serialPortReader,
   }) async* {
     try {
@@ -40,8 +41,8 @@ class HomeRepositoryImpl implements HomeRepository {
         serialPortReader: serialPortReader,
       );
 
-      StreamController<Either<Failure, List<double>>> controllerRepo =
-          StreamController<Either<Failure, List<double>>>();
+      StreamController<Either<Failure, ECUModel>> controllerRepo =
+          StreamController<Either<Failure, ECUModel>>();
 
       // return Right(result);
 
@@ -126,9 +127,9 @@ class HomeRepositoryImpl implements HomeRepository {
                 id: e.id,
                 isFirst: e.isFirst,
                 isLast: e.isLast,
-                value: e.value,
-                prevValue: e.prevValue,
-                nextValue: e.nextValue,
+                value: e.value * 1000,
+                prevValue: e.prevValue == null ? null : e.prevValue! * 1000,
+                nextValue: e.nextValue == null ? null : e.nextValue! * 1000,
               ),
             )
             .toList(),
@@ -154,7 +155,7 @@ class HomeRepositoryImpl implements HomeRepository {
                 rpmValue: e.rpmValue,
                 minrpmValue: e.minrpmValue,
                 maxrpmValue: e.maxrpmValue,
-                value: e.value,
+                value: e.value * 100,
               ),
             )
             .toList(),
@@ -249,10 +250,13 @@ class HomeRepositoryImpl implements HomeRepository {
             id: index,
             isFirst: index == 0,
             isLast: index == steps - 1,
-            value: index * interval + minValue,
-            prevValue: index == 0 ? null : (index - 1) * interval + minValue,
-            nextValue:
-                index == steps - 1 ? null : (index + 1) * interval + minValue,
+            value: (index * interval + minValue).roundToDouble(),
+            prevValue: index == 0
+                ? null
+                : ((index - 1) * interval + minValue).roundToDouble(),
+            nextValue: index == steps - 1
+                ? null
+                : ((index + 1) * interval + minValue).roundToDouble(),
           ),
         ),
       );
@@ -288,10 +292,16 @@ class HomeRepositoryImpl implements HomeRepository {
             id: index,
             isFirst: index == 0,
             isLast: index == steps - 1,
-            value: index * interval + minValue,
-            prevValue: index == 0 ? null : (index - 1) * interval + minValue,
-            nextValue:
-                index == steps - 1 ? null : (index + 1) * interval + minValue,
+            value:
+                ((index * interval + minValue) * 1000).roundToDouble() / 1000,
+            prevValue: index == 0
+                ? null
+                : (((index - 1) * interval + minValue) * 1000).roundToDouble() /
+                    1000,
+            nextValue: index == steps - 1
+                ? null
+                : (((index + 1) * interval + minValue) * 1000).roundToDouble() /
+                    1000,
           ),
         ),
       );
@@ -361,52 +371,11 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   ResultFuture<void> switchPower({
     required SerialPort serialPort,
-    required List<TPS> tpss,
-    required List<RPM> rpms,
-    required List<Timing> timings,
     required bool status,
   }) async {
     try {
       await _portDataSource.switchPower(
         serialPort: serialPort,
-        tpss: tpss
-            .map(
-              (e) => TPSModel(
-                id: e.id,
-                isFirst: e.isFirst,
-                isLast: e.isLast,
-                value: e.value,
-                prevValue: e.prevValue,
-                nextValue: e.nextValue,
-              ),
-            )
-            .toList(),
-        rpms: rpms
-            .map(
-              (e) => RPMModel(
-                id: e.id,
-                isFirst: e.isFirst,
-                isLast: e.isLast,
-                value: e.value,
-                prevValue: e.prevValue,
-                nextValue: e.nextValue,
-              ),
-            )
-            .toList(),
-        timings: timings
-            .map(
-              (e) => TimingModel(
-                id: e.id,
-                tpsValue: e.tpsValue,
-                mintpsValue: e.mintpsValue,
-                maxtpsValue: e.maxtpsValue,
-                rpmValue: e.rpmValue,
-                minrpmValue: e.minrpmValue,
-                maxrpmValue: e.maxrpmValue,
-                value: e.value,
-              ),
-            )
-            .toList(),
         status: status,
       );
       return const Right(null);
@@ -424,6 +393,8 @@ class HomeRepositoryImpl implements HomeRepository {
       return Right(result);
     } on CacheException catch (e) {
       return Left(CacheFailure.fromException(e));
+    } on PortException catch (e) {
+      return Left(PortFailure.fromException(e));
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../src/dashboard/presentation/providers/dashboard_controller.dart';
+import '../common/app/providers/ecu_provider.dart';
 import '../common/app/providers/port_provider.dart';
 import '../common/app/providers/power_provider.dart';
 import '../common/app/providers/tab_navigator.dart';
@@ -21,6 +22,8 @@ extension ContextExtensions on BuildContext {
   PortProvider get portProvider => read<PortProvider>();
 
   PowerProvider get powerProvider => read<PowerProvider>();
+
+  ECUProvider get ecuProvider => read<ECUProvider>();
 
   TabNavigator get tabNavigator => read<TabNavigator>();
 

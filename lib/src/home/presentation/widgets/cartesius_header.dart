@@ -19,12 +19,14 @@ class CartesiusHeader extends StatelessWidget {
     this.values = const [],
     this.multip = 1,
     required this.size,
+    this.unit = "",
   });
   final Axis direction;
   final String title;
   final List<dynamic> values;
   final Size size;
   final int multip;
+  final String unit;
   @override
   Widget build(BuildContext context) {
     double mines = 25;
@@ -68,22 +70,27 @@ class CartesiusHeader extends StatelessWidget {
                             return MainPopUp(
                               title: 'Edit $title',
                               controller: controller,
-                              value: '$value Voltage',
+                              value: '$value $unit',
                               onPressedPositive: () {
                                 if (values is List<TPS>) {
                                   if (controller.text.isNotEmpty) {
                                     context
                                         .read<CartesiusProvider>()
-                                        .setTpsById(index,
-                                            double.parse(controller.text));
+                                        .setTpsById(
+                                            index,
+                                            double.parse(controller.text)
+                                                    .roundToDouble() /
+                                                1000);
                                     Navigator.of(context).pop();
                                   }
                                 } else if (values is List<RPM>) {
                                   if (controller.text.isNotEmpty) {
                                     context
                                         .read<CartesiusProvider>()
-                                        .setRpmById(index,
-                                            double.parse(controller.text));
+                                        .setRpmById(
+                                            index,
+                                            double.parse(controller.text)
+                                                .roundToDouble());
                                     Navigator.of(context).pop();
                                   }
                                 }

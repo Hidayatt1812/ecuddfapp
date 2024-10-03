@@ -157,19 +157,13 @@ class SetTPSParameterEvent extends HomeEvent {
 class SwitchPowerEvent extends HomeEvent {
   const SwitchPowerEvent({
     required this.serialPort,
-    required this.tpss,
-    required this.rpms,
-    required this.timings,
     required this.status,
   });
   final SerialPort serialPort;
-  final dynamic tpss;
-  final dynamic rpms;
-  final dynamic timings;
   final bool status;
 
   @override
-  List<Object> get props => [serialPort, tpss, rpms, timings, status];
+  List<Object> get props => [serialPort, status];
 }
 
 class StopStreamDataEvent extends HomeEvent {

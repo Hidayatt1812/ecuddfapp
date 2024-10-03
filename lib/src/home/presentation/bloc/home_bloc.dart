@@ -356,9 +356,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     final result = await _switchPower(SwitchPowerParams(
       serialPort: event.serialPort,
-      tpss: event.tpss,
-      rpms: event.rpms,
-      timings: event.timings,
       status: event.status,
     ));
 
@@ -381,10 +378,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         value.fold(
           (failure) => emit(HomeError(failure.message)),
           (data) => emit(AxisUpdated(
-            Size(
-              data[0], //* Random().nextInt(10),
-              data[1], // * Random().nextInt(10),
-            ),
+            // Size(
+            //   data[0], //* Random().nextInt(10),
+            //   data[1], // * Random().nextInt(10),
+            // ),
+            data,
           )),
         );
         return const HomeIdle();

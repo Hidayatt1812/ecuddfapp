@@ -1,4 +1,5 @@
 import 'package:ddfapp/core/common/app/providers/cartesius_provider.dart';
+import 'package:ddfapp/core/common/app/providers/port_provider.dart';
 import 'package:ddfapp/core/res/fonts.dart';
 import 'package:ddfapp/src/home/presentation/bloc/home_bloc.dart';
 import 'package:ddfapp/src/home/presentation/widgets/cartesius_header.dart';
@@ -20,10 +21,6 @@ class HomeCartesius extends StatefulWidget {
 class _HomeCartesiusState extends State<HomeCartesius>
     with TickerProviderStateMixin {
   late Size positionLines;
-  // final StreamController<double> _tpsLinesController =
-  //     StreamController<double>();
-  // final StreamController<double> _rpmLinesController =
-  //     StreamController<double>();
 
   @override
   void initState() {
@@ -41,8 +38,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
             return Container(
               margin: const EdgeInsets.only(top: 20),
               padding: const EdgeInsets.all(10),
-              width: 1060,
-              height: 420,
+              height: 620,
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -63,7 +59,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                 builder: (BuildContext context, BoxConstraints constraints) {
                   double parentWidth = constraints.maxWidth;
                   double parentHeight = constraints.maxHeight;
-                  double size = 64;
+                  double size = 68;
                   return Row(
                     children: [
                       Column(
@@ -91,6 +87,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                               values: cartesiusProvider.tpss,
                               direction: Axis.horizontal,
                               multip: 1000,
+                              unit: "mV",
                             ),
                           ),
                           Stack(
@@ -125,165 +122,164 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                                 color: Colours.primaryColour,
                                                 surfaceTintColor:
                                                     Colours.primaryColour,
-                                                child: InkWell(
-                                                  onHover: (value) {
-                                                    if (value &&
-                                                        cartesiusProvider
-                                                            .isSelectingTiming) {
-                                                      cartesiusProvider.setIdEndTiming(
-                                                          cartesiusProvider
-                                                              .timings[j *
-                                                                      cartesiusProvider
-                                                                          .tpss
-                                                                          .length +
-                                                                  i]
-                                                              .id);
-                                                    }
-                                                  },
-                                                  onDoubleTap: () {
-                                                    if (!cartesiusProvider
-                                                        .isSelectingTiming) {
-                                                      cartesiusProvider
-                                                          .setIsSelectingTiming(
-                                                              true);
-                                                      cartesiusProvider.setIdStartTiming(
-                                                          cartesiusProvider
-                                                              .timings[j *
-                                                                      cartesiusProvider
-                                                                          .tpss
-                                                                          .length +
-                                                                  i]
-                                                              .id);
-                                                      cartesiusProvider.setIdEndTiming(
-                                                          cartesiusProvider
-                                                              .timings[j *
-                                                                      cartesiusProvider
-                                                                          .tpss
-                                                                          .length +
-                                                                  i]
-                                                              .id);
-                                                    } else {
-                                                      cartesiusProvider
-                                                          .setIsSelectingTiming(
-                                                              false);
-                                                      cartesiusProvider
-                                                          .setIdStartTiming(
-                                                              null);
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (_) {
-                                                          final TextEditingController
-                                                              controller =
-                                                              TextEditingController();
-                                                          return MainPopUp(
-                                                            title:
-                                                                'Edit Timing',
-                                                            controller:
-                                                                controller,
-                                                            onPressedPositive:
-                                                                () {
-                                                              if (controller
-                                                                  .text
-                                                                  .isNotEmpty) {
-                                                                context
-                                                                    .read<
-                                                                        HomeBloc>()
-                                                                    .add(
-                                                                        SetTimingManuallyEvent(
-                                                                      ids: cartesiusProvider
-                                                                          .idsTimings,
-                                                                      timings:
-                                                                          cartesiusProvider
-                                                                              .timings,
-                                                                      value: double.parse(
-                                                                          controller
-                                                                              .text),
-                                                                    ));
-
-                                                                cartesiusProvider
-                                                                    .resetIdsTiming();
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              }
-
-                                                              controller
-                                                                  .dispose();
-                                                            },
-                                                            onPressedNegative:
-                                                                () {
+                                                child: Consumer<PortProvider>(
+                                                  builder:
+                                                      (_, portProvider, __) {
+                                                    return IgnorePointer(
+                                                      ignoring: portProvider
+                                                          .isStreaming,
+                                                      child: InkWell(
+                                                        onHover: (value) {
+                                                          if (value &&
                                                               cartesiusProvider
-                                                                  .resetIdsTiming();
-                                                              controller
-                                                                  .dispose();
-                                                            },
-                                                          );
-                                                        },
-                                                      );
-                                                    }
-                                                  },
-                                                  onTap: () {
-                                                    debugPrint(
-                                                        'index: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].id}');
-                                                    debugPrint(
-                                                        'TPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].tpsValue}');
-                                                    debugPrint(
-                                                        'minTPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].mintpsValue}');
-                                                    debugPrint(
-                                                        'maxTPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].maxtpsValue}');
-                                                    debugPrint(
-                                                        'RPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].rpmValue}');
-                                                    debugPrint(
-                                                        'minRPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].minrpmValue}');
-                                                    debugPrint(
-                                                        'maxRPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].maxrpmValue}');
-                                                  },
-                                                  hoverColor:
-                                                      Colours.secondaryColour,
-                                                  hoverDuration: const Duration(
-                                                      milliseconds: 200),
-                                                  radius: 10,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                        color: Colours
-                                                            .onPrimaryColour,
-                                                        width: 0.5,
-                                                      ),
-                                                      color: cartesiusProvider
-                                                              .idsTimings
-                                                              .contains(cartesiusProvider
-                                                                  .timings[j *
-                                                                          cartesiusProvider
-                                                                              .tpss
-                                                                              .length +
-                                                                      i]
-                                                                  .id)
-                                                          ? Colours
-                                                              .secondaryColour
-                                                          : Colours
-                                                              .primaryColour,
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        cartesiusProvider
-                                                            .timings[j *
+                                                                  .isSelectingTiming) {
+                                                            cartesiusProvider
+                                                                .setIdEndTiming(
                                                                     cartesiusProvider
-                                                                        .tpss
-                                                                        .length +
-                                                                i]
-                                                            .value
-                                                            .toStringAsFixed(0),
-                                                        style: const TextStyle(
-                                                          fontFamily:
-                                                              Fonts.segoe,
-                                                          fontSize: 10,
-                                                          color: Colours
-                                                              .onPrimaryColour,
+                                                                        .timings[
+                                                                            j * cartesiusProvider.tpss.length +
+                                                                                i]
+                                                                        .id);
+                                                          }
+                                                        },
+                                                        onDoubleTap: () {
+                                                          if (!cartesiusProvider
+                                                              .isSelectingTiming) {
+                                                            cartesiusProvider
+                                                                .setIsSelectingTiming(
+                                                                    true);
+                                                            cartesiusProvider
+                                                                .setIdStartTiming(
+                                                                    cartesiusProvider
+                                                                        .timings[
+                                                                            j * cartesiusProvider.tpss.length +
+                                                                                i]
+                                                                        .id);
+                                                            cartesiusProvider
+                                                                .setIdEndTiming(
+                                                                    cartesiusProvider
+                                                                        .timings[
+                                                                            j * cartesiusProvider.tpss.length +
+                                                                                i]
+                                                                        .id);
+                                                          } else {
+                                                            cartesiusProvider
+                                                                .setIsSelectingTiming(
+                                                                    false);
+                                                            cartesiusProvider
+                                                                .setIdStartTiming(
+                                                                    null);
+                                                            showDialog(
+                                                              context: context,
+                                                              builder: (_) {
+                                                                final TextEditingController
+                                                                    controller =
+                                                                    TextEditingController();
+                                                                return MainPopUp(
+                                                                  title:
+                                                                      'Edit Timing',
+                                                                  controller:
+                                                                      controller,
+                                                                  onPressedPositive:
+                                                                      () {
+                                                                    if (controller
+                                                                        .text
+                                                                        .isNotEmpty) {
+                                                                      context
+                                                                          .read<
+                                                                              HomeBloc>()
+                                                                          .add(
+                                                                              SetTimingManuallyEvent(
+                                                                            ids:
+                                                                                cartesiusProvider.idsTimings,
+                                                                            timings:
+                                                                                cartesiusProvider.timings,
+                                                                            value:
+                                                                                double.parse(controller.text),
+                                                                          ));
+
+                                                                      cartesiusProvider
+                                                                          .resetIdsTiming();
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    }
+
+                                                                    controller
+                                                                        .dispose();
+                                                                  },
+                                                                  onPressedNegative:
+                                                                      () {
+                                                                    cartesiusProvider
+                                                                        .resetIdsTiming();
+                                                                    controller
+                                                                        .dispose();
+                                                                  },
+                                                                );
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                        onTap: () {
+                                                          debugPrint(
+                                                              'index: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].id}');
+                                                          debugPrint(
+                                                              'TPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].tpsValue}');
+                                                          debugPrint(
+                                                              'minTPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].mintpsValue}');
+                                                          debugPrint(
+                                                              'maxTPSValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].maxtpsValue}');
+                                                          debugPrint(
+                                                              'RPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].rpmValue}');
+                                                          debugPrint(
+                                                              'minRPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].minrpmValue}');
+                                                          debugPrint(
+                                                              'maxRPMValue: ${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].maxrpmValue}');
+                                                        },
+                                                        hoverColor: Colours
+                                                            .secondaryColour,
+                                                        hoverDuration:
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    200),
+                                                        radius: 10,
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                              color: Colours
+                                                                  .onPrimaryColour,
+                                                              width: 0.5,
+                                                            ),
+                                                            color: cartesiusProvider
+                                                                    .idsTimings
+                                                                    .contains(cartesiusProvider
+                                                                        .timings[
+                                                                            j * cartesiusProvider.tpss.length +
+                                                                                i]
+                                                                        .id)
+                                                                ? Colours
+                                                                    .secondaryColour
+                                                                : Colours
+                                                                    .primaryColour,
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              '${cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value % 1 == 0 ? cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value.toInt() : cartesiusProvider.timings[j * cartesiusProvider.tpss.length + i].value}',
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontFamily:
+                                                                    Fonts.segoe,
+                                                                fontSize: 10,
+                                                                color: Colours
+                                                                    .onPrimaryColour,
+                                                              ),
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
+                                                    );
+                                                  },
                                                 ),
                                               ),
                                             )
@@ -293,11 +289,7 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                 ),
                               ),
                               CartesiusLines(
-                                size: Size(
-                                    (parentWidth - size),
-                                    // *
-                                    //     (cartesiusProvider.tpss.length - 1) /
-                                    //     (cartesiusProvider.tpss.length),
+                                size: Size((parentWidth - size),
                                     (parentHeight - size)),
                                 color: Colours.accentColour,
                                 direction: Axis.horizontal,
@@ -307,9 +299,6 @@ class _HomeCartesiusState extends State<HomeCartesius>
                                 size: Size(
                                   (parentWidth - size),
                                   (parentHeight - size),
-                                  //  *
-                                  //     (cartesiusProvider.rpms.length - 1) /
-                                  //     (cartesiusProvider.rpms.length),
                                 ),
                                 color: Colours.accentColour,
                                 direction: Axis.vertical,

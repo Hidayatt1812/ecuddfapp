@@ -229,6 +229,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       tpssList =
           upcomingDataString.split('\n')[0].split(',').sublist(1, 30).join('');
       tpssList = tpssList.replaceAll('FFFF', '');
+
       // rpmsList
       for (int i = 29; i >= 0; i--) {
         rpmsList += upcomingDataString.split('\n')[i + 1].split(',')[0];
@@ -250,14 +251,17 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
             id: i,
             isFirst: i == 0,
             isLast: i == tpssList.length / 4 - 1,
-            value: CoreUtils.hexToDouble(tpssList.substring(i * 4, i * 4 + 4)),
+            value: CoreUtils.hexToDouble(tpssList.substring(i * 4, i * 4 + 4)) /
+                1000,
             prevValue: i == 0
                 ? null
-                : CoreUtils.hexToDouble(tpssList.substring(i * 4 - 4, i * 4)),
+                : CoreUtils.hexToDouble(tpssList.substring(i * 4 - 4, i * 4)) /
+                    1000,
             nextValue: i == tpssList.length / 4 - 1
                 ? null
                 : CoreUtils.hexToDouble(
-                    tpssList.substring(i * 4 + 4, i * 4 + 8)),
+                        tpssList.substring(i * 4 + 4, i * 4 + 8)) /
+                    1000,
           ),
         );
       }
@@ -302,7 +306,8 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
                 ? (rpms[j].value + rpms[j + 1].value) / 2
                 : rpms[rpms.length - 1].value,
             value: CoreUtils.hexToDouble(
-                timingsList.substring(index * 4, index * 4 + 4)),
+                    timingsList.substring(index * 4, index * 4 + 4)) /
+                100,
           );
         },
       );

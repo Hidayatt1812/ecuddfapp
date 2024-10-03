@@ -3,7 +3,6 @@ import 'package:ddfapp/core/extensions/context_extensions.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_cartesius.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_menu.dart';
 import 'package:ddfapp/src/home/presentation/refactors/home_sidebar.dart';
-import 'package:ddfapp/src/home/presentation/refactors/home_voltage_graph.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +14,7 @@ import '../../domain/entities/rpm.dart';
 import '../../domain/entities/timing.dart';
 import '../../domain/entities/tps.dart';
 import '../bloc/home_bloc.dart';
+import '../refactors/home_voltage_graph.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -71,7 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
         } else if (state is AxisUpdated) {
           context
               .read<CartesiusProvider>()
-              .setTpsRPMLinesValue(state.data.width, state.data.height);
+              .setTpsRPMLinesValue(state.data.tps, state.data.rpm);
+          context.ecuProvider.updateECU(state.data);
+          context.powerProvider.switchPowerStatus(state.data.powerStatus);
         } else if (state is TpsLoaded) {
           context.read<CartesiusProvider>().initTpss(state.data);
         } else if (state is RpmLoaded) {
@@ -106,31 +108,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: 1060,
-                          height: MediaQuery.of(context).size.height - 80,
-                          child: Flex(
-                            direction: Axis.vertical,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const HomeMenu(),
-                              const HomeCartesius(),
-                              Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text(
-                                      'Value Timing: ${context.read<CartesiusProvider>().valueTiming}',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // const HomeVoltageGraph(),
-                            ],
+                          width: MediaQuery.of(context).size.width - 280,
+                          child: const SingleChildScrollView(
+                            child: Flex(
+                              direction: Axis.vertical,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                HomeMenu(),
+                                HomeCartesius(),
+                                // Center(
+                                //   child: Row(
+                                //     mainAxisAlignment:
+                                //         MainAxisAlignment.spaceEvenly,
+                                //     children: [
+                                //       Text(
+                                //         'Value Timing: ${context.read<CartesiusProvider>().valueTiming}',
+                                //       ),
+                                //     ],
+                                //   ),
+                                // ),
+                                HomeVoltageGraph(),
+                              ],
+                            ),
                           ),
                         ),
-                        const Expanded(
-                          child: HomeSidebar(),
+                        SizedBox(
+                          width: 240,
+                          height: MediaQuery.of(context).size.height - 80,
+                          child: const HomeSidebar(),
                         ),
                       ],
                     ),

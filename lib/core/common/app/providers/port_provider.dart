@@ -24,7 +24,17 @@ class PortProvider extends ChangeNotifier {
     _comboBoxItems = _ports
         .map((e) => ComboBoxItem(
               value: e.toString(),
-              child: Text(e.toString()),
+              child: Tooltip(
+                displayHorizontally: true,
+                message: e.toString(),
+                child: Text(
+                  e.toString(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
             ))
         .toList();
     notifyListeners();
@@ -77,15 +87,26 @@ class PortProvider extends ChangeNotifier {
   void setSerialPortConfig() {
     _cfg = SerialPortConfig();
     if (_cfg != null) {
-      _cfg!.baudRate = 9600;
-      _cfg!.bits = 256;
+      // _cfg!.baudRate = 9600;
+      // _cfg!.bits = 256;
+      // _cfg!.dtr = 1;
+      _cfg!.baudRate = 115200;
+      _cfg!.bits = 8;
+      _cfg!.parity = SerialPortParity.none;
+      _cfg!.stopBits = 1;
+      _cfg!.xonXoff = 0;
+      _cfg!.rts = 1;
+      _cfg!.cts = 0;
+      _cfg!.dsr = 0;
       _cfg!.dtr = 1;
     }
     notifyListeners();
   }
 
   void disposeSerialPortConfig() {
-    _cfg!.dispose();
+    if (cfg != null) {
+      _cfg = null;
+    }
   }
 
   SerialPort? _serialPort;
@@ -98,6 +119,7 @@ class PortProvider extends ChangeNotifier {
       _serialPort = SerialPort(selectedPort);
       _serialPort!.openReadWrite();
       _serialPort!.config = cfg!;
+      _cfg!.dispose();
     } catch (e) {
       debugPrintStack(label: e.toString());
     }
@@ -116,11 +138,11 @@ class PortProvider extends ChangeNotifier {
 
   void closeSerialPort() {
     if (_serialPort != null) {
-      _serialPort!.dispose();
       _serialPort!.close();
+      // _serialPort!.dispose();
       _serialPort = null;
     }
-    disposeSerialPortConfig();
+    // disposeSerialPortConfig();
     notifyListeners();
   }
 }
